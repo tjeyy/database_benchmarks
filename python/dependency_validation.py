@@ -1,6 +1,6 @@
 import enum
-import re
 import os
+import re
 
 """
 Optimization Support/Trigger:
@@ -9,6 +9,7 @@ Optimization Support/Trigger:
             - no join to scan
             - does not rewrite subqueries to joins (nice)
 """
+
 
 @enum.unique
 class DependencyType(enum.Enum):
@@ -87,10 +88,14 @@ class IndCandidate(DependencyCandidate):
         self.primary_key_column = primary_key_column
 
     def validate(self, cursor):
-        validate_ind(cursor, self.foreign_key_table, self.foreign_key_column, self.primary_key_table, self.primary_key_column)
+        validate_ind(
+            cursor, self.foreign_key_table, self.foreign_key_column, self.primary_key_table, self.primary_key_column
+        )
 
     def _to_str(self):
-        return f"{self.foreign_key_table}.{self.foreign_key_column} |-> {self.primary_key_table}.{self.primary_key_column}"
+        return (
+            f"{self.foreign_key_table}.{self.foreign_key_column} |-> {self.primary_key_table}.{self.primary_key_column}"
+        )
 
 
 class FdCandidate(DependencyCandidate):
@@ -111,10 +116,12 @@ def candidates_from_log(benchmark, log_file_path):
     candidates = list()
     candidate_re = re.compile(r"(?<=Checking )\w+")
 
-    candidate_parser = { DependencyType.Unique: re.compile(r"(\w+)\.(\w+)"),
-                         DependencyType.Order: re.compile(r"(\w+)\.(\w+) \|-> (\w+)\.(\w+)"),
-                         DependencyType.Inclusion: re.compile(r"(\w+)\.(\w+) in (\w+)\.(\w+)"),
-                         DependencyType.Functional: re.compile(r"(\w+)\.(\w+)") }
+    candidate_parser = {
+        DependencyType.Unique: re.compile(r"(\w+)\.(\w+)"),
+        DependencyType.Order: re.compile(r"(\w+)\.(\w+) \|-> (\w+)\.(\w+)"),
+        DependencyType.Inclusion: re.compile(r"(\w+)\.(\w+) in (\w+)\.(\w+)"),
+        DependencyType.Functional: re.compile(r"(\w+)\.(\w+)"),
+    }
 
     # Checking OD household_demographics.hd_demo_sk |-> household_demographics.hd_dep_count
     # Checking UCC date_dim.d_dow
@@ -144,10 +151,11 @@ def candidates_from_log(benchmark, log_file_path):
                 candidates.append(FdCandidate(table, columns))
                 continue
 
-
             for candidate_args in args:
                 if dependency_type == DependencyType.Unique:
-                    assert len(candidate_args) == 2, f"Invalid arguments for UCC (expected 2, got {len(candidate_args)})"
+                    assert (
+                        len(candidate_args) == 2
+                    ), f"Invalid arguments for UCC (expected 2, got {len(candidate_args)})"
                     candidates.append(UccCandidate(candidate_args[0], candidate_args[1]))
                     continue
                 if dependency_type == DependencyType.Order:
@@ -156,8 +164,12 @@ def candidates_from_log(benchmark, log_file_path):
                     candidates.append(OdCandidate(candidate_args[0], candidate_args[1], candidate_args[3], str))
                     continue
                 if dependency_type == DependencyType.Inclusion:
-                    assert len(candidate_args) == 4, f"Invalid arguments for IND (expected 4, got {len(candidate_args)})"
-                    candidates.append(IndCandidate(candidate_args[0], candidate_args[1], candidate_args[2], candidate_args[3]))
+                    assert (
+                        len(candidate_args) == 4
+                    ), f"Invalid arguments for IND (expected 4, got {len(candidate_args)})"
+                    candidates.append(
+                        IndCandidate(candidate_args[0], candidate_args[1], candidate_args[2], candidate_args[3])
+                    )
     return candidates
 
 
@@ -166,13 +178,13 @@ def validate_ucc(cursor, table, column):
     SELECT COUNT(DISTINCT column) = COUNT(column) FROM table
     """
     cursor.execute(f"SELECT COUNT(DISTINCT {column}) = COUNT({column}) FROM {table}")
-    if (cursor.fetchone() == "1"):
+    if cursor.fetchone() == "1":
         return True
     return False
 
 
 def validate_ind(cursor, foreign_key_table, foreign_key_column, primary_key_table, primary_key_column):
-    """ Variants from Abedjan et al.
+    """Variants from Abedjan et al.
     (i) Outer Join:
     SELECT foreign_key_column
       FROM foreign_key_table LEFT OUTER JOIN primary_key_table ON foreign_key_column = primary_key_column
@@ -209,9 +221,11 @@ def validate_ind(cursor, foreign_key_table, foreign_key_column, primary_key_tabl
     Note: "In general, correlated subqueries are more expressive than joins and set operations [...]." [p. 59]
 
     """
-    cursor.execute(f"SELECT {foreign_key_column} \
+    cursor.execute(
+        f"SELECT {foreign_key_column} \
         FROM {foreign_key_table} LEFT OUTER JOIN {primary_key_table} ON {foreign_key_column} = {primary_key_column} \
-        WHERE {primary_key_column} IS NULL AND {foreign_key_column} IS NOT NULL LIMIT 1;")
+        WHERE {primary_key_column} IS NULL AND {foreign_key_column} IS NOT NULL LIMIT 1;"
+    )
     return cursor.fetchone() is None
 
 
@@ -248,4 +262,3 @@ def validate_fd(cursor, table, columns):
         if validate_ucc(cursor, table, column):
             return True
     return False
-

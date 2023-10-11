@@ -24,7 +24,7 @@ ssb_queries = static_ssb_queries.queries
 
 
 def query_blacklist(filename):
-    blacklist = {}
+    blacklist = set()
     with open(filename) as f:
         for line in f:
             if not line.startswith("#"):
@@ -35,7 +35,7 @@ def query_blacklist(filename):
 def load_queries(dir, blacklist={}):
     queries = {}
     for filename in Path(dir).glob("*.sql"):
-        if not filename.is_file() or filename in blacklist:
+        if not filename.is_file() or filename.name in blacklist:
             continue
 
         with open(str(filename), "r") as sql_file:
@@ -124,14 +124,13 @@ parser.add_argument("--skip_data_loading", action="store_true")
 parser.add_argument("--rewrites", action="store_true")
 args = parser.parse_args()
 
-if args.dbms == "hyrise":
+if args.dbms in ["hyrise", "hyrise-int"]:
     hyrise_server_path = Path(args.hyrise_server_path).expanduser().resolve()
     assert (hyrise_server_path / "hyriseServer").exists(), "Please pass valid --hyrise_server_path"
 
-monetdb_scale_factor_string = str(args.scale_factor).replace(".", "_")
-duckdb_scale_factor_string = int(args.scale_factor) if args.scale_factor >= 1.0 else args.scale_factor
+# monetdb_scale_factor_string = str(args.scale_factor).replace(".", "_")
+# duckdb_scale_factor_string = int(args.scale_factor) if args.scale_factor >= 1.0 else args.scale_factor
 
-assert args.single_query_id is None or (args.single_query_id > 0 and args.single_query_id < 23), "Unexpected query id"
 assert (
     args.clients == 1 or args.time >= 300
 ), "When multiple clients are set, a shuffled run is initiated which should last at least 300s."
@@ -145,6 +144,7 @@ if args.rewrites:
     job_queries.update(static_job_queries.queries_o3)
     tpcds_queries.update(static_tpcds_queries.queries_o1)
     tpcds_queries.update(static_tpcds_queries.queries_o3)
+
 
 tpch_queries = list(tpch_queries.values())
 tpcds_queries = list(tpcds_queries.values())
@@ -288,7 +288,7 @@ def import_data():
     # """IMPORT FROM CSV FILE '{}' INTO "{}" WITH FIELD DELIMITED BY ',';"""
 
     data_path = os.path.join(os.getcwd(), "resources/experiment_data")
-    table_files = [f for f in os.path.listdir(data_path) if f.endswith(".csv")]
+    table_files = sorted([f for f in os.listdir(data_path) if f.endswith(".csv")])
 
     if args.dbms == "monetdb":
         load_command = """COPY INTO "{}" FROM '{}' USING DELIMITERS ',' NULL AS '';"""
@@ -300,6 +300,7 @@ def import_data():
         load_command = """IMPORT FROM CSV FILE '{}' INTO "{}" WITH FIELD DELIMITED BY ',';"""
 
     connection, cursor = get_cursor()
+    print("- Loading data ...")
 
     if args.dbms not in ["hyrise", "hyrise-int"]:
         for benchmark in ["tpch", "job", "ssb", "tpcds"]:
@@ -310,14 +311,15 @@ def import_data():
                         continue
                     cursor.execute(line)
 
-    for table_file in table_files:
-        table_name = table_file[: -len(".csv")]
+    for t_id, table_file in enumerate(table_files):
+        table_name = table_file[:-len(".csv")]
         table_file_path = f"{data_path}/{table_file}"
+        print(f" - ({t_id + 1}/{len(table_files)}) Import {table_name} from {table_file_path}")
         if args.dbms != "hana":
-            cursor.execute_command(load_command.format(table_name, table_file_path))
+            cursor.execute(load_command.format(table_name, table_file_path))
         else:
-            cursor.execute_command(load_command.format(table_file_path, table_name))
-            cursor.execute_command(f"MERGE DELTA OF {table_name};")
+            cursor.execute(load_command.format(table_file_path, table_name))
+            cursor.execute(f"MERGE DELTA OF {table_name};")
 
     cursor.close()
     connection.close()
@@ -398,9 +400,8 @@ if args.dbms == "hyrise-int":
 os.makedirs("db_comparison_results", exist_ok=True)
 
 runtimes = {}
-benchmark_queries = (
-    [args.single_query_id] if args.single_query_id else list(range(1, len(selected_benchmark_queries) + 1))
-)
+benchmark_queries = list(range(1, len(selected_benchmark_queries) + 1))
+
 if args.clients > 1:
     benchmark_queries = ["shuffled"]
 for query_name, query_id in benchmark_queries:
@@ -461,7 +462,7 @@ for query_name, query_id in benchmark_queries:
     runtimes[query_name] = successful_runs
 
 rewrite_suffix = "__rewrites" if args.rewrites else ""
-result_csv_filename = "db_comparison_results/database_comparison__{}__{}.csv".format(args.benchmark, args.dbms)
+result_csv_filename = "db_comparison_results/database_comparison__{}__{}{}.csv".format(args.benchmark, args.dbms, rewrite_suffix)
 result_csv_exists = Path(result_csv_filename).exists()
 with open(result_csv_filename, "a" if result_csv_exists else "w") as result_csv:
     if not result_csv_exists:

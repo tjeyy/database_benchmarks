@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-import requests
-
 from datetime import date, timedelta
+
+import requests
 
 
 def main():
@@ -9,7 +9,6 @@ def main():
     start_date = date.fromisoformat("2023-10-09")
     # start_date = date.fromisoformat("2023-04-21")
     end_date = date.fromisoformat("2023-04-19")
-
 
     current_date = start_date
 
@@ -23,8 +22,5 @@ def main():
             print(url, r.status_code)
 
 
-
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

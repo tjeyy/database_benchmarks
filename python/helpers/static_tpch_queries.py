@@ -43,17 +43,17 @@ queries = {  # Q1
     # Q21
     "21": """select s_name, count(*) as numwait from tpch_supplier, lineitem l1, orders, nation where s_suppkey = l1.l_suppkey and o_orderkey = l1.l_orderkey and o_orderstatus = 'F' and l1.l_receiptdate > l1.l_commitdate and exists ( select * from lineitem l2 where l2.l_orderkey = l1.l_orderkey and l2.l_suppkey <> l1.l_suppkey ) and not exists ( select * from lineitem l3 where l3.l_orderkey = l1.l_orderkey and l3.l_suppkey <> l1.l_suppkey and l3.l_receiptdate > l3.l_commitdate ) and s_nationkey = n_nationkey and n_name = 'SAUDI ARABIA' group by s_name order by numwait desc, s_name limit 100;""",
     # Q22: using comma variant of substring()
-    "22": """select cntrycode, count(*) as numcust, sum(c_acctbal) as totacctbal from ( select substring(c_phone, 1, 2) as cntrycode, c_acctbal from tpch_customer where substring(c_phone, 1, 2) in ('13', '31', '23', '29', '30', '18', '17') and c_acctbal > ( select avg(c_acctbal) from tpch_customer where c_acctbal > 0.00 and substring(c_phone, 1, 2) in ('13', '31', '23', '29', '30', '18', '17') ) and not exists ( select * from orders where o_custkey = c_custkey ) ) as custsale group by cntrycode order by cntrycode;"""
+    "22": """select cntrycode, count(*) as numcust, sum(c_acctbal) as totacctbal from ( select substring(c_phone, 1, 2) as cntrycode, c_acctbal from tpch_customer where substring(c_phone, 1, 2) in ('13', '31', '23', '29', '30', '18', '17') and c_acctbal > ( select avg(c_acctbal) from tpch_customer where c_acctbal > 0.00 and substring(c_phone, 1, 2) in ('13', '31', '23', '29', '30', '18', '17') ) and not exists ( select * from orders where o_custkey = c_custkey ) ) as custsale group by cntrycode order by cntrycode;""",
 }
 
-queries_o1: {
+queries_o1 = {
     # Q10
     "10": """select c_custkey, min(c_name), sum(l_extendedprice * (1 - l_discount)) as revenue, min(c_acctbal), min(n_name), min(c_address), min(c_phone), min(c_comment) from tpch_customer, orders, lineitem, nation where c_custkey = o_custkey and l_orderkey = o_orderkey and o_orderdate >= date '1993-10-01' and o_orderdate < date '1993-10-01' + interval '3' month and l_returnflag = 'R' and c_nationkey = n_nationkey group by c_custkey order by revenue desc limit 20;""",
     # Q18
-    "18": """select min(c_name), c_custkey, o_orderkey, min(o_orderdate), min(o_totalprice), sum(l_quantity) from tpch_customer, orders, lineitem where o_orderkey in ( select l_orderkey from lineitem group by l_orderkey having sum(l_quantity) > 300 ) and c_custkey = o_custkey and o_orderkey = l_orderkey group by c_custkey, o_orderkey order by o_totalprice desc, o_orderdate limit 100;"""
+    "18": """select min(c_name), c_custkey, o_orderkey, min(o_orderdate), min(o_totalprice), sum(l_quantity) from tpch_customer, orders, lineitem where o_orderkey in ( select l_orderkey from lineitem group by l_orderkey having sum(l_quantity) > 300 ) and c_custkey = o_custkey and o_orderkey = l_orderkey group by c_custkey, o_orderkey order by o_totalprice desc, o_orderdate limit 100;""",
 }
 
-queries_o3: {
+queries_o3 = {
     # Q2: fetch r_regionkey for r_name = 'EUROPE' (-> 3)
     "02": """select r_regionkey from region where r_name = 'EUROPE'; select s_acctbal, s_name, n_name, p_partkey, p_mfgr, s_address, s_phone, s_comment from tpch_part, tpch_supplier, partsupp, nation where p_partkey = ps_partkey and s_suppkey = ps_suppkey and p_size = 15 and p_type like '%BRASS' and s_nationkey = n_nationkey and n_regionkey = 3 and ps_supplycost = ( select min(ps_supplycost) from partsupp, tpch_supplier, nation where p_partkey = ps_partkey and s_suppkey = ps_suppkey and s_nationkey = n_nationkey and n_regionkey = 3) order by s_acctbal desc, n_name, s_name, p_partkey limit 100;""",
     # Q5: fetch r_regionkey for r_name = 'ASIA' (-> 2)
@@ -65,5 +65,5 @@ queries_o3: {
     # Q20: fetch n_nationkey for r_name = 'CANADA' (-> 3)
     "20": """select s_name, s_address from tpch_supplier where s_suppkey in ( select ps_suppkey from partsupp where ps_partkey in ( select p_partkey from tpch_part where p_name like 'forest%' ) and ps_availqty > ( select 0.5 * sum(l_quantity) from lineitem where l_partkey = ps_partkey and l_suppkey = ps_suppkey and l_shipdate >= date '1994-01-01' and l_shipdate < date '1994-01-01' + interval '1' year ) ) and s_nationkey = 3 order by s_name;""",
     # Q21: fetch n_nationkey for r_name = 'SAUDI ARABIA' (-> 20)
-    "21": """select s_name, count(*) as numwait from tpch_supplier, lineitem l1, orders where s_suppkey = l1.l_suppkey and o_orderkey = l1.l_orderkey and o_orderstatus = 'F' and l1.l_receiptdate > l1.l_commitdate and exists ( select * from lineitem l2 where l2.l_orderkey = l1.l_orderkey and l2.l_suppkey <> l1.l_suppkey ) and not exists ( select * from lineitem l3 where l3.l_orderkey = l1.l_orderkey and l3.l_suppkey <> l1.l_suppkey and l3.l_receiptdate > l3.l_commitdate ) and s_nationkey = 20 group by s_name order by numwait desc, s_name limit 100;"""
+    "21": """select s_name, count(*) as numwait from tpch_supplier, lineitem l1, orders where s_suppkey = l1.l_suppkey and o_orderkey = l1.l_orderkey and o_orderstatus = 'F' and l1.l_receiptdate > l1.l_commitdate and exists ( select * from lineitem l2 where l2.l_orderkey = l1.l_orderkey and l2.l_suppkey <> l1.l_suppkey ) and not exists ( select * from lineitem l3 where l3.l_orderkey = l1.l_orderkey and l3.l_suppkey <> l1.l_suppkey and l3.l_receiptdate > l3.l_commitdate ) and s_nationkey = 20 group by s_name order by numwait desc, s_name limit 100;""",
 }

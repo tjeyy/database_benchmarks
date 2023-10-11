@@ -16,14 +16,11 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from helpers import static_tpch_queries, static_tpcds_queries, static_job_queries, static_ssb_queries
+from helpers import static_job_queries, static_ssb_queries, static_tpcds_queries, static_tpch_queries
 
 # For a fair comparison, we use the same queries as the Umbra demo does.
 tpch_queries = static_tpch_queries.queries
 ssb_queries = static_ssb_queries.queries
-
-
-
 
 
 def query_blacklist(filename):
@@ -45,6 +42,7 @@ def load_queries(dir, blacklist={}):
             sql_query = sql_file.read()
             queries[filename.stem] = sql_query.strip()
     return queries
+
 
 job_queries = load_queries("hyrise/third_party/join-order-benchmark", {"fkindexes.sql", "schema.sql"})
 tpcds_path = "hyrise/resources/benchmark/tpcds"
@@ -78,8 +76,33 @@ tables = {
         "title",
     ],
     "TPC-H": ["nation", "region", "part", "supplier", "partsupp", "customer", "orders", "lineitem"],
-    "TPC-DS": ["call_center", "catalog_page", "catalog_returns", "catalog_sales", "customer", "customer_address", "customer_demographics", "date_dim", "household_demographics", "income_band", "inventory", "item", "promotion", "reason", "ship_mode", "store", "store_returns", "store_sales", "time_dim", "warehouse", "web_page", "web_returns", "web_sales", "web_site"],
-    "SSB": ["customer", "date", "lineorder", "part", "supplier"]
+    "TPC-DS": [
+        "call_center",
+        "catalog_page",
+        "catalog_returns",
+        "catalog_sales",
+        "customer",
+        "customer_address",
+        "customer_demographics",
+        "date_dim",
+        "household_demographics",
+        "income_band",
+        "inventory",
+        "item",
+        "promotion",
+        "reason",
+        "ship_mode",
+        "store",
+        "store_returns",
+        "store_sales",
+        "time_dim",
+        "warehouse",
+        "web_page",
+        "web_returns",
+        "web_sales",
+        "web_site",
+    ],
+    "SSB": ["customer", "date", "lineorder", "part", "supplier"],
 }
 
 """
@@ -133,6 +156,7 @@ assert len(tpcds_queries) == 48
 assert len(ssb_queries) == 13
 assert len(job_queries) == 113
 
+
 def cleanup():
     if dbms_process:
         print("Shutting {} down...".format(args.dbms))
@@ -145,6 +169,7 @@ atexit.register(cleanup)
 print("Starting {}...".format(args.dbms))
 if args.dbms == "monetdb":
     import pymonetdb
+
     subprocess.Popen(["pkill", "-9", "mserver5"])
     time.sleep(5)
     cmd = [
@@ -172,6 +197,7 @@ if args.dbms == "monetdb":
             break
 elif args.dbms in ["hyrise", "hyrise-int"]:
     import psycopg2
+
     dbms_process = subprocess.Popen(
         [
             "numactl",
@@ -192,6 +218,7 @@ elif args.dbms in ["hyrise", "hyrise-int"]:
             break
 elif args.dbms == "umbra":
     import psycopg2
+
     parallel_dir = {"PARALLEL": "off"} if args.cores == 1 else {"PARALLEL": str(args.cores)}
     dbms_process = subprocess.Popen(
         [
@@ -210,6 +237,7 @@ elif args.dbms == "umbra":
     print("done.")
 elif args.dbms == "greenplum":
     import psycopg2
+
     raise NotImplementedError()
 
 
@@ -232,6 +260,7 @@ def get_cursor():
         raise NotImplementedError()
     elif args.dbms == "hana":
         from hdbcli import dbapi
+
         with open("resources/database_connection.json", "r") as file:
             connection_data = json.load(file)
         connection = dbapi.connect(
@@ -265,7 +294,7 @@ def import_data():
         load_command = """COPY INTO "{}" FROM '{}' USING DELIMITERS ',' NULL AS '';"""
     elif args.dbms in ["hyrise", "hyrise-int"]:
         load_command = """COPY "{}" FROM '{}';"""
-    elif args.dbms in ["umbra", "greenplum"]
+    elif args.dbms in ["umbra", "greenplum"]:
         load_command = """COPY "{}" FROM '{}' WITH DELIMITER ',';"""
     elif args.dbms == "hana":
         load_command = """IMPORT FROM CSV FILE '{}' INTO "{}" WITH FIELD DELIMITED BY ',';"""
@@ -279,10 +308,10 @@ def import_data():
                     line = l.strip()
                     if not l:
                         continue
-                    cursor.execute(line);
+                    cursor.execute(line)
 
     for table_file in table_files:
-        table_name = table_file[:-len(".csv")]
+        table_name = table_file[: -len(".csv")]
         table_file_path = f"{data_path}/{table_file}"
         if args.dbms != "hana":
             cursor.execute_command(load_command.format(table_name, table_file_path))
@@ -333,6 +362,7 @@ def loop(thread_id, queries, query_id, start_time, successful_runs, timeout, is_
     cursor.close()
     connection.close()
 
+
 if args.benchmark == "TPCH":
     selected_benchmark_queries = tpch_queries
 elif args.benchmark == "TPCDS":
@@ -357,7 +387,11 @@ if args.dbms in ["monetdb", "umbra", "greenplum", "hyrise-int"]:
 if args.dbms == "hyrise-int":
     print("Performing dependency discovery", end="")
     sys.stdout.flush()
-    cursor.execute("""INSERT INTO meta_plugins values ('{}/lib/libhyriseDependencyDiscoveryPlugin.so');""".format(hyrise_server_path))
+    cursor.execute(
+        """INSERT INTO meta_plugins values ('{}/lib/libhyriseDependencyDiscoveryPlugin.so');""".format(
+            hyrise_server_path
+        )
+    )
     cursor.execute("INSERT INTO meta_exec values ('hyriseDependencyDiscoveryPlugin', 'DiscoverDependencies');")
     print(" done.")
 
@@ -426,7 +460,7 @@ for query_name, query_id in benchmark_queries:
 
     runtimes[query_name] = successful_runs
 
-rewrite_suffix = "__rewrites" if args.rewrites else
+rewrite_suffix = "__rewrites" if args.rewrites else ""
 result_csv_filename = "db_comparison_results/database_comparison__{}__{}.csv".format(args.benchmark, args.dbms)
 result_csv_exists = Path(result_csv_filename).exists()
 with open(result_csv_filename, "a" if result_csv_exists else "w") as result_csv:
@@ -435,7 +469,5 @@ with open(result_csv_filename, "a" if result_csv_exists else "w") as result_csv:
     for item_name, runs in runtimes.items():
         for run in runs:
             result_csv.write(
-                "{},{},{},{},{},{},{}\n".format(
-                    args.benchmark, args.dbms, args.cores, args.clients, item_name, run
-                )
+                "{},{},{},{},{},{},{}\n".format(args.benchmark, args.dbms, args.cores, args.clients, item_name, run)
             )

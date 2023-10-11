@@ -4,8 +4,10 @@ import urllib.request
 import zipfile
 
 
-def main()
-    location = "https://www.dropbox.com/scl/fi/csupwxeg1lnmfknd69mj6/experiment_data.zip?rlkey=grycbrfmmrwft69jx1iuxmvwc&dl=1"
+def main():
+    location = (
+        "https://www.dropbox.com/scl/fi/csupwxeg1lnmfknd69mj6/experiment_data.zip?rlkey=grycbrfmmrwft69jx1iuxmvwc&dl=1"
+    )
     file_name = "experiment_data.zip"
     data_dir = "resources/experiment_data"
 
@@ -13,7 +15,6 @@ def main()
 
     if not os.path.isdir(data_dir):
         os.makedirs(data_dir)
-
 
     url = urllib.request.urlopen(location)
 
@@ -64,5 +65,5 @@ def main()
     os.remove(file_name)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

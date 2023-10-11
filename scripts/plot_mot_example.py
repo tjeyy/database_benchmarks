@@ -16,48 +16,6 @@ from palettable.cartocolors.qualitative import Antique_6, Bold_6, Pastel_6, Pris
 
 import matplotlib as mpl
 
-
-"""
-=================
- REWRITTEN
-=================
-"TPC-DS Q26": 73273516.920000,
-"TPC-DS Q37": 54757805.120000,
-"TPC-DS Q82": 109594167.260000,
-"TPC-DS Q85": 1607530957.790000,
-"JOB Q13a": 180239615.460000,
-"JOB Q22c": 436048116.200000,
-"JOB Q28a": 932455632.540000,
-
-=================
- REGULAR
-=================
-"TPC-DS Q26": 209395576.670000,
-"TPC-DS Q37": 552702500.750000,
-"TPC-DS Q82": 611591275.050000,
-"TPC-DS Q85": 192611687.840000,
-"JOB Q13a": 315036292.200000,
-"JOB Q22c": 658473615.380000,
-"JOB Q28a": 409619709.580000,
-
-
-- Enable Dependent Group-by Reduction
-- Enable Join to Semi-join
-- Enable Join to Predicate
-
-=================
- OPTIMIZED
-=================
-"TPC-DS Q26": 75057740.440000,
-"TPC-DS Q37": 53276721.910000,
-"TPC-DS Q82": 113223823.040000,
-"TPC-DS Q85": 102627679.340000,
-"JOB Q13a": 130065924.710000,
-"JOB Q22c": 232982224.640000,
-"JOB Q28a": 202094889.490000,
-"""
-
-
 def to_ms(n):
     return round(n / (10**6), 2)
 
@@ -101,16 +59,9 @@ def main():
 
     chosen = ["TPC-DS Q37", "JOB Q22c"]
 
-
     sns.set()
     sns.set_theme(style="whitegrid")
-    plt.rcParams["figure.figsize"] = [x * 1 for x  in plt.rcParams["figure.figsize"]]
     plt.rcParams["font.family"] = "serif"
-
-    bar_width = 0.15
-    epsilon = 0.015
-    margin = 0.01
-
 
     mpl.use('pgf')
 
@@ -142,54 +93,28 @@ def main():
     group_centers = np.arange(len(chosen))
     offsets = [-1, 0, 1]
 
-    bens = chosen
-    # print(df2.head())
-
-    hatches = ["/", "x", "O"]
-
-
-    for opt, color, offset, name, h in zip([regular, rewritten, optimized], Safe_6.hex_colors[:3], offsets, ["Baseline", "External rewrite", "Internal optimization"], hatches):
+    for opt, color, offset, name, h in zip([regular, rewritten, optimized], Safe_6.hex_colors[:3], offsets, ["Baseline", "External rewrite", "Internal optimization"]):
         bar_positions = [p + offset * (bar_width + margin) for p in group_centers]
         vals = [opt[b] / 10**6 for b in chosen]
 
-        plt.bar(bar_positions, vals, bar_width, color=color, label=name) #, hatch=h, edgecolor="darkgrey")
+        plt.bar(bar_positions, vals, bar_width, color=color, label=name)
 
 
-    plt.xticks(group_centers, bens, rotation=0)
+    plt.xticks(group_centers, chosen, rotation=0)
     ax = plt.gca()
-
-    box = ax.get_position()
-    #ax.set_position([box.x0, box.y0, box.width, box.height])
-
     plt.legend(loc='upper center', fontsize=7*2, ncol=3, bbox_to_anchor=(0.5, 1.25), fancybox=False)
-    #plt.legend(title='')
-    #plt.ylim([0, 1.6])
-    # sns.despine()
-
     plt.xlim([-3 * bar_width, 1 + 3 * bar_width])
-
-
     plt.ylabel("Latency [ms]", fontsize=8*2)
     plt.xlabel('Query', fontsize=8*2)
     ax.tick_params(axis='both', which='major', labelsize=7*2)
     ax.tick_params(axis='both', which='minor', labelsize=7*2)
-
     plt.grid(axis="x", visible=False)
-
-
     fig = plt.gcf()
-    r"""
-    \usepackage{layouts}
-    \printinunitsof{in}\prntlen{\columnwidth}
-    """
     column_width = 3.3374
     fig_width = column_width * 2
     fig_height = column_width * 0.475 * 2
     plt.tight_layout(pad=0)
     fig.set_size_inches(fig_width, fig_height)
-    # ax.set_box_aspect(1)
-
-
 
     plt.savefig(f"figures/motivational_example.pdf", dpi=300, bbox_inches="tight")
     plt.close()

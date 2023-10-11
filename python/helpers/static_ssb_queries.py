@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-queries: {
+queries = {
     "1.1": """select sum(lo_extendedprice*lo_discount) as revenue from lineorder, "date" where lo_orderdate = d_datekey and d_year = 1993 and lo_discount between 1 and 3 and lo_quantity < 25; """,
     "1.2": """select sum(lo_extendedprice*lo_discount) as revenue from lineorder, "date" where lo_orderdate = d_datekey and d_yearmonthnum = 199401 and lo_discount between 4 and 6 and lo_quantity between 26 and 35;""",
     "1.3": """select sum(lo_extendedprice*lo_discount) as revenue from lineorder, "date" where lo_orderdate = d_datekey and d_weeknuminyear = 6 and d_year = 1994 and lo_discount between 5 and 7 and lo_quantity between 26 and 35;""",
@@ -14,12 +14,11 @@ queries: {
     "4.1": """select d_year, c_nation, sum(lo_revenue - lo_supplycost) as profit from "date", ssb_customer, ssb_supplier, ssb_part, lineorder where lo_custkey = c_custkey and lo_suppkey = s_suppkey and lo_partkey = p_partkey and lo_orderdate = d_datekey and c_region = 'AMERICA' and s_region = 'AMERICA' and (p_mfgr = 'MFGR#1' or p_mfgr = 'MFGR#2') group by d_year, c_nation order by d_year, c_nation """,
     "4.2": """select d_year, s_nation, p_category, sum(lo_revenue - lo_supplycost) as profit from "date", ssb_customer, ssb_supplier, ssb_part, lineorder where lo_custkey = c_custkey and lo_suppkey = s_suppkey and lo_partkey = p_partkey and lo_orderdate = d_datekey and c_region = 'AMERICA' and s_region = 'AMERICA' and (d_year = 1997 or d_year = 1998) and (p_mfgr = 'MFGR#1' or p_mfgr = 'MFGR#2') group by d_year, s_nation, p_category order by d_year, s_nation, p_category """,
     "4.3": """select d_year, s_city, p_brand1, sum(lo_revenue - lo_supplycost) as profit from "date", ssb_customer, ssb_supplier, ssb_part, lineorder where lo_custkey = c_custkey and lo_suppkey = s_suppkey and lo_partkey = p_partkey and lo_orderdate = d_datekey and c_region = 'AMERICA' and s_nation = 'UNITED STATES' and (d_year = 1997 or d_year = 1998) and p_category = 'MFGR#14' group by d_year, s_city, p_brand1 order by d_year, s_city, p_brand1 """,
-
 }
 
-queries_o3: {
+queries_o3 = {
     # Q1.1: fetch min(d_datekey), max(d_datekey) for d_year = 1993 (-> 19930101, 19931231)
     "1.1": """select min(d_datekey), max(d_datekey) from "date" where d_year = 1993; select sum(lo_extendedprice*lo_discount) as revenue from lineorder where lo_orderdate BETWEEN 19930301 AND 19931231 and lo_discount between 1 and 3 and lo_quantity < 25;""",
     # Q1.2: fetch min(d_datekey), max(d_datekey) for d_yearmonthnum = 199401 (-> 19940101, 19940131)
-    "1.2": """select min(d_datekey), max(d_datekey) from "date" where d_yearmonthnum = 199401; select sum(lo_extendedprice*lo_discount) as revenue from lineorder where BETWEEN 19940101 AND 19940131 and lo_discount between 4 and 6 and lo_quantity between 26 and 35;"""
+    "1.2": """select min(d_datekey), max(d_datekey) from "date" where d_yearmonthnum = 199401; select sum(lo_extendedprice*lo_discount) as revenue from lineorder where BETWEEN 19940101 AND 19940131 and lo_discount between 4 and 6 and lo_quantity between 26 and 35;""",
 }

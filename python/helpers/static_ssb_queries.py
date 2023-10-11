@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-queries: {
+queries = {
     "1.1": """select sum(lo_extendedprice*lo_discount) as revenue from lineorder, "date" where lo_orderdate = d_datekey and d_year = 1993 and lo_discount between 1 and 3 and lo_quantity < 25; """,
     "1.2": """select sum(lo_extendedprice*lo_discount) as revenue from lineorder, "date" where lo_orderdate = d_datekey and d_yearmonthnum = 199401 and lo_discount between 4 and 6 and lo_quantity between 26 and 35;""",
     "1.3": """select sum(lo_extendedprice*lo_discount) as revenue from lineorder, "date" where lo_orderdate = d_datekey and d_weeknuminyear = 6 and d_year = 1994 and lo_discount between 5 and 7 and lo_quantity between 26 and 35;""",
@@ -17,7 +17,7 @@ queries: {
 
 }
 
-queries_o3: {
+queries_o3 = {
     # Q1.1: fetch min(d_datekey), max(d_datekey) for d_year = 1993 (-> 19930101, 19931231)
     "1.1": """select min(d_datekey), max(d_datekey) from "date" where d_year = 1993; select sum(lo_extendedprice*lo_discount) as revenue from lineorder where lo_orderdate BETWEEN 19930301 AND 19931231 and lo_discount between 1 and 3 and lo_quantity < 25;""",
     # Q1.2: fetch min(d_datekey), max(d_datekey) for d_yearmonthnum = 199401 (-> 19940101, 19940131)

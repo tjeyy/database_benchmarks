@@ -1,13 +1,13 @@
 #!/usr/bin/python3
 
-queries_o1: {
+queries_o1 = {
     # Q 39a
     "39a": """WITH inv AS (SELECT warehouse_name, w_warehouse_sk, i_item_sk, d_moy, stdev, mean, CASE mean WHEN 0 THEN NULL ELSE stdev/mean END cov FROM (SELECT MIN(w_warehouse_name) warehouse_name, w_warehouse_sk, i_item_sk, d_moy, stddev_samp(inv_quantity_on_hand) stdev, avg(inv_quantity_on_hand) mean FROM inventory, item, warehouse, date_dim WHERE inv_item_sk = i_item_sk AND inv_warehouse_sk = w_warehouse_sk AND inv_date_sk = d_date_sk AND d_year =2001 GROUP BY w_warehouse_sk, i_item_sk, d_moy) foo WHERE CASE mean WHEN 0 THEN 0 ELSE stdev/mean END > 1) SELECT inv1.w_warehouse_sk, inv1.i_item_sk, inv1.d_moy, inv1.mean, inv1.cov, inv2.w_warehouse_sk, inv2.i_item_sk, inv2.d_moy, inv2.mean, inv2.cov FROM inv inv1, inv inv2 WHERE inv1.i_item_sk = inv2.i_item_sk AND inv1.w_warehouse_sk = inv2.w_warehouse_sk AND inv1.d_moy=1 AND inv2.d_moy=1+1 ORDER BY inv1.w_warehouse_sk, inv1.i_item_sk, inv1.d_moy, inv1.mean, inv1.cov, inv2.d_moy, inv2.mean, inv2.cov;""",
     # Q 39b
     "39b": """WITH inv AS (SELECT warehouse_name, w_warehouse_sk, i_item_sk, d_moy, stdev, mean, CASE mean WHEN 0 THEN NULL ELSE stdev/mean END cov FROM (SELECT min(w_warehouse_name) warehouse_name, w_warehouse_sk, i_item_sk, d_moy, stddev_samp(inv_quantity_on_hand) stdev, avg(inv_quantity_on_hand) mean FROM inventory, item, warehouse, date_dim WHERE inv_item_sk = i_item_sk AND inv_warehouse_sk = w_warehouse_sk AND inv_date_sk = d_date_sk AND d_year =2001 GROUP BY w_warehouse_sk, i_item_sk, d_moy) foo WHERE CASE mean WHEN 0 THEN 0 ELSE stdev/mean END > 1) SELECT inv1.w_warehouse_sk, inv1.i_item_sk, inv1.d_moy, inv1.mean, inv1.cov, inv2.w_warehouse_sk, inv2.i_item_sk, inv2.d_moy, inv2.mean, inv2.cov FROM inv inv1, inv inv2 WHERE inv1.i_item_sk = inv2.i_item_sk AND inv1.w_warehouse_sk = inv2.w_warehouse_sk AND inv1.d_moy=1 AND inv2.d_moy=1+1 AND inv1.cov > 1.5 ORDER BY inv1.w_warehouse_sk, inv1.i_item_sk, inv1.d_moy, inv1.mean, inv1.cov, inv2.d_moy, inv2.mean, inv2.cov;"""
 }
 
-queries_o3: {
+queries_o3 = {
     # Q01: fetch min(d_date_sk), max(d_date_sk) for d_year = 2000 (-> 2451545, 2451910)
     "01": """select min(d_date_sk), max(d_date_sk) from date_dim where d_year = 2000; WITH customer_total_return AS (SELECT sr_customer_sk AS ctr_customer_sk, sr_store_sk AS ctr_store_sk, sum(sr_return_amt) AS ctr_total_return FROM store_returns WHERE sr_returned_date_sk BETWEEN 2451545 AND 2451910 GROUP BY sr_customer_sk, sr_store_sk) SELECT c_customer_id FROM customer_total_return ctr1, store, customer WHERE ctr1.ctr_total_return > (SELECT avg(ctr_total_return)*1.2 FROM customer_total_return ctr2 WHERE ctr1.ctr_store_sk = ctr2.ctr_store_sk) AND s_store_sk = ctr1.ctr_store_sk AND s_state = 'TN' AND ctr1.ctr_customer_sk = c_customer_sk ORDER BY c_customer_id LIMIT 100;""",
     # Q07: fetch min(d_date_sk), max(d_date_sk) for d_year = 2000 (-> 2451545, 2451910)

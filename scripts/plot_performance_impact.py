@@ -123,7 +123,7 @@ def main():
         pl_data = [0, max_value]
         pl_data = pd.DataFrame(data={"x": pl_data, "y": pl_data, "d": [1,1]})
 
-        sns.scatterplot(data=values, x="old", y="new", palette=color, hue="d", s=50, legend=False)
+        sns.scatterplot(data=values, x="old", y="new", palette=color, hue="d", s=80, legend=False)
         #sns.lineplot(data=pl_data, x="x", y="y", palette=["lightgrey"], hue="d", style="d", sizes=(0.2,0.2), legend=False)
 
         ax = plt.gca()
@@ -197,13 +197,14 @@ def main():
         """
         column_width = 3.3374
         fig_width = column_width * 0.475 * 2
-        plt.tight_layout(pad=0)
         fig.set_size_inches(fig_width, fig_width)
-        ax.set_box_aspect(1)
+        plt.tight_layout(pad=0)
+        # ax.set_box_aspect(1)
 
 
         # print(os.path.join(output, f"{benchmark}_{file_indicator}_{config}_{metric}.{extension}"))
-        plt.savefig(f"{benchmark}_log_{commit}.pdf", dpi=300, bbox_inches="tight")
+        # plt.savefig(f"{benchmark}_log_{commit}.pdf", dpi=300, bbox_inches="tight")
+        plt.savefig(f"{benchmark}_log.pdf", dpi=300, bbox_inches="tight")
         plt.close()
 
 if __name__ == '__main__':

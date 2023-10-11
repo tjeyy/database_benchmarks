@@ -389,6 +389,7 @@ if args.dbms in ["monetdb", "umbra", "greenplum", "hyrise-int"]:
 if args.dbms == "hyrise-int":
     print("Performing dependency discovery", end="")
     sys.stdout.flush()
+    connection, cursor = get_cursor()
     cursor.execute(
         """INSERT INTO meta_plugins values ('{}/lib/libhyriseDependencyDiscoveryPlugin.so');""".format(
             hyrise_server_path
@@ -396,6 +397,8 @@ if args.dbms == "hyrise-int":
     )
     cursor.execute("INSERT INTO meta_exec values ('hyriseDependencyDiscoveryPlugin', 'DiscoverDependencies');")
     print(" done.")
+    cursor.close()
+    connection.close()
 
 os.makedirs("db_comparison_results", exist_ok=True)
 
@@ -404,7 +407,7 @@ benchmark_queries = list(range(1, len(selected_benchmark_queries) + 1))
 
 if args.clients > 1:
     benchmark_queries = ["shuffled"]
-for query_name, query_id in benchmark_queries:
+for query_id in benchmark_queries:
     query_name = "{} {:02}".format(args.benchmark, query_id) if query_id != "shuffled" else "shuffled"
     print("Benchmarking {}...".format(query_name), end="", flush=True)
 
@@ -470,5 +473,5 @@ with open(result_csv_filename, "a" if result_csv_exists else "w") as result_csv:
     for item_name, runs in runtimes.items():
         for run in runs:
             result_csv.write(
-                "{},{},{},{},{},{},{}\n".format(args.benchmark, args.dbms, args.cores, args.clients, item_name, run)
+                "{},{},{},{},{},{}\n".format(args.benchmark, args.dbms, args.cores, args.clients, item_name, run)
             )

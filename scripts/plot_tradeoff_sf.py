@@ -189,13 +189,15 @@ def main():
         dashes = {"Discovery Time": (3, 3), "Latency Improvement": ""}
         markers = ["^", "X", "s", "D", ".", "o"]
 
-        sns.lineplot(data=values, x="x", y="y", style="Measurement", markers=markers[:2], hue="Benchmark", dashes=dashes, palette=base_palette[:len(benchmarks)])
+        sns.lineplot(data=values, x="x", y="y", style="Measurement", markers=markers[:2], markersize=8, hue="Benchmark", dashes=dashes, palette=base_palette[:len(benchmarks)])
 
         ax = plt.gca()
 
         y_label = 'Runtime [s]' if measurement_type == 'abs' else 'Share of Runtime [%]'
         plt.ylabel(y_label, fontsize=8*2)
         plt.xlabel('Scale factor', fontsize=8*2)
+        plt.legend(fontsize=6*2, fancybox=False, framealpha=1.0)
+        #plt.legend(fancybox=False)
         ax.tick_params(axis='both', which='major', labelsize=7*2)
         ax.tick_params(axis='both', which='minor', labelsize=7*2)
 
@@ -208,47 +210,20 @@ def main():
 
         min_lim = min(ax.get_ylim()[0], ax.get_xlim()[0])
         max_lim = max(ax.get_ylim()[1], ax.get_xlim()[1])
-        if benchmark == "StarSchema":
-            max_lim = 6
-
-        possible_ticks_below_one = [10**(-exp) for exp in reversed(range(1, 4))]
-        possible_ticks_above_one = [1, 3, 5, 10]
-        ticks = list()
-        for tick in possible_ticks_below_one:
-            if tick >= min_lim:
-                ticks.append(tick)
-        for tick in possible_ticks_above_one:
-            if tick <= max_lim:
-                ticks.append(tick)
-        #ticks += psossible_ticks_above_one
-        #print(min_lim, max_lim, ticks)
-        #ax.set_ylim(min_lim, max_lim)
-        #ax.set_xlim(min_lim, max_lim)
-
-
-        #ax.set_ylim(0, max_value)
-        #ax.set_xlim(0, max_value)
-        #ax.xaxis.set_major_locator(MaxNLocator(integer=True))
-        #ax.yaxis.set_major_locator(MaxNLocator(integer=True))
-        #ax.xaxis.set_major_locator(FixedLocator(ticks))
-        #ax.yaxis.set_major_locator(FixedLocator(ticks))
-        #ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
-        #ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
+        plt.ylim((plt.ylim()[0], 110))
         fig = plt.gcf()
-        r"""
-        \usepackage{layouts}
-        \printinunitsof{in}\prntlen{\columnwidth}
-        """
+
         column_width = 3.3374
         fig_width = column_width * 2
         fig_height = column_width * 0.475 * 2
         fig.set_size_inches(fig_width, fig_height)
+        plt.tight_layout(pad=0)
         # ax.set_box_aspect(1)
 
 
-        plt.tight_layout(pad=0)
         # print(os.path.join(output, f"{benchmark}_{file_indicator}_{config}_{metric}.{extension}"))
-        plt.savefig(f"benchmarks_combined_sf_{commit}_{measurement_type}.pdf", dpi=300, bbox_inches="tight")
+        # plt.savefig(f"benchmarks_combined_sf_{commit}_{measurement_type}.pdf", dpi=300, bbox_inches="tight")
+        plt.savefig(f"benchmarks_combined_sf_{measurement_type}.pdf", dpi=300, bbox_inches="tight")
         plt.close()
 
 if __name__ == '__main__':

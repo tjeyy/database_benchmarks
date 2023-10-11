@@ -51,6 +51,7 @@ def main():
 
     file.close()
 
+    print()
     print("- Unzipping the file...")
 
     try:

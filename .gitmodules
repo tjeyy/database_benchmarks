@@ -1,0 +1,3 @@
+[submodule "hyrise"]
+	path = hyrise
+	url = https://github.com/validateDependenciesForOptimization/hyrise

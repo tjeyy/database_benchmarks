@@ -15,165 +15,168 @@
 - Running on tables from imdb_data
 - Running all queries from specified path
 - Loading/Generating tables 
--  Loading table 'title' from "imdb_data/title.bin" (2528312 rows; 184 ms 829 µs)
--  Loading table 'kind_type' from "imdb_data/kind_type.bin" (7 rows; 300 µs 750 ns)
--  Loading table 'role_type' from "imdb_data/role_type.bin" (12 rows; 86 µs 750 ns)
--  Loading table 'link_type' from "imdb_data/link_type.bin" (18 rows; 304 µs 542 ns)
--  Loading table 'keyword' from "imdb_data/keyword.bin" (134170 rows; 6 ms 534 µs)
--  Loading table 'company_type' from "imdb_data/company_type.bin" (4 rows; 204 µs 416 ns)
--  Loading table 'movie_link' from "imdb_data/movie_link.bin" (29997 rows; 935 µs 667 ns)
--  Loading table 'complete_cast' from "imdb_data/complete_cast.bin" (135086 rows; 2 ms 583 µs)
--  Loading table 'person_info' from "imdb_data/person_info.bin" (2963664 rows; 237 ms 530 µs)
--  Loading table 'comp_cast_type' from "imdb_data/comp_cast_type.bin" (4 rows; 232 µs 834 ns)
--  Loading table 'aka_title' from "imdb_data/aka_title.bin" (361472 rows; 31 ms 227 µs)
--  Loading table 'movie_info' from "imdb_data/movie_info.bin" (14835720 rows; 477 ms 384 µs)
--  Loading table 'company_name' from "imdb_data/company_name.bin" (234997 rows; 20 ms 953 µs)
--  Loading table 'movie_keyword' from "imdb_data/movie_keyword.bin" (4523930 rows; 36 ms 817 µs)
--  Loading table 'movie_companies' from "imdb_data/movie_companies.bin" (2609129 rows; 34 ms 635 µs)
--  Loading table 'cast_info' from "imdb_data/cast_info.bin" (36244344 rows; 431 ms 830 µs)
--  Loading table 'info_type' from "imdb_data/info_type.bin" (113 rows; 248 µs 292 ns)
--  Loading table 'aka_name' from "imdb_data/aka_name.bin" (901343 rows; 68 ms 246 µs)
--  Loading table 'movie_info_idx' from "imdb_data/movie_info_idx.bin" (1380035 rows; 17 ms 675 µs)
--  Loading table 'char_name' from "imdb_data/char_name.bin" (3140339 rows; 239 ms 508 µs)
--  Loading table 'name' from "imdb_data/name.bin" (4167491 rows; 298 ms 276 µs)
-- Loading/Generating tables done (2 s 91 ms)
+-  Loading table 'title' from "imdb_data/title.bin" (2528312 rows; 213 ms 588 µs)
+-  Loading table 'kind_type' from "imdb_data/kind_type.bin" (7 rows; 298 µs 667 ns)
+-  Loading table 'role_type' from "imdb_data/role_type.bin" (12 rows; 137 µs 42 ns)
+-  Loading table 'link_type' from "imdb_data/link_type.bin" (18 rows; 142 µs 458 ns)
+-  Loading table 'keyword' from "imdb_data/keyword.bin" (134170 rows; 6 ms 433 µs)
+-  Loading table 'company_type' from "imdb_data/company_type.bin" (4 rows; 192 µs 125 ns)
+-  Loading table 'movie_link' from "imdb_data/movie_link.bin" (29997 rows; 1 ms 18 µs)
+-  Loading table 'complete_cast' from "imdb_data/complete_cast.bin" (135086 rows; 2 ms 444 µs)
+-  Loading table 'person_info' from "imdb_data/person_info.bin" (2963664 rows; 262 ms 95 µs)
+-  Loading table 'comp_cast_type' from "imdb_data/comp_cast_type.bin" (4 rows; 224 µs 959 ns)
+-  Loading table 'aka_title' from "imdb_data/aka_title.bin" (361472 rows; 36 ms 846 µs)
+-  Loading table 'movie_info' from "imdb_data/movie_info.bin" (14835720 rows; 512 ms 141 µs)
+-  Loading table 'company_name' from "imdb_data/company_name.bin" (234997 rows; 23 ms 859 µs)
+-  Loading table 'movie_keyword' from "imdb_data/movie_keyword.bin" (4523930 rows; 38 ms 478 µs)
+-  Loading table 'movie_companies' from "imdb_data/movie_companies.bin" (2609129 rows; 35 ms 629 µs)
+-  Loading table 'cast_info' from "imdb_data/cast_info.bin" (36244344 rows; 441 ms 927 µs)
+-  Loading table 'info_type' from "imdb_data/info_type.bin" (113 rows; 249 µs 500 ns)
+-  Loading table 'aka_name' from "imdb_data/aka_name.bin" (901343 rows; 78 ms 375 µs)
+-  Loading table 'movie_info_idx' from "imdb_data/movie_info_idx.bin" (1380035 rows; 18 ms 909 µs)
+-  Loading table 'char_name' from "imdb_data/char_name.bin" (3140339 rows; 274 ms 252 µs)
+-  Loading table 'name' from "imdb_data/name.bin" (4167491 rows; 550 ms 186 µs)
+- Loading/Generating tables done (2 s 499 ms)
 - Encoding tables (if necessary) and generating pruning statistics
--  Processing 'info_type' - no encoding necessary (37 µs 708 ns)
--  Processing 'movie_link' - no encoding necessary (633 µs 792 ns)
--  Processing 'company_name' - no encoding necessary (1 ms 397 µs)
--  Processing 'role_type' - no encoding necessary (4 µs 792 ns)
--  Processing 'movie_info_idx' - no encoding necessary (8 ms 498 µs)
--  Processing 'aka_name' - no encoding necessary (12 ms 912 µs)
--  Processing 'name' - no encoding necessary (13 ms 32 µs)
--  Processing 'complete_cast' - no encoding necessary (2 ms 442 µs)
--  Processing 'aka_title' - no encoding necessary (6 ms 571 µs)
--  Processing 'person_info' - no encoding necessary (16 ms 616 µs)
--  Processing 'movie_companies' - no encoding necessary (25 ms 523 µs)
--  Processing 'keyword' - no encoding necessary (866 µs 958 ns)
--  Processing 'char_name' - no encoding necessary (26 ms 827 µs)
--  Processing 'comp_cast_type' - no encoding necessary (6 µs 833 ns)
--  Processing 'movie_keyword' - no encoding necessary (30 ms 508 µs)
--  Processing 'link_type' - no encoding necessary (5 µs 917 ns)
--  Processing 'title' - no encoding necessary (25 ms 752 µs)
--  Processing 'movie_info' - no encoding necessary (103 ms 399 µs)
--  Processing 'kind_type' - no encoding necessary (11 µs 83 ns)
--  Processing 'cast_info' - no encoding necessary (760 ms 201 µs)
--  Processing 'company_type' - no encoding necessary (12 µs 500 ns)
-- Encoding tables and generating pruning statistic done (760 ms 421 µs)
+-  Processing 'name' - no encoding necessary (11 ms 931 µs)
+-  Processing 'aka_title' - no encoding necessary (6 ms 227 µs)
+-  Processing 'movie_info_idx' - no encoding necessary (20 ms 75 µs)
+-  Processing 'char_name' - no encoding necessary (25 ms 464 µs)
+-  Processing 'comp_cast_type' - no encoding necessary (29 µs 833 ns)
+-  Processing 'movie_keyword' - no encoding necessary (28 ms 624 µs)
+-  Processing 'link_type' - no encoding necessary (13 µs 208 ns)
+-  Processing 'aka_name' - no encoding necessary (32 ms 87 µs)
+-  Processing 'info_type' - no encoding necessary (32 ms 120 µs)
+-  Processing 'movie_link' - no encoding necessary (611 µs 292 ns)
+-  Processing 'company_name' - no encoding necessary (33 ms 506 µs)
+-  Processing 'role_type' - no encoding necessary (393 µs 583 ns)
+-  Processing 'complete_cast' - no encoding necessary (2 ms 274 µs)
+-  Processing 'person_info' - no encoding necessary (15 ms 267 µs)
+-  Processing 'title' - no encoding necessary (23 ms 958 µs)
+-  Processing 'movie_companies' - no encoding necessary (48 ms 599 µs)
+-  Processing 'keyword' - no encoding necessary (419 µs 334 ns)
+-  Processing 'movie_info' - no encoding necessary (96 ms 858 µs)
+-  Processing 'kind_type' - no encoding necessary (10 µs 916 ns)
+-  Processing 'cast_info' - no encoding necessary (735 ms 871 µs)
+-  Processing 'company_type' - no encoding necessary (13 µs 375 ns)
+- Encoding tables and generating pruning statistic done (736 ms 32 µs)
 - Writing tables into binary files if necessary
-- Writing tables into binary files done (36 µs 542 ns)
+- Writing tables into binary files done (48 µs 875 ns)
 - Adding tables to StorageManager and generating table statistics
--  Added 'info_type' (94 µs 667 ns)
--  Added 'movie_link' (29 ms 322 µs)
--  Added 'movie_info_idx' (302 ms 50 µs)
--  Added 'movie_companies' (610 ms 929 µs)
--  Added 'keyword' (93 ms 300 µs)
--  Added 'company_name' (997 ms 618 µs)
--  Added 'role_type' (21 µs 500 ns)
--  Added 'movie_keyword' (1 s 249 ms)
--  Added 'link_type' (28 µs 291 ns)
--  Added 'cast_info' (2 s 820 ms)
--  Added 'company_type' (401 µs 459 ns)
--  Added 'person_info' (3 s 253 ms)
--  Added 'char_name' (4 s 109 ms)
--  Added 'comp_cast_type' (27 µs 666 ns)
--  Added 'aka_name' (5 s 371 ms)
--  Added 'name' (5 s 371 ms)
--  Added 'complete_cast' (14 ms 51 µs)
--  Added 'movie_info' (5 s 656 ms)
--  Added 'kind_type' (24 µs 584 ns)
--  Added 'aka_title' (334 ms 39 µs)
--  Added 'title' (2 s 977 ms)
-- Adding tables to StorageManager and generating table statistics done (8 s 682 ms)
+-  Added 'info_type' (83 µs 792 ns)
+-  Added 'movie_link' (3 ms 192 µs)
+-  Added 'movie_info_idx' (481 ms 683 µs)
+-  Added 'movie_keyword' (776 ms 198 µs)
+-  Added 'link_type' (28 µs 458 ns)
+-  Added 'aka_name' (2 s 127 ms)
+-  Added 'complete_cast' (16 ms 139 µs)
+-  Added 'cast_info' (3 s 179 ms)
+-  Added 'company_type' (415 µs 958 ns)
+-  Added 'company_name' (3 s 878 ms)
+-  Added 'char_name' (3 s 878 ms)
+-  Added 'comp_cast_type' (16 µs 875 ns)
+-  Added 'role_type' (402 µs 875 ns)
+-  Added 'person_info' (3 s 639 ms)
+-  Added 'movie_companies' (5 s 11 ms)
+-  Added 'name' (5 s 11 ms)
+-  Added 'keyword' (64 ms 398 µs)
+-  Added 'aka_title' (308 ms 263 µs)
+-  Added 'movie_info' (5 s 701 ms)
+-  Added 'kind_type' (405 µs 0 ns)
+-  Added 'title' (3 s 93 ms)
+- Adding tables to StorageManager and generating table statistics done (8 s 413 ms)
 - No chunk indexes created as --chunk_indexes was not specified or set to false
 - No table indexes created as --table_indexes was not specified or set to false
 - Load plugin hyriseDependencyDiscoveryPlugin from cmake-build-release/lib/libhyriseDependencyDiscoveryPlugin.dylib
+- Enable Dependent Group-by Reduction
+- Enable Join to Semi-join
+- Enable Join to Predicate
 done.
 - Starting Benchmark...
 - Run pre-benchmark hook of 'hyriseDependencyDiscoveryPlugin'
-Generated 40 candidates in 1 ms 882 µs
-Checking UCC company_name.name [rejected in 6 ms 406 µs]
-Checking UCC name.gender [rejected in 34 µs 333 ns]
-Checking UCC char_name.id [confirmed in 123 ms 977 µs]
-Checking OD company_name.id |-> company_name.country_code [rejected in 47 µs 750 ns]
-Checking IND title.kind_id in kind_type.id [confirmed in 24 µs 458 ns]
-Checking IND movie_info.info_type_id in info_type.id [confirmed in 75 µs 542 ns]
-Checking UCC link_type.id [confirmed in 4 µs 583 ns]
-Checking IND movie_info_idx.info_type_id in info_type.id [confirmed in 6 µs 125 ns]
-Checking OD company_name.id |-> company_name.name [rejected in 87 µs 709 ns]
-Checking OD company_type.id |-> company_type.kind [rejected in 6 µs 500 ns]
-Checking UCC role_type.id [confirmed in 2 µs 125 ns]
-Checking UCC role_type.role [confirmed in 5 µs 0 ns]
-Checking UCC company_name.country_code [rejected in 15 µs 209 ns]
-Checking OD link_type.id |-> link_type.link [rejected in 3 µs 583 ns]
-Checking OD keyword.id |-> keyword.keyword [rejected in 75 µs 417 ns]
-Checking IND complete_cast.status_id in comp_cast_type.id [confirmed in 3 µs 334 ns]
-Checking UCC company_name.id [confirmed in 8 ms 46 µs]
-Checking IND cast_info.role_id in role_type.id [confirmed in 115 µs 708 ns]
-Checking UCC link_type.link [confirmed in 4 µs 958 ns]
-Checking OD info_type.id |-> info_type.info [rejected in 10 µs 208 ns]
-Checking IND person_info.info_type_id in info_type.id [confirmed in 42 µs 292 ns]
-Checking UCC info_type.id [skipped (already known) in 584 ns]
-Checking IND movie_keyword.keyword_id in keyword.id [confirmed in 14 ms 674 µs]
-Checking UCC keyword.id [confirmed in 4 ms 324 µs]
-Checking UCC kind_type.id [skipped (already known) in 1 µs 333 ns]
-Checking IND movie_companies.company_type_id in company_type.id [confirmed in 16 µs 125 ns]
-Checking OD comp_cast_type.id |-> comp_cast_type.kind [rejected in 5 µs 542 ns]
-Checking UCC name.id [confirmed in 161 ms 993 µs]
-Checking UCC kind_type.kind [confirmed in 11 µs 417 ns]
-Checking UCC company_type.kind [confirmed in 3 µs 41 ns]
-Checking UCC keyword.keyword [confirmed in 13 ms 282 µs]
-Checking OD kind_type.id |-> kind_type.kind [rejected in 9 µs 250 ns]
-Checking IND complete_cast.subject_id in comp_cast_type.id [confirmed in 5 µs 833 ns]
-Checking IND movie_companies.company_id in company_name.id [confirmed in 21 µs 708 ns]
-Checking UCC info_type.info [confirmed in 14 µs 84 ns]
-Checking UCC comp_cast_type.kind [confirmed in 1 µs 792 ns]
-Checking UCC comp_cast_type.id [skipped (already known) in 625 ns]
-Checking OD role_type.id |-> role_type.role [rejected in 3 µs 916 ns]
-Checking IND movie_link.link_type_id in link_type.id [confirmed in 2 µs 208 ns]
-Checking UCC company_type.id [skipped (already known) in 792 ns]
-Validated 40 candidates in 333 ms 461 µs
+Generated 40 candidates in 1 ms 866 µs
+Checking UCC link_type.link [confirmed in 19 µs 250 ns]
+Checking OD company_name.id |-> company_name.name [rejected in 101 µs 791 ns]
+Checking UCC name.gender [rejected in 27 µs 917 ns]
+Checking UCC name.id [confirmed in 182 ms 727 µs]
+Checking OD company_name.id |-> company_name.country_code [rejected in 32 µs 750 ns]
+Checking OD kind_type.id |-> kind_type.kind [rejected in 16 µs 334 ns]
+Checking UCC company_name.name [rejected in 6 ms 576 µs]
+Checking IND movie_companies.company_id in company_name.id [confirmed in 9 ms 175 µs]
+Checking IND title.kind_id in kind_type.id [confirmed in 25 µs 708 ns]
+Checking UCC kind_type.kind [confirmed in 6 µs 42 ns]
+Checking IND movie_info.info_type_id in info_type.id [confirmed in 79 µs 0 ns]
+Checking UCC kind_type.id [skipped (already known) in 542 ns]
+Checking UCC link_type.id [confirmed in 4 µs 166 ns]
+Checking IND movie_companies.company_type_id in company_type.id [confirmed in 12 µs 167 ns]
+Checking OD info_type.id |-> info_type.info [rejected in 14 µs 292 ns]
+Checking IND person_info.info_type_id in info_type.id [confirmed in 37 µs 84 ns]
+Checking UCC info_type.info [confirmed in 11 µs 542 ns]
+Checking IND movie_keyword.keyword_id in keyword.id [confirmed in 6 ms 916 µs]
+Checking IND movie_link.link_type_id in link_type.id [confirmed in 7 µs 292 ns]
+Checking UCC keyword.keyword [confirmed in 15 ms 892 µs]
+Checking UCC role_type.id [confirmed in 11 µs 333 ns]
+Checking UCC info_type.id [skipped (already known) in 1 µs 500 ns]
+Checking OD keyword.id |-> keyword.keyword [rejected in 101 µs 333 ns]
+Checking UCC char_name.id [confirmed in 127 ms 766 µs]
+Checking OD comp_cast_type.id |-> comp_cast_type.kind [rejected in 13 µs 458 ns]
+Checking UCC comp_cast_type.id [confirmed in 3 µs 959 ns]
+Checking UCC comp_cast_type.kind [confirmed in 3 µs 792 ns]
+Checking IND cast_info.role_id in role_type.id [confirmed in 116 µs 750 ns]
+Checking IND movie_info_idx.info_type_id in info_type.id [confirmed in 7 µs 334 ns]
+Checking UCC keyword.id [confirmed in 4 ms 734 µs]
+Checking IND complete_cast.subject_id in comp_cast_type.id [confirmed in 3 µs 209 ns]
+Checking OD link_type.id |-> link_type.link [rejected in 5 µs 125 ns]
+Checking UCC company_type.kind [confirmed in 3 µs 166 ns]
+Checking OD company_type.id |-> company_type.kind [rejected in 2 µs 416 ns]
+Checking IND complete_cast.status_id in comp_cast_type.id [confirmed in 1 µs 541 ns]
+Checking UCC company_name.country_code [rejected in 19 µs 208 ns]
+Checking OD role_type.id |-> role_type.role [rejected in 1 µs 916 ns]
+Checking UCC role_type.role [confirmed in 6 µs 291 ns]
+Checking UCC company_name.id [confirmed in 8 ms 465 µs]
+Checking UCC company_type.id [skipped (already known) in 1 µs 625 ns]
+Validated 40 candidates in 363 ms 65 µs
 Clearing LQP and PQP cache...
-Executed dependency discovery in 341 ms 913 µs
+Executed dependency discovery in 371 ms 716 µs
 - Benchmarking 10a
 O2: rewrite [Join] Mode: Inner [id = company_type_id] to [Join] Mode: Semi [id = company_type_id]
 O2: rewrite [Join] Mode: Inner [id = role_id] to [Join] Mode: Semi [id = role_id]
 O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = company_id]
 O3: rewrite [Join] Mode: Semi [id = role_id] to [Predicate] role_id = id
-  -> Executed 1 times in 0.0957077 seconds (Latency: 95.7022 ms/iter, Throughput: 10.4485 iter/s)
+  -> Executed 1 times in 0.10298 seconds (Latency: 102.971 ms/iter, Throughput: 9.71064 iter/s)
 - Benchmarking 10b
 O2: rewrite [Join] Mode: Inner [id = company_type_id] to [Join] Mode: Semi [id = company_type_id]
 O2: rewrite [Join] Mode: Inner [id = role_id] to [Join] Mode: Semi [id = role_id]
 O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = company_id]
 O3: rewrite [Join] Mode: Semi [id = role_id] to [Predicate] role_id = id
-  -> Executed 1 times in 0.0822 seconds (Latency: 82.1971 ms/iter, Throughput: 12.1655 iter/s)
+  -> Executed 1 times in 0.0729516 seconds (Latency: 72.944 ms/iter, Throughput: 13.7077 iter/s)
 - Benchmarking 10c
 O2: rewrite [Join] Mode: Inner [id = role_id] to [Join] Mode: Semi [id = role_id]
 O2: rewrite [Join] Mode: Inner [id = company_type_id] to [Join] Mode: Semi [id = company_type_id]
 O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = company_id]
-  -> Executed 1 times in 0.244984 seconds (Latency: 244.98 ms/iter, Throughput: 4.0819 iter/s)
+  -> Executed 1 times in 0.28144 seconds (Latency: 281.432 ms/iter, Throughput: 3.55315 iter/s)
 - Benchmarking 11a
 O2: rewrite [Join] Mode: Inner [company_type_id = id] to [Join] Mode: Semi [company_type_id = id]
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
 O3: rewrite [Join] Mode: Semi [keyword_id = id] to [Predicate] keyword_id = id
 O3: rewrite [Join] Mode: Semi [company_type_id = id] to [Predicate] company_type_id = id
-  -> Executed 1 times in 0.149463 seconds (Latency: 149.459 ms/iter, Throughput: 6.69063 iter/s)
+  -> Executed 1 times in 0.183392 seconds (Latency: 183.386 ms/iter, Throughput: 5.45279 iter/s)
 - Benchmarking 11b
 O2: rewrite [Join] Mode: Inner [company_type_id = id] to [Join] Mode: Semi [company_type_id = id]
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
 O3: rewrite [Join] Mode: Semi [keyword_id = id] to [Predicate] keyword_id = id
 O3: rewrite [Join] Mode: Semi [company_type_id = id] to [Predicate] company_type_id = id
-  -> Executed 1 times in 0.150519 seconds (Latency: 150.516 ms/iter, Throughput: 6.64367 iter/s)
+  -> Executed 1 times in 0.197749 seconds (Latency: 197.744 ms/iter, Throughput: 5.05692 iter/s)
 - Benchmarking 11c
-O2: rewrite [Join] Mode: Inner [id = link_type_id] to [Join] Mode: Semi [id = link_type_id]
 O2: rewrite [Join] Mode: Inner [company_type_id = id] to [Join] Mode: Semi [company_type_id = id]
+O2: rewrite [Join] Mode: Inner [id = link_type_id] to [Join] Mode: Semi [id = link_type_id]
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
-  -> Executed 1 times in 0.167857 seconds (Latency: 167.854 ms/iter, Throughput: 5.95744 iter/s)
+  -> Executed 1 times in 0.187277 seconds (Latency: 187.272 ms/iter, Throughput: 5.33969 iter/s)
 - Benchmarking 11d
 O2: rewrite [Join] Mode: Inner [company_type_id = id] to [Join] Mode: Semi [company_type_id = id]
 O2: rewrite [Join] Mode: Inner [id = link_type_id] to [Join] Mode: Semi [id = link_type_id]
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
-  -> Executed 1 times in 0.169477 seconds (Latency: 169.474 ms/iter, Throughput: 5.9005 iter/s)
+  -> Executed 1 times in 0.201676 seconds (Latency: 201.67 ms/iter, Throughput: 4.95845 iter/s)
 - Benchmarking 12a
 O2: rewrite [Join] Mode: Inner [id = company_type_id] to [Join] Mode: Semi [id = company_type_id]
 O2: rewrite [Join] Mode: Inner [info_type_id = id] to [Join] Mode: Semi [info_type_id = id]
@@ -181,7 +184,7 @@ O2: rewrite [Join] Mode: Inner [info_type_id = id] to [Join] Mode: Semi [info_ty
 O3: rewrite [Join] Mode: Semi [info_type_id = id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [info_type_id = id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = company_type_id] to [Predicate] company_type_id = id
-  -> Executed 1 times in 0.294306 seconds (Latency: 294.303 ms/iter, Throughput: 3.39783 iter/s)
+  -> Executed 1 times in 0.346148 seconds (Latency: 346.143 ms/iter, Throughput: 2.88894 iter/s)
 - Benchmarking 12b
 O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = company_id]
 O2: rewrite [Join] Mode: Inner [id = company_type_id] to [Join] Mode: Semi [id = company_type_id]
@@ -189,7 +192,7 @@ O2: rewrite [Join] Mode: Inner [info_type_id = id] to [Join] Mode: Semi [info_ty
 O2: rewrite [Join] Mode: Inner [info_type_id = id] to [Join] Mode: Semi [info_type_id = id]
 O3: rewrite [Join] Mode: Semi [info_type_id = id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [info_type_id = id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.290864 seconds (Latency: 290.861 ms/iter, Throughput: 3.43803 iter/s)
+  -> Executed 1 times in 0.317677 seconds (Latency: 317.67 ms/iter, Throughput: 3.14785 iter/s)
 - Benchmarking 12c
 O2: rewrite [Join] Mode: Inner [id = company_type_id] to [Join] Mode: Semi [id = company_type_id]
 O2: rewrite [Join] Mode: Inner [info_type_id = id] to [Join] Mode: Semi [info_type_id = id]
@@ -197,7 +200,7 @@ O2: rewrite [Join] Mode: Inner [info_type_id = id] to [Join] Mode: Semi [info_ty
 O3: rewrite [Join] Mode: Semi [info_type_id = id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [info_type_id = id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = company_type_id] to [Predicate] company_type_id = id
-  -> Executed 1 times in 0.31194 seconds (Latency: 311.937 ms/iter, Throughput: 3.20574 iter/s)
+  -> Executed 1 times in 0.368598 seconds (Latency: 368.593 ms/iter, Throughput: 2.71298 iter/s)
 - Benchmarking 13a
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = company_id]
@@ -208,7 +211,7 @@ O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = 
 O3: rewrite [Join] Mode: Semi [id = kind_id] to [Predicate] kind_id = id
 O3: rewrite [Join] Mode: Semi [id = company_type_id] to [Predicate] company_type_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.160739 seconds (Latency: 160.735 ms/iter, Throughput: 6.22128 iter/s)
+  -> Executed 1 times in 0.132039 seconds (Latency: 132.035 ms/iter, Throughput: 7.57352 iter/s)
 - Benchmarking 13b
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = company_type_id] to [Join] Mode: Semi [id = company_type_id]
@@ -218,7 +221,7 @@ O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = 
 O3: rewrite [Join] Mode: Semi [id = kind_id] to [Predicate] kind_id = id
 O3: rewrite [Join] Mode: Semi [id = company_type_id] to [Predicate] company_type_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.109564 seconds (Latency: 109.561 ms/iter, Throughput: 9.12711 iter/s)
+  -> Executed 1 times in 0.187036 seconds (Latency: 187.028 ms/iter, Throughput: 5.34656 iter/s)
 - Benchmarking 13c
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = company_type_id] to [Join] Mode: Semi [id = company_type_id]
@@ -228,7 +231,7 @@ O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = 
 O3: rewrite [Join] Mode: Semi [id = kind_id] to [Predicate] kind_id = id
 O3: rewrite [Join] Mode: Semi [id = company_type_id] to [Predicate] company_type_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.0794025 seconds (Latency: 79.3992 ms/iter, Throughput: 12.5941 iter/s)
+  -> Executed 1 times in 0.158196 seconds (Latency: 158.191 ms/iter, Throughput: 6.32128 iter/s)
 - Benchmarking 13d
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = company_type_id] to [Join] Mode: Semi [id = company_type_id]
@@ -238,16 +241,16 @@ O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = 
 O3: rewrite [Join] Mode: Semi [id = kind_id] to [Predicate] kind_id = id
 O3: rewrite [Join] Mode: Semi [id = company_type_id] to [Predicate] company_type_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.301444 seconds (Latency: 301.44 ms/iter, Throughput: 3.31737 iter/s)
+  -> Executed 1 times in 0.307031 seconds (Latency: 307.027 ms/iter, Throughput: 3.257 iter/s)
 - Benchmarking 14a
-O2: rewrite [Join] Mode: Inner [id = kind_id] to [Join] Mode: Semi [id = kind_id]
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
+O2: rewrite [Join] Mode: Inner [id = kind_id] to [Join] Mode: Semi [id = kind_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = kind_id] to [Predicate] kind_id = id
-  -> Executed 1 times in 0.532148 seconds (Latency: 532.145 ms/iter, Throughput: 1.87918 iter/s)
+O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
+  -> Executed 1 times in 0.355876 seconds (Latency: 355.871 ms/iter, Throughput: 2.80997 iter/s)
 - Benchmarking 14b
 O2: rewrite [Join] Mode: Inner [id = kind_id] to [Join] Mode: Semi [id = kind_id]
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
@@ -256,7 +259,7 @@ O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = in
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = kind_id] to [Predicate] kind_id = id
-  -> Executed 1 times in 0.419861 seconds (Latency: 419.857 ms/iter, Throughput: 2.38174 iter/s)
+  -> Executed 1 times in 0.415896 seconds (Latency: 415.89 ms/iter, Throughput: 2.40445 iter/s)
 - Benchmarking 14c
 O2: rewrite [Join] Mode: Inner [id = kind_id] to [Join] Mode: Semi [id = kind_id]
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
@@ -264,106 +267,106 @@ O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = in
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.599418 seconds (Latency: 599.414 ms/iter, Throughput: 1.66829 iter/s)
+  -> Executed 1 times in 0.45034 seconds (Latency: 450.336 ms/iter, Throughput: 2.22055 iter/s)
 - Benchmarking 15a
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = company_type_id] to [Join] Mode: Semi [id = company_type_id]
 O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = company_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.144125 seconds (Latency: 144.122 ms/iter, Throughput: 6.9384 iter/s)
+  -> Executed 1 times in 0.234562 seconds (Latency: 234.554 ms/iter, Throughput: 4.26327 iter/s)
 - Benchmarking 15b
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = company_type_id] to [Join] Mode: Semi [id = company_type_id]
 O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = company_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.130412 seconds (Latency: 130.408 ms/iter, Throughput: 7.66803 iter/s)
+  -> Executed 1 times in 0.204483 seconds (Latency: 204.476 ms/iter, Throughput: 4.89039 iter/s)
 - Benchmarking 15c
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = company_type_id] to [Join] Mode: Semi [id = company_type_id]
 O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = company_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.173834 seconds (Latency: 173.831 ms/iter, Throughput: 5.75261 iter/s)
+  -> Executed 1 times in 0.283183 seconds (Latency: 283.178 ms/iter, Throughput: 3.53128 iter/s)
 - Benchmarking 15d
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = company_type_id] to [Join] Mode: Semi [id = company_type_id]
 O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = company_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.0893465 seconds (Latency: 89.3438 ms/iter, Throughput: 11.1924 iter/s)
+  -> Executed 1 times in 0.178055 seconds (Latency: 178.049 ms/iter, Throughput: 5.61624 iter/s)
 - Benchmarking 16a
 O2: rewrite [Join] Mode: Inner [company_id = id] to [Join] Mode: Semi [company_id = id]
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
 O3: rewrite [Join] Mode: Semi [keyword_id = id] to [Predicate] keyword_id = id
-  -> Executed 1 times in 1.71177 seconds (Latency: 1711.77 ms/iter, Throughput: 0.584189 iter/s)
+  -> Executed 1 times in 1.36361 seconds (Latency: 1363.61 ms/iter, Throughput: 0.733346 iter/s)
 - Benchmarking 16b
 O2: rewrite [Join] Mode: Inner [company_id = id] to [Join] Mode: Semi [company_id = id]
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
 O3: rewrite [Join] Mode: Semi [keyword_id = id] to [Predicate] keyword_id = id
-  -> Executed 1 times in 2.38418 seconds (Latency: 2384.17 ms/iter, Throughput: 0.419431 iter/s)
+  -> Executed 1 times in 2.22586 seconds (Latency: 2225.86 ms/iter, Throughput: 0.449264 iter/s)
 - Benchmarking 16c
 O2: rewrite [Join] Mode: Inner [company_id = id] to [Join] Mode: Semi [company_id = id]
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
 O3: rewrite [Join] Mode: Semi [keyword_id = id] to [Predicate] keyword_id = id
-  -> Executed 1 times in 1.79276 seconds (Latency: 1792.76 ms/iter, Throughput: 0.557799 iter/s)
+  -> Executed 1 times in 1.42665 seconds (Latency: 1426.65 ms/iter, Throughput: 0.700941 iter/s)
 - Benchmarking 16d
 O2: rewrite [Join] Mode: Inner [company_id = id] to [Join] Mode: Semi [company_id = id]
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
 O3: rewrite [Join] Mode: Semi [keyword_id = id] to [Predicate] keyword_id = id
-  -> Executed 1 times in 1.77258 seconds (Latency: 1772.57 ms/iter, Throughput: 0.564151 iter/s)
+  -> Executed 1 times in 1.41333 seconds (Latency: 1413.32 ms/iter, Throughput: 0.707551 iter/s)
 - Benchmarking 17a
 O2: rewrite [Join] Mode: Inner [company_id = id] to [Join] Mode: Semi [company_id = id]
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
 O3: rewrite [Join] Mode: Semi [keyword_id = id] to [Predicate] keyword_id = id
-  -> Executed 1 times in 0.525653 seconds (Latency: 525.648 ms/iter, Throughput: 1.9024 iter/s)
+  -> Executed 1 times in 0.485826 seconds (Latency: 485.821 ms/iter, Throughput: 2.05835 iter/s)
 - Benchmarking 17b
 O2: rewrite [Join] Mode: Inner [company_id = id] to [Join] Mode: Semi [company_id = id]
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
 O3: rewrite [Join] Mode: Semi [keyword_id = id] to [Predicate] keyword_id = id
-  -> Executed 1 times in 0.478574 seconds (Latency: 478.57 ms/iter, Throughput: 2.08954 iter/s)
+  -> Executed 1 times in 0.43128 seconds (Latency: 431.275 ms/iter, Throughput: 2.31868 iter/s)
 - Benchmarking 17c
 O2: rewrite [Join] Mode: Inner [company_id = id] to [Join] Mode: Semi [company_id = id]
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
 O3: rewrite [Join] Mode: Semi [keyword_id = id] to [Predicate] keyword_id = id
-  -> Executed 1 times in 0.440359 seconds (Latency: 440.355 ms/iter, Throughput: 2.27088 iter/s)
+  -> Executed 1 times in 0.419291 seconds (Latency: 419.286 ms/iter, Throughput: 2.38498 iter/s)
 - Benchmarking 17d
 O2: rewrite [Join] Mode: Inner [company_id = id] to [Join] Mode: Semi [company_id = id]
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
 O3: rewrite [Join] Mode: Semi [keyword_id = id] to [Predicate] keyword_id = id
-  -> Executed 1 times in 0.475817 seconds (Latency: 475.814 ms/iter, Throughput: 2.10165 iter/s)
+  -> Executed 1 times in 0.475481 seconds (Latency: 475.476 ms/iter, Throughput: 2.10313 iter/s)
 - Benchmarking 17e
 O2: rewrite [Join] Mode: Inner [company_id = id] to [Join] Mode: Semi [company_id = id]
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
 O3: rewrite [Join] Mode: Semi [keyword_id = id] to [Predicate] keyword_id = id
-  -> Executed 1 times in 1.00504 seconds (Latency: 1005.03 ms/iter, Throughput: 0.99499 iter/s)
+  -> Executed 1 times in 1.10406 seconds (Latency: 1104.06 ms/iter, Throughput: 0.905747 iter/s)
 - Benchmarking 17f
 O2: rewrite [Join] Mode: Inner [company_id = id] to [Join] Mode: Semi [company_id = id]
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
 O3: rewrite [Join] Mode: Semi [keyword_id = id] to [Predicate] keyword_id = id
-  -> Executed 1 times in 0.730873 seconds (Latency: 730.869 ms/iter, Throughput: 1.36823 iter/s)
+  -> Executed 1 times in 0.720983 seconds (Latency: 720.974 ms/iter, Throughput: 1.387 iter/s)
 - Benchmarking 18a
 O2: rewrite [Join] Mode: Inner [id = person_id] to [Join] Mode: Semi [id = person_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.392601 seconds (Latency: 392.598 ms/iter, Throughput: 2.54712 iter/s)
+  -> Executed 1 times in 0.306466 seconds (Latency: 306.46 ms/iter, Throughput: 3.26301 iter/s)
 - Benchmarking 18b
 O2: rewrite [Join] Mode: Inner [id = person_id] to [Join] Mode: Semi [id = person_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.257524 seconds (Latency: 257.521 ms/iter, Throughput: 3.88313 iter/s)
+  -> Executed 1 times in 0.279509 seconds (Latency: 279.504 ms/iter, Throughput: 3.5777 iter/s)
 - Benchmarking 18c
 O2: rewrite [Join] Mode: Inner [id = person_id] to [Join] Mode: Semi [id = person_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.514798 seconds (Latency: 514.792 ms/iter, Throughput: 1.94251 iter/s)
+  -> Executed 1 times in 0.332268 seconds (Latency: 332.263 ms/iter, Throughput: 3.00962 iter/s)
 - Benchmarking 19a
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = company_id]
@@ -371,7 +374,7 @@ O2: rewrite [Join] Mode: Inner [id = person_role_id] to [Join] Mode: Semi [id = 
 O2: rewrite [Join] Mode: Inner [id = role_id] to [Join] Mode: Semi [id = role_id]
 O3: rewrite [Join] Mode: Semi [id = role_id] to [Predicate] role_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.217023 seconds (Latency: 217.019 ms/iter, Throughput: 4.60781 iter/s)
+  -> Executed 1 times in 0.354314 seconds (Latency: 354.309 ms/iter, Throughput: 2.82236 iter/s)
 - Benchmarking 19b
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = company_id]
@@ -379,7 +382,7 @@ O2: rewrite [Join] Mode: Inner [id = person_role_id] to [Join] Mode: Semi [id = 
 O2: rewrite [Join] Mode: Inner [id = role_id] to [Join] Mode: Semi [id = role_id]
 O3: rewrite [Join] Mode: Semi [id = role_id] to [Predicate] role_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.164605 seconds (Latency: 164.602 ms/iter, Throughput: 6.07514 iter/s)
+  -> Executed 1 times in 0.290525 seconds (Latency: 290.518 ms/iter, Throughput: 3.44205 iter/s)
 - Benchmarking 19c
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = company_id]
@@ -387,7 +390,7 @@ O2: rewrite [Join] Mode: Inner [id = person_role_id] to [Join] Mode: Semi [id = 
 O2: rewrite [Join] Mode: Inner [id = role_id] to [Join] Mode: Semi [id = role_id]
 O3: rewrite [Join] Mode: Semi [id = role_id] to [Predicate] role_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.173417 seconds (Latency: 173.414 ms/iter, Throughput: 5.76645 iter/s)
+  -> Executed 1 times in 0.361451 seconds (Latency: 361.443 ms/iter, Throughput: 2.76663 iter/s)
 - Benchmarking 19d
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = company_id]
@@ -395,31 +398,31 @@ O2: rewrite [Join] Mode: Inner [id = person_role_id] to [Join] Mode: Semi [id = 
 O2: rewrite [Join] Mode: Inner [id = role_id] to [Join] Mode: Semi [id = role_id]
 O3: rewrite [Join] Mode: Semi [id = role_id] to [Predicate] role_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.464383 seconds (Latency: 464.379 ms/iter, Throughput: 2.1534 iter/s)
+  -> Executed 1 times in 0.570933 seconds (Latency: 570.929 ms/iter, Throughput: 1.75152 iter/s)
 - Benchmarking 1a
 O2: rewrite [Join] Mode: Inner [id = company_type_id] to [Join] Mode: Semi [id = company_type_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = company_type_id] to [Predicate] company_type_id = id
-  -> Executed 1 times in 0.0160779 seconds (Latency: 16.0754 ms/iter, Throughput: 62.1971 iter/s)
+  -> Executed 1 times in 0.0187932 seconds (Latency: 18.7848 ms/iter, Throughput: 53.2107 iter/s)
 - Benchmarking 1b
 O2: rewrite [Join] Mode: Inner [id = company_type_id] to [Join] Mode: Semi [id = company_type_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = company_type_id] to [Predicate] company_type_id = id
-  -> Executed 1 times in 0.0153121 seconds (Latency: 15.3095 ms/iter, Throughput: 65.3079 iter/s)
+  -> Executed 1 times in 0.0222527 seconds (Latency: 22.2481 ms/iter, Throughput: 44.9384 iter/s)
 - Benchmarking 1c
 O2: rewrite [Join] Mode: Inner [id = company_type_id] to [Join] Mode: Semi [id = company_type_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = company_type_id] to [Predicate] company_type_id = id
-  -> Executed 1 times in 0.0155721 seconds (Latency: 15.57 ms/iter, Throughput: 64.2173 iter/s)
+  -> Executed 1 times in 0.020189 seconds (Latency: 20.183 ms/iter, Throughput: 49.5319 iter/s)
 - Benchmarking 1d
 O2: rewrite [Join] Mode: Inner [id = company_type_id] to [Join] Mode: Semi [id = company_type_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = company_type_id] to [Predicate] company_type_id = id
-  -> Executed 1 times in 0.0153254 seconds (Latency: 15.3228 ms/iter, Throughput: 65.2513 iter/s)
+  -> Executed 1 times in 0.0209991 seconds (Latency: 20.9941 ms/iter, Throughput: 47.621 iter/s)
 - Benchmarking 20a
 O2: rewrite [Join] Mode: Inner [id = person_id] to [Join] Mode: Semi [id = person_id]
 O2: rewrite [Join] Mode: Inner [id = person_role_id] to [Join] Mode: Semi [id = person_role_id]
@@ -429,7 +432,7 @@ O2: rewrite [Join] Mode: Inner [id = kind_id] to [Join] Mode: Semi [id = kind_id
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O3: rewrite [Join] Mode: Semi [id = kind_id] to [Predicate] kind_id = id
 O3: rewrite [Join] Mode: Semi [id = subject_id] to [Predicate] subject_id = id
-  -> Executed 1 times in 0.297969 seconds (Latency: 297.966 ms/iter, Throughput: 3.35606 iter/s)
+  -> Executed 1 times in 0.450177 seconds (Latency: 450.172 ms/iter, Throughput: 2.22135 iter/s)
 - Benchmarking 20b
 O2: rewrite [Join] Mode: Inner [id = person_id] to [Join] Mode: Semi [id = person_id]
 O2: rewrite [Join] Mode: Inner [id = person_role_id] to [Join] Mode: Semi [id = person_role_id]
@@ -439,7 +442,7 @@ O2: rewrite [Join] Mode: Inner [id = kind_id] to [Join] Mode: Semi [id = kind_id
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O3: rewrite [Join] Mode: Semi [id = kind_id] to [Predicate] kind_id = id
 O3: rewrite [Join] Mode: Semi [id = subject_id] to [Predicate] subject_id = id
-  -> Executed 1 times in 0.216524 seconds (Latency: 216.519 ms/iter, Throughput: 4.61843 iter/s)
+  -> Executed 1 times in 0.495104 seconds (Latency: 495.097 ms/iter, Throughput: 2.01978 iter/s)
 - Benchmarking 20c
 O2: rewrite [Join] Mode: Inner [id = person_role_id] to [Join] Mode: Semi [id = person_role_id]
 O2: rewrite [Join] Mode: Inner [id = subject_id] to [Join] Mode: Semi [id = subject_id]
@@ -448,25 +451,25 @@ O2: rewrite [Join] Mode: Inner [id = kind_id] to [Join] Mode: Semi [id = kind_id
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O3: rewrite [Join] Mode: Semi [id = kind_id] to [Predicate] kind_id = id
 O3: rewrite [Join] Mode: Semi [id = subject_id] to [Predicate] subject_id = id
-  -> Executed 1 times in 0.201869 seconds (Latency: 201.865 ms/iter, Throughput: 4.9537 iter/s)
+  -> Executed 1 times in 0.412513 seconds (Latency: 412.509 ms/iter, Throughput: 2.42416 iter/s)
 - Benchmarking 21a
 O2: rewrite [Join] Mode: Inner [company_type_id = id] to [Join] Mode: Semi [company_type_id = id]
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
 O3: rewrite [Join] Mode: Semi [keyword_id = id] to [Predicate] keyword_id = id
 O3: rewrite [Join] Mode: Semi [company_type_id = id] to [Predicate] company_type_id = id
-  -> Executed 1 times in 0.093556 seconds (Latency: 93.5515 ms/iter, Throughput: 10.6888 iter/s)
+  -> Executed 1 times in 0.153977 seconds (Latency: 153.966 ms/iter, Throughput: 6.49448 iter/s)
 - Benchmarking 21b
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
 O2: rewrite [Join] Mode: Inner [company_type_id = id] to [Join] Mode: Semi [company_type_id = id]
 O3: rewrite [Join] Mode: Semi [company_type_id = id] to [Predicate] company_type_id = id
 O3: rewrite [Join] Mode: Semi [keyword_id = id] to [Predicate] keyword_id = id
-  -> Executed 1 times in 0.0577597 seconds (Latency: 57.7555 ms/iter, Throughput: 17.3131 iter/s)
+  -> Executed 1 times in 0.143668 seconds (Latency: 143.658 ms/iter, Throughput: 6.96052 iter/s)
 - Benchmarking 21c
 O2: rewrite [Join] Mode: Inner [company_type_id = id] to [Join] Mode: Semi [company_type_id = id]
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
 O3: rewrite [Join] Mode: Semi [keyword_id = id] to [Predicate] keyword_id = id
 O3: rewrite [Join] Mode: Semi [company_type_id = id] to [Predicate] company_type_id = id
-  -> Executed 1 times in 0.0832542 seconds (Latency: 83.251 ms/iter, Throughput: 12.0114 iter/s)
+  -> Executed 1 times in 0.149208 seconds (Latency: 149.203 ms/iter, Throughput: 6.70203 iter/s)
 - Benchmarking 22a
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
@@ -475,7 +478,7 @@ O2: rewrite [Join] Mode: Inner [id = kind_id] to [Join] Mode: Semi [id = kind_id
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.271402 seconds (Latency: 271.399 ms/iter, Throughput: 3.68457 iter/s)
+  -> Executed 1 times in 0.368871 seconds (Latency: 368.865 ms/iter, Throughput: 2.71097 iter/s)
 - Benchmarking 22b
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
@@ -484,7 +487,7 @@ O2: rewrite [Join] Mode: Inner [id = kind_id] to [Join] Mode: Semi [id = kind_id
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.246185 seconds (Latency: 246.182 ms/iter, Throughput: 4.06198 iter/s)
+  -> Executed 1 times in 0.349598 seconds (Latency: 349.594 ms/iter, Throughput: 2.86043 iter/s)
 - Benchmarking 22c
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
@@ -493,7 +496,7 @@ O2: rewrite [Join] Mode: Inner [id = kind_id] to [Join] Mode: Semi [id = kind_id
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.460873 seconds (Latency: 460.87 ms/iter, Throughput: 2.1698 iter/s)
+  -> Executed 1 times in 0.48579 seconds (Latency: 485.784 ms/iter, Throughput: 2.0585 iter/s)
 - Benchmarking 22d
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
@@ -502,7 +505,7 @@ O2: rewrite [Join] Mode: Inner [id = kind_id] to [Join] Mode: Semi [id = kind_id
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.693836 seconds (Latency: 693.831 ms/iter, Throughput: 1.44126 iter/s)
+  -> Executed 1 times in 0.56367 seconds (Latency: 563.665 ms/iter, Throughput: 1.77409 iter/s)
 - Benchmarking 23a
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
@@ -511,7 +514,7 @@ O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = comp
 O2: rewrite [Join] Mode: Inner [id = status_id] to [Join] Mode: Semi [id = status_id]
 O3: rewrite [Join] Mode: Semi [id = status_id] to [Predicate] status_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.14777 seconds (Latency: 147.767 ms/iter, Throughput: 6.76726 iter/s)
+  -> Executed 1 times in 0.186678 seconds (Latency: 186.67 ms/iter, Throughput: 5.35682 iter/s)
 - Benchmarking 23b
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = company_type_id] to [Join] Mode: Semi [id = company_type_id]
@@ -520,7 +523,7 @@ O2: rewrite [Join] Mode: Inner [id = status_id] to [Join] Mode: Semi [id = statu
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O3: rewrite [Join] Mode: Semi [id = status_id] to [Predicate] status_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.109374 seconds (Latency: 109.367 ms/iter, Throughput: 9.14292 iter/s)
+  -> Executed 1 times in 0.22294 seconds (Latency: 222.935 ms/iter, Throughput: 4.48551 iter/s)
 - Benchmarking 23c
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
@@ -529,7 +532,7 @@ O2: rewrite [Join] Mode: Inner [id = company_type_id] to [Join] Mode: Semi [id =
 O2: rewrite [Join] Mode: Inner [id = status_id] to [Join] Mode: Semi [id = status_id]
 O3: rewrite [Join] Mode: Semi [id = status_id] to [Predicate] status_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.118541 seconds (Latency: 118.537 ms/iter, Throughput: 8.43586 iter/s)
+  -> Executed 1 times in 0.198589 seconds (Latency: 198.583 ms/iter, Throughput: 5.03553 iter/s)
 - Benchmarking 24a
 O2: rewrite [Join] Mode: Inner [id = role_id] to [Join] Mode: Semi [id = role_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
@@ -537,36 +540,36 @@ O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = comp
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = role_id] to [Predicate] role_id = id
-  -> Executed 1 times in 0.235696 seconds (Latency: 235.692 ms/iter, Throughput: 4.24275 iter/s)
+  -> Executed 1 times in 0.456795 seconds (Latency: 456.79 ms/iter, Throughput: 2.18917 iter/s)
 - Benchmarking 24b
 O2: rewrite [Join] Mode: Inner [id = role_id] to [Join] Mode: Semi [id = role_id]
-O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = company_id]
+O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = role_id] to [Predicate] role_id = id
-  -> Executed 1 times in 0.258006 seconds (Latency: 258.003 ms/iter, Throughput: 3.87587 iter/s)
+  -> Executed 1 times in 0.599801 seconds (Latency: 599.797 ms/iter, Throughput: 1.66722 iter/s)
 - Benchmarking 25a
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.290603 seconds (Latency: 290.599 ms/iter, Throughput: 3.44112 iter/s)
+  -> Executed 1 times in 0.265543 seconds (Latency: 265.539 ms/iter, Throughput: 3.76586 iter/s)
 - Benchmarking 25b
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.195297 seconds (Latency: 195.293 ms/iter, Throughput: 5.12041 iter/s)
+  -> Executed 1 times in 0.242412 seconds (Latency: 242.408 ms/iter, Throughput: 4.1252 iter/s)
 - Benchmarking 25c
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.709637 seconds (Latency: 709.631 ms/iter, Throughput: 1.40917 iter/s)
+  -> Executed 1 times in 0.427673 seconds (Latency: 427.666 ms/iter, Throughput: 2.33823 iter/s)
 - Benchmarking 26a
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = subject_id] to [Join] Mode: Semi [id = subject_id]
@@ -576,7 +579,7 @@ O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyw
 O3: rewrite [Join] Mode: Semi [id = kind_id] to [Predicate] kind_id = id
 O3: rewrite [Join] Mode: Semi [id = subject_id] to [Predicate] subject_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.257511 seconds (Latency: 257.507 ms/iter, Throughput: 3.88332 iter/s)
+  -> Executed 1 times in 0.356573 seconds (Latency: 356.568 ms/iter, Throughput: 2.80447 iter/s)
 - Benchmarking 26b
 O2: rewrite [Join] Mode: Inner [id = person_id] to [Join] Mode: Semi [id = person_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
@@ -587,7 +590,7 @@ O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyw
 O3: rewrite [Join] Mode: Semi [id = kind_id] to [Predicate] kind_id = id
 O3: rewrite [Join] Mode: Semi [id = subject_id] to [Predicate] subject_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.228847 seconds (Latency: 228.839 ms/iter, Throughput: 4.36973 iter/s)
+  -> Executed 1 times in 0.264979 seconds (Latency: 264.97 ms/iter, Throughput: 3.77389 iter/s)
 - Benchmarking 26c
 O2: rewrite [Join] Mode: Inner [id = person_id] to [Join] Mode: Semi [id = person_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
@@ -598,7 +601,7 @@ O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyw
 O3: rewrite [Join] Mode: Semi [id = kind_id] to [Predicate] kind_id = id
 O3: rewrite [Join] Mode: Semi [id = subject_id] to [Predicate] subject_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.269444 seconds (Latency: 269.431 ms/iter, Throughput: 3.71134 iter/s)
+  -> Executed 1 times in 0.465738 seconds (Latency: 465.729 ms/iter, Throughput: 2.14713 iter/s)
 - Benchmarking 27a
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
 O2: rewrite [Join] Mode: Inner [company_type_id = id] to [Join] Mode: Semi [company_type_id = id]
@@ -607,7 +610,7 @@ O2: rewrite [Join] Mode: Inner [id = status_id] to [Join] Mode: Semi [id = statu
 O3: rewrite [Join] Mode: Semi [id = status_id] to [Predicate] status_id = id
 O3: rewrite [Join] Mode: Semi [company_type_id = id] to [Predicate] company_type_id = id
 O3: rewrite [Join] Mode: Semi [keyword_id = id] to [Predicate] keyword_id = id
-  -> Executed 1 times in 0.124284 seconds (Latency: 124.28 ms/iter, Throughput: 8.04608 iter/s)
+  -> Executed 1 times in 0.384759 seconds (Latency: 384.752 ms/iter, Throughput: 2.59903 iter/s)
 - Benchmarking 27b
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
 O2: rewrite [Join] Mode: Inner [company_type_id = id] to [Join] Mode: Semi [company_type_id = id]
@@ -616,7 +619,7 @@ O2: rewrite [Join] Mode: Inner [id = status_id] to [Join] Mode: Semi [id = statu
 O3: rewrite [Join] Mode: Semi [id = status_id] to [Predicate] status_id = id
 O3: rewrite [Join] Mode: Semi [company_type_id = id] to [Predicate] company_type_id = id
 O3: rewrite [Join] Mode: Semi [keyword_id = id] to [Predicate] keyword_id = id
-  -> Executed 1 times in 0.10775 seconds (Latency: 107.746 ms/iter, Throughput: 9.28076 iter/s)
+  -> Executed 1 times in 0.384976 seconds (Latency: 384.969 ms/iter, Throughput: 2.59757 iter/s)
 - Benchmarking 27c
 O2: rewrite [Join] Mode: Inner [company_type_id = id] to [Join] Mode: Semi [company_type_id = id]
 O2: rewrite [Join] Mode: Inner [id = status_id] to [Join] Mode: Semi [id = status_id]
@@ -625,7 +628,7 @@ O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_i
 O3: rewrite [Join] Mode: Semi [keyword_id = id] to [Predicate] keyword_id = id
 O3: rewrite [Join] Mode: Semi [id = subject_id] to [Predicate] subject_id = id
 O3: rewrite [Join] Mode: Semi [company_type_id = id] to [Predicate] company_type_id = id
-  -> Executed 1 times in 0.131695 seconds (Latency: 131.692 ms/iter, Throughput: 7.59327 iter/s)
+  -> Executed 1 times in 0.298455 seconds (Latency: 298.449 ms/iter, Throughput: 3.35059 iter/s)
 - Benchmarking 28a
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
@@ -637,7 +640,7 @@ O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = in
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = subject_id] to [Predicate] subject_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.647324 seconds (Latency: 647.319 ms/iter, Throughput: 1.54482 iter/s)
+  -> Executed 1 times in 1.04439 seconds (Latency: 1044.38 ms/iter, Throughput: 0.957497 iter/s)
 - Benchmarking 28b
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
@@ -649,7 +652,7 @@ O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = in
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = subject_id] to [Predicate] subject_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.403437 seconds (Latency: 403.434 ms/iter, Throughput: 2.4787 iter/s)
+  -> Executed 1 times in 0.674229 seconds (Latency: 674.219 ms/iter, Throughput: 1.48317 iter/s)
 - Benchmarking 28c
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
@@ -662,37 +665,37 @@ O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = 
 O3: rewrite [Join] Mode: Semi [id = status_id] to [Predicate] status_id = id
 O3: rewrite [Join] Mode: Semi [id = subject_id] to [Predicate] subject_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.552847 seconds (Latency: 552.842 ms/iter, Throughput: 1.80882 iter/s)
+  -> Executed 1 times in 1.06968 seconds (Latency: 1069.67 ms/iter, Throughput: 0.934862 iter/s)
 - Benchmarking 29a
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = company_id]
-O2: rewrite [Join] Mode: Inner [id = subject_id] to [Join] Mode: Semi [id = subject_id]
 O2: rewrite [Join] Mode: Inner [id = status_id] to [Join] Mode: Semi [id = status_id]
+O2: rewrite [Join] Mode: Inner [id = subject_id] to [Join] Mode: Semi [id = subject_id]
 O2: rewrite [Join] Mode: Inner [id = role_id] to [Join] Mode: Semi [id = role_id]
 O3: rewrite [Join] Mode: Semi [id = role_id] to [Predicate] role_id = id
-O3: rewrite [Join] Mode: Semi [id = status_id] to [Predicate] status_id = id
 O3: rewrite [Join] Mode: Semi [id = subject_id] to [Predicate] subject_id = id
+O3: rewrite [Join] Mode: Semi [id = status_id] to [Predicate] status_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = keyword_id] to [Predicate] keyword_id = id
-  -> Executed 1 times in 0.661655 seconds (Latency: 661.651 ms/iter, Throughput: 1.51136 iter/s)
+  -> Executed 1 times in 2.24224 seconds (Latency: 2242.23 ms/iter, Throughput: 0.445982 iter/s)
 - Benchmarking 29b
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = company_id]
-O2: rewrite [Join] Mode: Inner [id = subject_id] to [Join] Mode: Semi [id = subject_id]
 O2: rewrite [Join] Mode: Inner [id = status_id] to [Join] Mode: Semi [id = status_id]
+O2: rewrite [Join] Mode: Inner [id = subject_id] to [Join] Mode: Semi [id = subject_id]
 O2: rewrite [Join] Mode: Inner [id = role_id] to [Join] Mode: Semi [id = role_id]
 O3: rewrite [Join] Mode: Semi [id = role_id] to [Predicate] role_id = id
-O3: rewrite [Join] Mode: Semi [id = status_id] to [Predicate] status_id = id
 O3: rewrite [Join] Mode: Semi [id = subject_id] to [Predicate] subject_id = id
+O3: rewrite [Join] Mode: Semi [id = status_id] to [Predicate] status_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = keyword_id] to [Predicate] keyword_id = id
-  -> Executed 1 times in 0.534571 seconds (Latency: 534.568 ms/iter, Throughput: 1.87066 iter/s)
+  -> Executed 1 times in 2.54651 seconds (Latency: 2546.5 ms/iter, Throughput: 0.392695 iter/s)
 - Benchmarking 29c
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = role_id] to [Join] Mode: Semi [id = role_id]
@@ -707,27 +710,27 @@ O3: rewrite [Join] Mode: Semi [id = status_id] to [Predicate] status_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = role_id] to [Predicate] role_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.624954 seconds (Latency: 624.95 ms/iter, Throughput: 1.60012 iter/s)
+  -> Executed 1 times in 1.14902 seconds (Latency: 1149.01 ms/iter, Throughput: 0.87031 iter/s)
 - Benchmarking 2a
 O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = company_id]
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
 O3: rewrite [Join] Mode: Semi [keyword_id = id] to [Predicate] keyword_id = id
-  -> Executed 1 times in 0.0431205 seconds (Latency: 43.1161 ms/iter, Throughput: 23.1908 iter/s)
+  -> Executed 1 times in 0.0356387 seconds (Latency: 35.6327 ms/iter, Throughput: 28.0593 iter/s)
 - Benchmarking 2b
 O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = company_id]
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
 O3: rewrite [Join] Mode: Semi [keyword_id = id] to [Predicate] keyword_id = id
-  -> Executed 1 times in 0.0369592 seconds (Latency: 36.9562 ms/iter, Throughput: 27.0569 iter/s)
+  -> Executed 1 times in 0.0325042 seconds (Latency: 32.4989 ms/iter, Throughput: 30.7652 iter/s)
 - Benchmarking 2c
 O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = company_id]
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
 O3: rewrite [Join] Mode: Semi [keyword_id = id] to [Predicate] keyword_id = id
-  -> Executed 1 times in 0.0273168 seconds (Latency: 27.313 ms/iter, Throughput: 36.6075 iter/s)
+  -> Executed 1 times in 0.0304391 seconds (Latency: 30.4334 ms/iter, Throughput: 32.8525 iter/s)
 - Benchmarking 2d
 O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = company_id]
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
 O3: rewrite [Join] Mode: Semi [keyword_id = id] to [Predicate] keyword_id = id
-  -> Executed 1 times in 0.0524431 seconds (Latency: 52.4367 ms/iter, Throughput: 19.0683 iter/s)
+  -> Executed 1 times in 0.0584228 seconds (Latency: 58.4171 ms/iter, Throughput: 17.1166 iter/s)
 - Benchmarking 30a
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
@@ -737,7 +740,7 @@ O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = in
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = status_id] to [Predicate] status_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.343184 seconds (Latency: 343.177 ms/iter, Throughput: 2.91389 iter/s)
+  -> Executed 1 times in 0.580237 seconds (Latency: 580.232 ms/iter, Throughput: 1.72343 iter/s)
 - Benchmarking 30b
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
@@ -747,7 +750,7 @@ O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = in
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = status_id] to [Predicate] status_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.368981 seconds (Latency: 368.976 ms/iter, Throughput: 2.71016 iter/s)
+  -> Executed 1 times in 0.651428 seconds (Latency: 651.42 ms/iter, Throughput: 1.53509 iter/s)
 - Benchmarking 30c
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
@@ -758,7 +761,7 @@ O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = 
 O3: rewrite [Join] Mode: Semi [id = subject_id] to [Predicate] subject_id = id
 O3: rewrite [Join] Mode: Semi [id = status_id] to [Predicate] status_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.478109 seconds (Latency: 478.105 ms/iter, Throughput: 2.09157 iter/s)
+  -> Executed 1 times in 0.710482 seconds (Latency: 710.478 ms/iter, Throughput: 1.40749 iter/s)
 - Benchmarking 31a
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
@@ -766,7 +769,7 @@ O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = in
 O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = company_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.321173 seconds (Latency: 321.169 ms/iter, Throughput: 3.11359 iter/s)
+  -> Executed 1 times in 0.564514 seconds (Latency: 564.506 ms/iter, Throughput: 1.77143 iter/s)
 - Benchmarking 31b
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
@@ -774,7 +777,7 @@ O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = in
 O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = company_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.358003 seconds (Latency: 357.999 ms/iter, Throughput: 2.79327 iter/s)
+  -> Executed 1 times in 0.706897 seconds (Latency: 706.892 ms/iter, Throughput: 1.41463 iter/s)
 - Benchmarking 31c
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
@@ -782,15 +785,15 @@ O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = in
 O2: rewrite [Join] Mode: Inner [id = company_id] to [Join] Mode: Semi [id = company_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.333407 seconds (Latency: 333.403 ms/iter, Throughput: 2.99934 iter/s)
+  -> Executed 1 times in 0.597448 seconds (Latency: 597.443 ms/iter, Throughput: 1.67379 iter/s)
 - Benchmarking 32a
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
 O3: rewrite [Join] Mode: Semi [keyword_id = id] to [Predicate] keyword_id = id
-  -> Executed 1 times in 0.02152 seconds (Latency: 21.5163 ms/iter, Throughput: 46.4683 iter/s)
+  -> Executed 1 times in 0.0292671 seconds (Latency: 29.2624 ms/iter, Throughput: 34.168 iter/s)
 - Benchmarking 32b
 O2: rewrite [Join] Mode: Inner [keyword_id = id] to [Join] Mode: Semi [keyword_id = id]
 O3: rewrite [Join] Mode: Semi [keyword_id = id] to [Predicate] keyword_id = id
-  -> Executed 1 times in 0.0378091 seconds (Latency: 37.8065 ms/iter, Throughput: 26.4486 iter/s)
+  -> Executed 1 times in 0.0475351 seconds (Latency: 47.5265 ms/iter, Throughput: 21.0371 iter/s)
 - Benchmarking 33a
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
@@ -799,7 +802,7 @@ O2: rewrite [Join] Mode: Inner [id = kind_id] to [Join] Mode: Semi [id = kind_id
 O2: rewrite [Join] Mode: Inner [id = link_type_id] to [Join] Mode: Semi [id = link_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.127908 seconds (Latency: 127.904 ms/iter, Throughput: 7.81813 iter/s)
+  -> Executed 1 times in 0.168838 seconds (Latency: 168.833 ms/iter, Throughput: 5.92284 iter/s)
 - Benchmarking 33b
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
@@ -808,7 +811,7 @@ O2: rewrite [Join] Mode: Inner [id = kind_id] to [Join] Mode: Semi [id = kind_id
 O2: rewrite [Join] Mode: Inner [id = link_type_id] to [Join] Mode: Semi [id = link_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.141025 seconds (Latency: 141.022 ms/iter, Throughput: 7.09093 iter/s)
+  -> Executed 1 times in 0.205093 seconds (Latency: 205.086 ms/iter, Throughput: 4.87585 iter/s)
 - Benchmarking 33c
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
@@ -817,112 +820,112 @@ O2: rewrite [Join] Mode: Inner [id = kind_id] to [Join] Mode: Semi [id = kind_id
 O2: rewrite [Join] Mode: Inner [id = link_type_id] to [Join] Mode: Semi [id = link_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.12679 seconds (Latency: 126.786 ms/iter, Throughput: 7.88709 iter/s)
+  -> Executed 1 times in 0.185382 seconds (Latency: 185.375 ms/iter, Throughput: 5.39428 iter/s)
 - Benchmarking 3a
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
-  -> Executed 1 times in 0.0910519 seconds (Latency: 91.0452 ms/iter, Throughput: 10.9828 iter/s)
+  -> Executed 1 times in 0.0691591 seconds (Latency: 69.1535 ms/iter, Throughput: 14.4594 iter/s)
 - Benchmarking 3b
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
-  -> Executed 1 times in 0.0182809 seconds (Latency: 18.2779 ms/iter, Throughput: 54.702 iter/s)
+  -> Executed 1 times in 0.0253286 seconds (Latency: 25.3239 ms/iter, Throughput: 39.481 iter/s)
 - Benchmarking 3c
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
-  -> Executed 1 times in 0.316881 seconds (Latency: 316.878 ms/iter, Throughput: 3.15576 iter/s)
+  -> Executed 1 times in 0.191127 seconds (Latency: 191.115 ms/iter, Throughput: 5.23213 iter/s)
 - Benchmarking 4a
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.111816 seconds (Latency: 111.812 ms/iter, Throughput: 8.94329 iter/s)
+  -> Executed 1 times in 0.13469 seconds (Latency: 134.688 ms/iter, Throughput: 7.42443 iter/s)
 - Benchmarking 4b
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.0219312 seconds (Latency: 21.9284 ms/iter, Throughput: 45.5972 iter/s)
+  -> Executed 1 times in 0.0290541 seconds (Latency: 29.0506 ms/iter, Throughput: 34.4185 iter/s)
 - Benchmarking 4c
 O2: rewrite [Join] Mode: Inner [id = keyword_id] to [Join] Mode: Semi [id = keyword_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.0953275 seconds (Latency: 95.324 ms/iter, Throughput: 10.4902 iter/s)
+  -> Executed 1 times in 0.160669 seconds (Latency: 160.665 ms/iter, Throughput: 6.22398 iter/s)
 - Benchmarking 5a
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = company_type_id] to [Join] Mode: Semi [id = company_type_id]
 O3: rewrite [Join] Mode: Semi [id = company_type_id] to [Predicate] company_type_id = id
-  -> Executed 1 times in 0.0413632 seconds (Latency: 41.3606 ms/iter, Throughput: 24.176 iter/s)
+  -> Executed 1 times in 0.059522 seconds (Latency: 59.5191 ms/iter, Throughput: 16.8005 iter/s)
 - Benchmarking 5b
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = company_type_id] to [Join] Mode: Semi [id = company_type_id]
 O3: rewrite [Join] Mode: Semi [id = company_type_id] to [Predicate] company_type_id = id
-  -> Executed 1 times in 0.059543 seconds (Latency: 59.5393 ms/iter, Throughput: 16.7946 iter/s)
+  -> Executed 1 times in 0.046436 seconds (Latency: 46.4323 ms/iter, Throughput: 21.535 iter/s)
 - Benchmarking 5c
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O2: rewrite [Join] Mode: Inner [id = company_type_id] to [Join] Mode: Semi [id = company_type_id]
 O3: rewrite [Join] Mode: Semi [id = company_type_id] to [Predicate] company_type_id = id
-  -> Executed 1 times in 0.079614 seconds (Latency: 79.6102 ms/iter, Throughput: 12.5606 iter/s)
+  -> Executed 1 times in 0.0691645 seconds (Latency: 69.1585 ms/iter, Throughput: 14.4583 iter/s)
 - Benchmarking 6a
-  -> Executed 1 times in 0.0971512 seconds (Latency: 97.1477 ms/iter, Throughput: 10.2932 iter/s)
+  -> Executed 1 times in 0.155545 seconds (Latency: 155.541 ms/iter, Throughput: 6.42903 iter/s)
 - Benchmarking 6b
-  -> Executed 1 times in 0.0989564 seconds (Latency: 98.9523 ms/iter, Throughput: 10.1055 iter/s)
+  -> Executed 1 times in 0.159213 seconds (Latency: 159.21 ms/iter, Throughput: 6.28089 iter/s)
 - Benchmarking 6c
-  -> Executed 1 times in 0.0941208 seconds (Latency: 94.1174 ms/iter, Throughput: 10.6246 iter/s)
+  -> Executed 1 times in 0.149691 seconds (Latency: 149.689 ms/iter, Throughput: 6.68042 iter/s)
 - Benchmarking 6d
-  -> Executed 1 times in 0.343718 seconds (Latency: 343.715 ms/iter, Throughput: 2.90936 iter/s)
+  -> Executed 1 times in 0.290195 seconds (Latency: 290.193 ms/iter, Throughput: 3.44595 iter/s)
 - Benchmarking 6e
-  -> Executed 1 times in 0.0994662 seconds (Latency: 99.4566 ms/iter, Throughput: 10.0537 iter/s)
+  -> Executed 1 times in 0.149283 seconds (Latency: 149.28 ms/iter, Throughput: 6.69869 iter/s)
 - Benchmarking 6f
-  -> Executed 1 times in 0.434039 seconds (Latency: 434.035 ms/iter, Throughput: 2.30394 iter/s)
+  -> Executed 1 times in 0.475051 seconds (Latency: 475.048 ms/iter, Throughput: 2.10504 iter/s)
 - Benchmarking 7a
 O2: rewrite [Join] Mode: Inner [id = link_type_id] to [Join] Mode: Semi [id = link_type_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = link_type_id] to [Predicate] link_type_id = id
-  -> Executed 1 times in 0.343493 seconds (Latency: 343.49 ms/iter, Throughput: 2.91127 iter/s)
+  -> Executed 1 times in 0.421831 seconds (Latency: 421.828 ms/iter, Throughput: 2.37062 iter/s)
 - Benchmarking 7b
 O2: rewrite [Join] Mode: Inner [id = link_type_id] to [Join] Mode: Semi [id = link_type_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
 O3: rewrite [Join] Mode: Semi [id = link_type_id] to [Predicate] link_type_id = id
-  -> Executed 1 times in 0.335119 seconds (Latency: 335.115 ms/iter, Throughput: 2.98402 iter/s)
+  -> Executed 1 times in 0.418434 seconds (Latency: 418.43 ms/iter, Throughput: 2.38986 iter/s)
 - Benchmarking 7c
 O2: rewrite [Join] Mode: Inner [id = link_type_id] to [Join] Mode: Semi [id = link_type_id]
 O2: rewrite [Join] Mode: Inner [id = info_type_id] to [Join] Mode: Semi [id = info_type_id]
 O3: rewrite [Join] Mode: Semi [id = info_type_id] to [Predicate] info_type_id = id
-  -> Executed 1 times in 0.68839 seconds (Latency: 688.386 ms/iter, Throughput: 1.45267 iter/s)
+  -> Executed 1 times in 0.87606 seconds (Latency: 876.056 ms/iter, Throughput: 1.14147 iter/s)
 - Benchmarking 8a
 O2: rewrite [Join] Mode: Inner [company_id = id] to [Join] Mode: Semi [company_id = id]
 O2: rewrite [Join] Mode: Inner [role_id = id] to [Join] Mode: Semi [role_id = id]
 O3: rewrite [Join] Mode: Semi [role_id = id] to [Predicate] role_id = id
-  -> Executed 1 times in 0.0860809 seconds (Latency: 86.0771 ms/iter, Throughput: 11.617 iter/s)
+  -> Executed 1 times in 0.230042 seconds (Latency: 230.038 ms/iter, Throughput: 4.34703 iter/s)
 - Benchmarking 8b
 O2: rewrite [Join] Mode: Inner [company_id = id] to [Join] Mode: Semi [company_id = id]
 O2: rewrite [Join] Mode: Inner [role_id = id] to [Join] Mode: Semi [role_id = id]
 O3: rewrite [Join] Mode: Semi [role_id = id] to [Predicate] role_id = id
-  -> Executed 1 times in 0.0904424 seconds (Latency: 90.4387 ms/iter, Throughput: 11.0568 iter/s)
+  -> Executed 1 times in 0.24325 seconds (Latency: 243.246 ms/iter, Throughput: 4.111 iter/s)
 - Benchmarking 8c
 O2: rewrite [Join] Mode: Inner [role_id = id] to [Join] Mode: Semi [role_id = id]
 O2: rewrite [Join] Mode: Inner [company_id = id] to [Join] Mode: Semi [company_id = id]
 O3: rewrite [Join] Mode: Semi [role_id = id] to [Predicate] role_id = id
-  -> Executed 1 times in 1.04733 seconds (Latency: 1047.33 ms/iter, Throughput: 0.954808 iter/s)
+  -> Executed 1 times in 1.17502 seconds (Latency: 1175.01 ms/iter, Throughput: 0.851051 iter/s)
 - Benchmarking 8d
 O2: rewrite [Join] Mode: Inner [role_id = id] to [Join] Mode: Semi [role_id = id]
 O2: rewrite [Join] Mode: Inner [company_id = id] to [Join] Mode: Semi [company_id = id]
 O3: rewrite [Join] Mode: Semi [role_id = id] to [Predicate] role_id = id
-  -> Executed 1 times in 0.208513 seconds (Latency: 208.509 ms/iter, Throughput: 4.79586 iter/s)
+  -> Executed 1 times in 0.254641 seconds (Latency: 254.637 ms/iter, Throughput: 3.9271 iter/s)
 - Benchmarking 9a
 O2: rewrite [Join] Mode: Inner [company_id = id] to [Join] Mode: Semi [company_id = id]
 O2: rewrite [Join] Mode: Inner [role_id = id] to [Join] Mode: Semi [role_id = id]
 O3: rewrite [Join] Mode: Semi [role_id = id] to [Predicate] role_id = id
-  -> Executed 1 times in 0.251638 seconds (Latency: 251.634 ms/iter, Throughput: 3.97396 iter/s)
+  -> Executed 1 times in 0.332809 seconds (Latency: 332.806 ms/iter, Throughput: 3.00472 iter/s)
 - Benchmarking 9b
 O2: rewrite [Join] Mode: Inner [company_id = id] to [Join] Mode: Semi [company_id = id]
 O2: rewrite [Join] Mode: Inner [role_id = id] to [Join] Mode: Semi [role_id = id]
 O3: rewrite [Join] Mode: Semi [role_id = id] to [Predicate] role_id = id
-  -> Executed 1 times in 0.197345 seconds (Latency: 197.342 ms/iter, Throughput: 5.06726 iter/s)
+  -> Executed 1 times in 0.26999 seconds (Latency: 269.987 ms/iter, Throughput: 3.70384 iter/s)
 - Benchmarking 9c
 O2: rewrite [Join] Mode: Inner [company_id = id] to [Join] Mode: Semi [company_id = id]
 O2: rewrite [Join] Mode: Inner [role_id = id] to [Join] Mode: Semi [role_id = id]
 O3: rewrite [Join] Mode: Semi [role_id = id] to [Predicate] role_id = id
-  -> Executed 1 times in 0.305439 seconds (Latency: 305.435 ms/iter, Throughput: 3.27398 iter/s)
+  -> Executed 1 times in 0.352583 seconds (Latency: 352.579 ms/iter, Throughput: 2.83621 iter/s)
 - Benchmarking 9d
 O2: rewrite [Join] Mode: Inner [company_id = id] to [Join] Mode: Semi [company_id = id]
 O2: rewrite [Join] Mode: Inner [role_id = id] to [Join] Mode: Semi [role_id = id]
 O3: rewrite [Join] Mode: Semi [role_id = id] to [Predicate] role_id = id
-  -> Executed 1 times in 0.411957 seconds (Latency: 411.954 ms/iter, Throughput: 2.42744 iter/s)
+  -> Executed 1 times in 0.439899 seconds (Latency: 439.896 ms/iter, Throughput: 2.27325 iter/s)

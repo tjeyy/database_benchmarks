@@ -13,79 +13,82 @@
 - TPC-H scale factor is 10
 - Using prepared statements: no
 - Loading/Generating tables 
--  Loading table 'region' from cached binary "tpch_cached_tables/sf-10.000000/region.bin" (222 µs 708 ns)
--  Loading table 'partsupp' from cached binary "tpch_cached_tables/sf-10.000000/partsupp.bin" (816 ms 86 µs)
--  Loading table 'part' from cached binary "tpch_cached_tables/sf-10.000000/part.bin" (148 ms 619 µs)
--  Loading table 'orders' from cached binary "tpch_cached_tables/sf-10.000000/orders.bin" (1 s 36 ms)
--  Loading table 'customer' from cached binary "tpch_cached_tables/sf-10.000000/customer.bin" (233 ms 703 µs)
--  Loading table 'nation' from cached binary "tpch_cached_tables/sf-10.000000/nation.bin" (325 µs 917 ns)
--  Loading table 'supplier' from cached binary "tpch_cached_tables/sf-10.000000/supplier.bin" (16 ms 998 µs)
--  Loading table 'lineitem' from cached binary "tpch_cached_tables/sf-10.000000/lineitem.bin" (3 s 838 ms)
-- Loading/Generating tables done (6 s 91 ms)
+-  Loading table 'region' from cached binary "tpch_cached_tables/sf-10.000000/region.bin" (213 µs 458 ns)
+-  Loading table 'partsupp' from cached binary "tpch_cached_tables/sf-10.000000/partsupp.bin" (840 ms 851 µs)
+-  Loading table 'part' from cached binary "tpch_cached_tables/sf-10.000000/part.bin" (159 ms 959 µs)
+-  Loading table 'orders' from cached binary "tpch_cached_tables/sf-10.000000/orders.bin" (1 s 115 ms)
+-  Loading table 'customer' from cached binary "tpch_cached_tables/sf-10.000000/customer.bin" (238 ms 470 µs)
+-  Loading table 'nation' from cached binary "tpch_cached_tables/sf-10.000000/nation.bin" (276 µs 750 ns)
+-  Loading table 'supplier' from cached binary "tpch_cached_tables/sf-10.000000/supplier.bin" (17 ms 437 µs)
+-  Loading table 'lineitem' from cached binary "tpch_cached_tables/sf-10.000000/lineitem.bin" (4 s 673 ms)
+- Loading/Generating tables done (7 s 47 ms)
 - Encoding tables (if necessary) and generating pruning statistics
--  Processing 'nation' - no encoding necessary (55 µs 125 ns)
--  Processing 'part' - no encoding necessary (8 ms 918 µs)
--  Processing 'region' - no encoding necessary (8 ms 972 µs)
--  Processing 'customer' - no encoding necessary (57 ms 266 µs)
--  Processing 'partsupp' - no encoding necessary (142 ms 251 µs)
--  Processing 'supplier' - no encoding necessary (160 ms 398 µs)
--  Processing 'orders' - no encoding necessary (1 s 63 ms)
--  Processing 'lineitem' - no encoding necessary (4 s 355 ms)
-- Encoding tables and generating pruning statistic done (4 s 355 ms)
+-  Processing 'region' - no encoding necessary (57 µs 958 ns)
+-  Processing 'nation' - no encoding necessary (85 µs 83 ns)
+-  Processing 'supplier' - no encoding necessary (6 ms 196 µs)
+-  Processing 'part' - no encoding necessary (15 ms 178 µs)
+-  Processing 'customer' - no encoding necessary (66 ms 390 µs)
+-  Processing 'partsupp' - no encoding necessary (153 ms 434 µs)
+-  Processing 'orders' - no encoding necessary (1 s 103 ms)
+-  Processing 'lineitem' - no encoding necessary (4 s 331 ms)
+- Encoding tables and generating pruning statistic done (4 s 332 ms)
 - Writing tables into binary files if necessary
-- Writing tables into binary files done (23 µs 375 ns)
+- Writing tables into binary files done (15 µs 292 ns)
 - Adding tables to StorageManager and generating table statistics
--  Added 'region' (55 µs 667 ns)
--  Added 'supplier' (424 ms 658 µs)
--  Added 'nation' (2 s 695 ms)
--  Added 'customer' (3 s 101 ms)
--  Added 'part' (3 s 128 ms)
--  Added 'orders' (18 s 963 ms)
--  Added 'partsupp' (54 s 98 ms)
--  Added 'lineitem' (56 s 824 ms)
-- Adding tables to StorageManager and generating table statistics done (56 s 824 ms)
+-  Added 'region' (676 µs 667 ns)
+-  Added 'nation' (70 ms 324 µs)
+-  Added 'supplier' (839 ms 677 µs)
+-  Added 'part' (2 s 621 ms)
+-  Added 'customer' (3 s 444 ms)
+-  Added 'partsupp' (12 s 157 ms)
+-  Added 'orders' (56 s 804 ms)
+-  Added 'lineitem' (59 s 575 ms)
+- Adding tables to StorageManager and generating table statistics done (59 s 576 ms)
 - No chunk indexes created as --chunk_indexes was not specified or set to false
 - No table indexes created as --table_indexes was not specified or set to false
 - Load plugin hyriseDependencyDiscoveryPlugin from cmake-build-release/lib/libhyriseDependencyDiscoveryPlugin.dylib
+- Enable Dependent Group-by Reduction
+- Enable Join to Semi-join
+- Enable Join to Predicate
 - Starting Benchmark...
 - Run pre-benchmark hook of 'hyriseDependencyDiscoveryPlugin'
-Generated 31 candidates in 150 µs 42 ns
-Checking FD lineitem.l_partkey, lineitem.l_suppkey [rejected in 6 ms 930 µs]
-Checking OD part.p_partkey |-> part.p_name [rejected in 1 ms 621 µs]
-Checking IND partsupp.ps_partkey in part.p_partkey [confirmed in 141 µs 583 ns]
-Checking UCC customer.c_mktsegment [rejected in 45 µs 625 ns]
-Checking UCC customer.c_custkey [confirmed in 56 ms 441 µs]
-Checking UCC lineitem.l_orderkey [rejected in 1 ms 286 µs]
-Checking OD part.p_partkey |-> part.p_type [rejected in 168 µs 83 ns]
-Checking FD customer.c_custkey, customer.c_acctbal, customer.c_name, customer.c_address, customer.c_phone, customer.c_comment [skipped (already known) in 2 µs 250 ns]
-Checking IND lineitem.l_partkey in part.p_partkey [confirmed in 305 µs 917 ns]
-Checking OD region.r_regionkey |-> region.r_name [confirmed in 42 µs 500 ns]
-Checking FD part.p_size, part.p_brand, part.p_type [rejected in 53 µs 125 ns]
-Checking FD lineitem.l_returnflag, lineitem.l_linestatus [rejected in 527 µs 42 ns]
-Checking OD customer.c_custkey |-> customer.c_mktsegment [rejected in 128 µs 500 ns]
-Checking OD nation.n_nationkey |-> nation.n_name [rejected in 4 µs 417 ns]
-Checking FD customer.c_custkey, customer.c_name [skipped (already known) in 833 ns]
-Checking UCC supplier.s_suppkey [confirmed in 3 ms 190 µs]
-Checking OD orders.o_orderkey |-> orders.o_orderstatus [rejected in 678 µs 750 ns]
-Checking FD orders.o_orderkey, orders.o_totalprice, orders.o_orderdate [confirmed in 851 ms 156 µs]
-Checking UCC nation.n_name [confirmed in 14 µs 500 ns]
-Checking IND lineitem.l_orderkey in orders.o_orderkey [confirmed in 1 s 311 ms]
-Checking FD orders.o_shippriority, orders.o_orderdate [rejected in 486 µs 625 ns]
-Checking UCC orders.o_orderstatus [rejected in 73 µs 708 ns]
-Checking UCC part.p_partkey [skipped (already known) in 2 µs 125 ns]
-Checking UCC region.r_regionkey [confirmed in 5 µs 84 ns]
-Checking UCC part.p_type [rejected in 46 µs 709 ns]
-Checking UCC orders.o_orderkey [skipped (already known) in 1 µs 375 ns]
-Checking IND orders.o_custkey in customer.c_custkey [confirmed in 95 µs 208 ns]
-Checking UCC region.r_name [confirmed in 2 µs 791 ns]
+Generated 31 candidates in 157 µs 958 ns
+Checking FD lineitem.l_partkey, lineitem.l_suppkey [rejected in 7 ms 273 µs]
+Checking OD part.p_partkey |-> part.p_name [rejected in 1 ms 580 µs]
+Checking IND partsupp.ps_partkey in part.p_partkey [confirmed in 147 µs 584 ns]
+Checking FD customer.c_custkey, customer.c_acctbal, customer.c_name, customer.c_address, customer.c_phone, customer.c_comment [confirmed in 59 ms 597 µs]
+Checking OD customer.c_custkey |-> customer.c_mktsegment [rejected in 143 µs 375 ns]
+Checking IND orders.o_custkey in customer.c_custkey [confirmed in 101 µs 375 ns]
+Checking UCC customer.c_mktsegment [rejected in 991 µs 833 ns]
+Checking UCC customer.c_custkey [skipped (already known) in 1 µs 83 ns]
+Checking UCC lineitem.l_orderkey [rejected in 1 ms 363 µs]
+Checking FD orders.o_shippriority, orders.o_orderdate [rejected in 388 µs 834 ns]
+Checking UCC part.p_partkey [skipped (already known) in 1 µs 292 ns]
+Checking UCC part.p_type [rejected in 32 µs 542 ns]
+Checking FD lineitem.l_returnflag, lineitem.l_linestatus [rejected in 624 µs 375 ns]
+Checking FD orders.o_orderkey, orders.o_totalprice, orders.o_orderdate [confirmed in 919 ms 217 µs]
+Checking OD nation.n_nationkey |-> nation.n_name [rejected in 1 ms 7 µs]
+Checking IND lineitem.l_partkey in part.p_partkey [confirmed in 361 µs 625 ns]
+Checking IND lineitem.l_orderkey in orders.o_orderkey [confirmed in 638 ms 580 µs]
+Checking UCC orders.o_orderkey [skipped (already known) in 4 µs 0 ns]
+Checking OD part.p_partkey |-> part.p_type [rejected in 173 µs 583 ns]
+Checking OD region.r_regionkey |-> region.r_name [confirmed in 8 µs 667 ns]
+Checking FD customer.c_custkey, customer.c_name [skipped (already known) in 1 µs 917 ns]
+Checking IND nation.n_regionkey in region.r_regionkey [confirmed in 5 µs 541 ns]
+Checking UCC region.r_name [confirmed in 4 µs 375 ns]
 Checking IND supplier.s_nationkey in nation.n_nationkey [confirmed in 4 µs 83 ns]
-Checking UCC nation.n_nationkey [skipped (already known) in 458 ns]
-Checking IND nation.n_regionkey in region.r_regionkey [confirmed in 1 µs 875 ns]
-Validated 31 candidates in 2 s 234 ms
+Checking UCC nation.n_name [confirmed in 3 µs 583 ns]
+Checking UCC region.r_regionkey [skipped (already known) in 500 ns]
+Checking OD orders.o_orderkey |-> orders.o_orderstatus [rejected in 629 µs 291 ns]
+Checking UCC orders.o_orderstatus [rejected in 52 µs 792 ns]
+Checking UCC nation.n_nationkey [skipped (already known) in 583 ns]
+Checking FD part.p_size, part.p_brand, part.p_type [rejected in 48 µs 458 ns]
+Checking UCC supplier.s_suppkey [confirmed in 3 ms 642 µs]
+Validated 31 candidates in 1 s 636 ms
 Clearing LQP and PQP cache...
-Executed dependency discovery in 2 s 262 ms
+Executed dependency discovery in 1 s 670 ms
 - Benchmarking TPC-H 01
-  -> Executed 1 times in 2.82272 seconds (Latency: 2822.71 ms/iter, Throughput: 0.354268 iter/s)
+  -> Executed 1 times in 2.79984 seconds (Latency: 2799.82 ms/iter, Throughput: 0.357163 iter/s)
 - Benchmarking TPC-H 02
 O2: rewrite [Join] Mode: Inner [s_suppkey = ps_suppkey] to [Join] Mode: Semi [s_suppkey = ps_suppkey]
 O2: rewrite [Join] Mode: Inner [s_nationkey = n_nationkey] to [Join] Mode: Semi [s_nationkey = n_nationkey]
@@ -93,32 +96,32 @@ O2: rewrite [Join] Mode: Inner [n_regionkey = r_regionkey] to [Join] Mode: Semi 
 O2: rewrite [Join] Mode: Inner [n_regionkey = r_regionkey] to [Join] Mode: Semi [n_regionkey = r_regionkey]
 O3: rewrite [Join] Mode: Semi [n_regionkey = r_regionkey] to [Predicate] n_regionkey = r_regionkey
 O3: rewrite [Join] Mode: Semi [n_regionkey = r_regionkey] to [Predicate] n_regionkey = r_regionkey
-  -> Executed 1 times in 0.0306238 seconds (Latency: 30.6205 ms/iter, Throughput: 32.6543 iter/s)
+  -> Executed 1 times in 0.0319414 seconds (Latency: 31.9363 ms/iter, Throughput: 31.3073 iter/s)
 - Benchmarking TPC-H 03
 O2: rewrite [Join] Mode: Inner [c_custkey = o_custkey] to [Join] Mode: Semi [c_custkey = o_custkey]
-  -> Executed 1 times in 1.29687 seconds (Latency: 1296.87 ms/iter, Throughput: 0.771086 iter/s)
+  -> Executed 1 times in 0.979913 seconds (Latency: 979.908 ms/iter, Throughput: 1.0205 iter/s)
 - Benchmarking TPC-H 04
-  -> Executed 1 times in 1.02254 seconds (Latency: 1022.54 ms/iter, Throughput: 0.977953 iter/s)
+  -> Executed 1 times in 1.01732 seconds (Latency: 1017.31 ms/iter, Throughput: 0.982979 iter/s)
 - Benchmarking TPC-H 05
 O2: rewrite [Join] Mode: Inner [n_regionkey = r_regionkey] to [Join] Mode: Semi [n_regionkey = r_regionkey]
 O3: rewrite [Join] Mode: Semi [n_regionkey = r_regionkey] to [Predicate] n_regionkey = r_regionkey
-  -> Executed 1 times in 1.89443 seconds (Latency: 1894.43 ms/iter, Throughput: 0.527863 iter/s)
+  -> Executed 1 times in 1.38414 seconds (Latency: 1384.14 ms/iter, Throughput: 0.72247 iter/s)
 - Benchmarking TPC-H 06
-  -> Executed 1 times in 0.133704 seconds (Latency: 133.701 ms/iter, Throughput: 7.47919 iter/s)
+  -> Executed 1 times in 0.135301 seconds (Latency: 135.29 ms/iter, Throughput: 7.39092 iter/s)
 - Benchmarking TPC-H 07
-  -> Executed 1 times in 0.611649 seconds (Latency: 611.645 ms/iter, Throughput: 1.63492 iter/s)
+  -> Executed 1 times in 0.516233 seconds (Latency: 516.227 ms/iter, Throughput: 1.93711 iter/s)
 - Benchmarking TPC-H 08
 O2: rewrite [Join] Mode: Inner [c_nationkey = n_nationkey] to [Join] Mode: Semi [c_nationkey = n_nationkey]
 O2: rewrite [Join] Mode: Inner [n_regionkey = r_regionkey] to [Join] Mode: Semi [n_regionkey = r_regionkey]
 O2: rewrite [Join] Mode: Inner [p_partkey = l_partkey] to [Join] Mode: Semi [p_partkey = l_partkey]
 O3: rewrite [Join] Mode: Semi [n_regionkey = r_regionkey] to [Predicate] n_regionkey = r_regionkey
-  -> Executed 1 times in 0.545007 seconds (Latency: 545.002 ms/iter, Throughput: 1.83484 iter/s)
+  -> Executed 1 times in 0.427015 seconds (Latency: 427.009 ms/iter, Throughput: 2.34184 iter/s)
 - Benchmarking TPC-H 09
 O2: rewrite [Join] Mode: Inner [p_partkey = l_partkey] to [Join] Mode: Semi [p_partkey = l_partkey]
-  -> Executed 1 times in 3.35139 seconds (Latency: 3351.39 ms/iter, Throughput: 0.298384 iter/s)
+  -> Executed 1 times in 3.45072 seconds (Latency: 3450.72 ms/iter, Throughput: 0.289794 iter/s)
 - Benchmarking TPC-H 10
-O1: rewrite [Aggregate] GroupBy: [c_custkey, c_name, c_acctbal, c_phone, n_name, c_address, c_comment] Aggregates: [SUM(l_extendedprice * (1 - l_discount))] to [Aggregate] GroupBy: [c_custkey] Aggregates: [SUM(l_extendedprice * (1 - l_discount)), ANY(c_comment), ANY(c_address), ANY(n_name), ANY(c_phone), ANY(c_acctbal), ANY(c_name)]
-  -> Executed 1 times in 1.42494 seconds (Latency: 1424.94 ms/iter, Throughput: 0.701783 iter/s)
+O1: rewrite [Aggregate] GroupBy: [c_custkey, c_name, c_acctbal, c_phone, n_name, c_address, c_comment] Aggregates: [SUM(l_extendedprice * (1 - l_discount))] to [Aggregate] GroupBy: [c_custkey] Aggregates: [SUM(l_extendedprice * (1 - l_discount)), ANY(c_comment), ANY(n_name), ANY(c_phone), ANY(c_address), ANY(c_acctbal), ANY(c_name)]
+  -> Executed 1 times in 1.15083 seconds (Latency: 1150.83 ms/iter, Throughput: 0.868935 iter/s)
 - Benchmarking TPC-H 11
 O2: rewrite [Join] Mode: Inner [ps_suppkey = s_suppkey] to [Join] Mode: Semi [ps_suppkey = s_suppkey]
 O2: rewrite [Join] Mode: Inner [s_nationkey = n_nationkey] to [Join] Mode: Semi [s_nationkey = n_nationkey]
@@ -126,32 +129,32 @@ O2: rewrite [Join] Mode: Inner [ps_suppkey = s_suppkey] to [Join] Mode: Semi [ps
 O2: rewrite [Join] Mode: Inner [s_nationkey = n_nationkey] to [Join] Mode: Semi [s_nationkey = n_nationkey]
 O3: rewrite [Join] Mode: Semi [s_nationkey = n_nationkey] to [Predicate] s_nationkey = n_nationkey
 O3: rewrite [Join] Mode: Semi [s_nationkey = n_nationkey] to [Predicate] s_nationkey = n_nationkey
-  -> Executed 1 times in 0.0545719 seconds (Latency: 54.5693 ms/iter, Throughput: 18.3245 iter/s)
+  -> Executed 1 times in 0.0521161 seconds (Latency: 52.112 ms/iter, Throughput: 19.1879 iter/s)
 - Benchmarking TPC-H 12
-  -> Executed 1 times in 0.642244 seconds (Latency: 642.24 ms/iter, Throughput: 1.55704 iter/s)
+  -> Executed 1 times in 0.663765 seconds (Latency: 663.758 ms/iter, Throughput: 1.50656 iter/s)
 - Benchmarking TPC-H 13
-  -> Executed 1 times in 3.07312 seconds (Latency: 3073.12 ms/iter, Throughput: 0.325402 iter/s)
+  -> Executed 1 times in 3.13225 seconds (Latency: 3132.24 ms/iter, Throughput: 0.319259 iter/s)
 - Benchmarking TPC-H 14
-  -> Executed 1 times in 0.248248 seconds (Latency: 248.244 ms/iter, Throughput: 4.02823 iter/s)
+  -> Executed 1 times in 0.250967 seconds (Latency: 250.96 ms/iter, Throughput: 3.98459 iter/s)
 - Benchmarking TPC-H 15
-  -> Executed 1 times in 0.115655 seconds (Latency: 115.649 ms/iter, Throughput: 8.64637 iter/s)
+  -> Executed 1 times in 0.116931 seconds (Latency: 116.926 ms/iter, Throughput: 8.55202 iter/s)
 - Benchmarking TPC-H 16
-  -> Executed 1 times in 0.415016 seconds (Latency: 415.014 ms/iter, Throughput: 2.40954 iter/s)
+  -> Executed 1 times in 0.416691 seconds (Latency: 416.687 ms/iter, Throughput: 2.39986 iter/s)
 - Benchmarking TPC-H 17
-  -> Executed 1 times in 0.163698 seconds (Latency: 163.694 ms/iter, Throughput: 6.10881 iter/s)
+  -> Executed 1 times in 0.177899 seconds (Latency: 177.889 ms/iter, Throughput: 5.62117 iter/s)
 - Benchmarking TPC-H 18
-O1: rewrite [Aggregate] GroupBy: [c_name, c_custkey, o_orderkey, o_orderdate, o_totalprice] Aggregates: [SUM(l_quantity)] to [Aggregate] GroupBy: [c_custkey, o_orderkey] Aggregates: [SUM(l_quantity), ANY(c_name), ANY(o_orderdate), ANY(o_totalprice)]
-  -> Executed 1 times in 1.08606 seconds (Latency: 1086.06 ms/iter, Throughput: 0.920757 iter/s)
+O1: rewrite [Aggregate] GroupBy: [c_name, c_custkey, o_orderkey, o_orderdate, o_totalprice] Aggregates: [SUM(l_quantity)] to [Aggregate] GroupBy: [c_custkey, o_orderkey] Aggregates: [SUM(l_quantity), ANY(c_name), ANY(o_totalprice), ANY(o_orderdate)]
+  -> Executed 1 times in 1.13312 seconds (Latency: 1133.11 ms/iter, Throughput: 0.882515 iter/s)
 - Benchmarking TPC-H 19
-  -> Executed 1 times in 0.192197 seconds (Latency: 192.193 ms/iter, Throughput: 5.20299 iter/s)
+  -> Executed 1 times in 0.209126 seconds (Latency: 209.114 ms/iter, Throughput: 4.78181 iter/s)
 - Benchmarking TPC-H 20
 O2: rewrite [Join] Mode: Inner [s_nationkey = n_nationkey] to [Join] Mode: Semi [s_nationkey = n_nationkey]
 O3: rewrite [Join] Mode: Semi [s_nationkey = n_nationkey] to [Predicate] s_nationkey = n_nationkey
-  -> Executed 1 times in 0.222607 seconds (Latency: 222.604 ms/iter, Throughput: 4.49222 iter/s)
+  -> Executed 1 times in 0.20459 seconds (Latency: 204.573 ms/iter, Throughput: 4.88783 iter/s)
 - Benchmarking TPC-H 21
 O2: rewrite [Join] Mode: Inner [o_orderkey = l_orderkey] to [Join] Mode: Semi [o_orderkey = l_orderkey]
 O2: rewrite [Join] Mode: Inner [s_nationkey = n_nationkey] to [Join] Mode: Semi [s_nationkey = n_nationkey]
 O3: rewrite [Join] Mode: Semi [s_nationkey = n_nationkey] to [Predicate] s_nationkey = n_nationkey
-  -> Executed 1 times in 2.88389 seconds (Latency: 2883.88 ms/iter, Throughput: 0.346754 iter/s)
+  -> Executed 1 times in 2.49688 seconds (Latency: 2496.87 ms/iter, Throughput: 0.4005 iter/s)
 - Benchmarking TPC-H 22
-  -> Executed 1 times in 0.256759 seconds (Latency: 256.754 ms/iter, Throughput: 3.89471 iter/s)
+  -> Executed 1 times in 0.274469 seconds (Latency: 274.458 ms/iter, Throughput: 3.6434 iter/s)

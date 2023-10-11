@@ -11,345 +11,348 @@
 - Not tracking SQL metrics
 - TPC-DS scale factor is 10
 - Loading/Generating tables 
--  Loading table 'web_sales' from cached binary "tpcds_cached_tables/sf-10/web_sales.bin" (286 ms 328 µs)
--  Loading table 'date_dim' from cached binary "tpcds_cached_tables/sf-10/date_dim.bin" (5 ms 983 µs)
--  Loading table 'promotion' from cached binary "tpcds_cached_tables/sf-10/promotion.bin" (455 µs 458 ns)
--  Loading table 'web_returns' from cached binary "tpcds_cached_tables/sf-10/web_returns.bin" (26 ms 28 µs)
--  Loading table 'call_center' from cached binary "tpcds_cached_tables/sf-10/call_center.bin" (258 µs 417 ns)
--  Loading table 'customer_address' from cached binary "tpcds_cached_tables/sf-10/customer_address.bin" (10 ms 97 µs)
--  Loading table 'catalog_sales' from cached binary "tpcds_cached_tables/sf-10/catalog_sales.bin" (546 ms 750 µs)
--  Loading table 'ship_mode' from cached binary "tpcds_cached_tables/sf-10/ship_mode.bin" (133 µs 666 ns)
--  Loading table 'income_band' from cached binary "tpcds_cached_tables/sf-10/income_band.bin" (169 µs 250 ns)
--  Loading table 'catalog_returns' from cached binary "tpcds_cached_tables/sf-10/catalog_returns.bin" (51 ms 203 µs)
--  Loading table 'reason' from cached binary "tpcds_cached_tables/sf-10/reason.bin" (251 µs 125 ns)
--  Loading table 'time_dim' from cached binary "tpcds_cached_tables/sf-10/time_dim.bin" (3 ms 877 µs)
--  Loading table 'store' from cached binary "tpcds_cached_tables/sf-10/store.bin" (305 µs 0 ns)
--  Loading table 'inventory' from cached binary "tpcds_cached_tables/sf-10/inventory.bin" (944 ms 781 µs)
--  Loading table 'warehouse' from cached binary "tpcds_cached_tables/sf-10/warehouse.bin" (169 µs 708 ns)
--  Loading table 'store_returns' from cached binary "tpcds_cached_tables/sf-10/store_returns.bin" (79 ms 741 µs)
--  Loading table 'household_demographics' from cached binary "tpcds_cached_tables/sf-10/household_demographics.bin" (800 µs 583 ns)
--  Loading table 'customer' from cached binary "tpcds_cached_tables/sf-10/customer.bin" (41 ms 249 µs)
--  Loading table 'web_page' from cached binary "tpcds_cached_tables/sf-10/web_page.bin" (244 µs 0 ns)
--  Loading table 'store_sales' from cached binary "tpcds_cached_tables/sf-10/store_sales.bin" (909 ms 864 µs)
--  Loading table 'item' from cached binary "tpcds_cached_tables/sf-10/item.bin" (19 ms 932 µs)
--  Loading table 'catalog_page' from cached binary "tpcds_cached_tables/sf-10/catalog_page.bin" (3 ms 770 µs)
--  Loading table 'web_site' from cached binary "tpcds_cached_tables/sf-10/web_site.bin" (238 µs 792 ns)
--  Loading table 'customer_demographics' from cached binary "tpcds_cached_tables/sf-10/customer_demographics.bin" (29 ms 399 µs)
-- Loading/Generating tables done (2 s 971 ms)
+-  Loading table 'web_sales' from cached binary "tpcds_cached_tables/sf-10/web_sales.bin" (282 ms 804 µs)
+-  Loading table 'date_dim' from cached binary "tpcds_cached_tables/sf-10/date_dim.bin" (6 ms 341 µs)
+-  Loading table 'promotion' from cached binary "tpcds_cached_tables/sf-10/promotion.bin" (608 µs 166 ns)
+-  Loading table 'web_returns' from cached binary "tpcds_cached_tables/sf-10/web_returns.bin" (26 ms 296 µs)
+-  Loading table 'call_center' from cached binary "tpcds_cached_tables/sf-10/call_center.bin" (775 µs 625 ns)
+-  Loading table 'customer_address' from cached binary "tpcds_cached_tables/sf-10/customer_address.bin" (10 ms 353 µs)
+-  Loading table 'catalog_sales' from cached binary "tpcds_cached_tables/sf-10/catalog_sales.bin" (556 ms 422 µs)
+-  Loading table 'ship_mode' from cached binary "tpcds_cached_tables/sf-10/ship_mode.bin" (264 µs 625 ns)
+-  Loading table 'income_band' from cached binary "tpcds_cached_tables/sf-10/income_band.bin" (178 µs 750 ns)
+-  Loading table 'catalog_returns' from cached binary "tpcds_cached_tables/sf-10/catalog_returns.bin" (51 ms 372 µs)
+-  Loading table 'reason' from cached binary "tpcds_cached_tables/sf-10/reason.bin" (258 µs 208 ns)
+-  Loading table 'time_dim' from cached binary "tpcds_cached_tables/sf-10/time_dim.bin" (3 ms 970 µs)
+-  Loading table 'store' from cached binary "tpcds_cached_tables/sf-10/store.bin" (422 µs 417 ns)
+-  Loading table 'inventory' from cached binary "tpcds_cached_tables/sf-10/inventory.bin" (955 ms 950 µs)
+-  Loading table 'warehouse' from cached binary "tpcds_cached_tables/sf-10/warehouse.bin" (156 µs 417 ns)
+-  Loading table 'store_returns' from cached binary "tpcds_cached_tables/sf-10/store_returns.bin" (80 ms 863 µs)
+-  Loading table 'household_demographics' from cached binary "tpcds_cached_tables/sf-10/household_demographics.bin" (653 µs 167 ns)
+-  Loading table 'customer' from cached binary "tpcds_cached_tables/sf-10/customer.bin" (42 ms 497 µs)
+-  Loading table 'web_page' from cached binary "tpcds_cached_tables/sf-10/web_page.bin" (259 µs 375 ns)
+-  Loading table 'store_sales' from cached binary "tpcds_cached_tables/sf-10/store_sales.bin" (807 ms 678 µs)
+-  Loading table 'item' from cached binary "tpcds_cached_tables/sf-10/item.bin" (14 ms 461 µs)
+-  Loading table 'catalog_page' from cached binary "tpcds_cached_tables/sf-10/catalog_page.bin" (2 ms 642 µs)
+-  Loading table 'web_site' from cached binary "tpcds_cached_tables/sf-10/web_site.bin" (223 µs 84 ns)
+-  Loading table 'customer_demographics' from cached binary "tpcds_cached_tables/sf-10/customer_demographics.bin" (18 ms 511 µs)
+- Loading/Generating tables done (2 s 865 ms)
 - Encoding tables (if necessary) and generating pruning statistics
--  Processing 'ship_mode' - no encoding necessary (124 µs 875 ns)
--  Processing 'reason' - no encoding necessary (134 µs 167 ns)
--  Processing 'catalog_page' - no encoding necessary (217 µs 83 ns)
--  Processing 'store' - no encoding necessary (56 µs 42 ns)
--  Processing 'warehouse' - no encoding necessary (18 µs 833 ns)
--  Processing 'call_center' - no encoding necessary (187 µs 125 ns)
--  Processing 'income_band' - no encoding necessary (91 µs 167 ns)
--  Processing 'date_dim' - no encoding necessary (1 ms 46 µs)
--  Processing 'customer_address' - no encoding necessary (1 ms 74 µs)
--  Processing 'promotion' - no encoding necessary (53 µs 250 ns)
--  Processing 'customer_demographics' - no encoding necessary (5 ms 672 µs)
--  Processing 'household_demographics' - no encoding necessary (414 µs 583 ns)
--  Processing 'customer' - no encoding necessary (18 ms 157 µs)
--  Processing 'web_returns' - no encoding necessary (165 ms 861 µs)
--  Processing 'store_returns' - no encoding necessary (476 ms 648 µs)
--  Processing 'inventory' - no encoding necessary (331 ms 742 µs)
--  Processing 'web_site' - no encoding necessary (34 µs 208 ns)
--  Processing 'web_sales' - no encoding necessary (2 s 350 ms)
--  Processing 'time_dim' - no encoding necessary (430 µs 916 ns)
--  Processing 'web_page' - no encoding necessary (30 µs 667 ns)
--  Processing 'catalog_sales' - no encoding necessary (4 s 713 ms)
--  Processing 'catalog_returns' - no encoding necessary (315 ms 291 µs)
--  Processing 'item' - no encoding necessary (677 µs 750 ns)
--  Processing 'store_sales' - no encoding necessary (5 s 599 ms)
-- Encoding tables and generating pruning statistic done (5 s 600 ms)
+-  Processing 'ship_mode' - no encoding necessary (27 µs 42 ns)
+-  Processing 'reason' - no encoding necessary (30 µs 917 ns)
+-  Processing 'warehouse' - no encoding necessary (27 µs 584 ns)
+-  Processing 'store' - no encoding necessary (46 µs 541 ns)
+-  Processing 'catalog_page' - no encoding necessary (93 µs 166 ns)
+-  Processing 'call_center' - no encoding necessary (96 µs 458 ns)
+-  Processing 'income_band' - no encoding necessary (8 µs 834 ns)
+-  Processing 'date_dim' - no encoding necessary (892 µs 250 ns)
+-  Processing 'customer_address' - no encoding necessary (1 ms 65 µs)
+-  Processing 'promotion' - no encoding necessary (67 µs 584 ns)
+-  Processing 'customer_demographics' - no encoding necessary (5 ms 235 µs)
+-  Processing 'household_demographics' - no encoding necessary (34 µs 500 ns)
+-  Processing 'customer' - no encoding necessary (17 ms 385 µs)
+-  Processing 'web_returns' - no encoding necessary (159 ms 307 µs)
+-  Processing 'inventory' - no encoding necessary (305 ms 518 µs)
+-  Processing 'web_site' - no encoding necessary (44 µs 625 ns)
+-  Processing 'store_returns' - no encoding necessary (467 ms 39 µs)
+-  Processing 'web_sales' - no encoding necessary (2 s 323 ms)
+-  Processing 'time_dim' - no encoding necessary (418 µs 833 ns)
+-  Processing 'web_page' - no encoding necessary (22 µs 333 ns)
+-  Processing 'catalog_sales' - no encoding necessary (4 s 658 ms)
+-  Processing 'catalog_returns' - no encoding necessary (306 ms 392 µs)
+-  Processing 'item' - no encoding necessary (997 µs 875 ns)
+-  Processing 'store_sales' - no encoding necessary (5 s 482 ms)
+- Encoding tables and generating pruning statistic done (5 s 482 ms)
 - Writing tables into binary files if necessary
-- Writing tables into binary files done (40 µs 666 ns)
+- Writing tables into binary files done (19 µs 875 ns)
 - Adding tables to StorageManager and generating table statistics
--  Added 'reason' (234 µs 792 ns)
--  Added 'call_center' (321 µs 167 ns)
--  Added 'income_band' (10 µs 834 ns)
--  Added 'ship_mode' (553 µs 959 ns)
--  Added 'store' (246 µs 83 ns)
--  Added 'warehouse' (2 ms 745 µs)
--  Added 'catalog_page' (7 ms 137 µs)
--  Added 'date_dim' (282 ms 274 µs)
--  Added 'customer_demographics' (284 ms 550 µs)
--  Added 'household_demographics' (365 µs 334 ns)
--  Added 'customer_address' (387 ms 86 µs)
--  Added 'web_returns' (1 s 270 ms)
--  Added 'web_sales' (5 s 156 ms)
--  Added 'time_dim' (50 ms 302 µs)
--  Added 'web_page' (127 µs 0 ns)
--  Added 'customer' (796 ms 585 µs)
--  Added 'inventory' (1 s 9 ms)
--  Added 'promotion' (1 s 9 ms)
--  Added 'web_site' (550 µs 750 ns)
--  Added 'catalog_sales' (9 s 374 ms)
--  Added 'catalog_returns' (340 ms 494 µs)
--  Added 'item' (72 ms 52 µs)
--  Added 'store_returns' (10 s 832 ms)
--  Added 'store_sales' (11 s 521 ms)
-- Adding tables to StorageManager and generating table statistics done (11 s 521 ms)
+-  Added 'reason' (62 µs 625 ns)
+-  Added 'ship_mode' (477 µs 542 ns)
+-  Added 'warehouse' (2 ms 507 µs)
+-  Added 'call_center' (25 ms 510 µs)
+-  Added 'catalog_page' (34 ms 644 µs)
+-  Added 'date_dim' (125 ms 832 µs)
+-  Added 'customer' (828 ms 401 µs)
+-  Added 'customer_demographics' (1 s 83 ms)
+-  Added 'store' (281 µs 917 ns)
+-  Added 'customer_address' (1 s 854 ms)
+-  Added 'store_returns' (4 s 642 ms)
+-  Added 'income_band' (19 µs 625 ns)
+-  Added 'household_demographics' (587 µs 41 ns)
+-  Added 'promotion' (498 µs 875 ns)
+-  Added 'web_returns' (5 s 632 ms)
+-  Added 'inventory' (1 s 123 ms)
+-  Added 'web_site' (384 µs 292 ns)
+-  Added 'web_sales' (7 s 103 ms)
+-  Added 'time_dim' (32 ms 351 µs)
+-  Added 'web_page' (301 µs 750 ns)
+-  Added 'store_sales' (9 s 110 ms)
+-  Added 'catalog_sales' (13 s 789 ms)
+-  Added 'catalog_returns' (280 ms 680 µs)
+-  Added 'item' (75 ms 519 µs)
+- Adding tables to StorageManager and generating table statistics done (14 s 146 ms)
 - No chunk indexes created as --chunk_indexes was not specified or set to false
 - No table indexes created as --table_indexes was not specified or set to false
 - Load plugin hyriseDependencyDiscoveryPlugin from cmake-build-release/lib/libhyriseDependencyDiscoveryPlugin.dylib
+- Enable Dependent Group-by Reduction
+- Enable Join to Semi-join
+- Enable Join to Predicate
 done.
 - Starting Benchmark...
 - Run pre-benchmark hook of 'hyriseDependencyDiscoveryPlugin'
-Generated 85 candidates in 654 µs 959 ns
-Checking OD household_demographics.hd_demo_sk |-> household_demographics.hd_buy_potential [rejected in 141 µs 584 ns]
-Checking IND customer.c_current_hdemo_sk in household_demographics.hd_demo_sk [confirmed in 50 µs 83 ns]
-Checking FD customer_demographics.cd_marital_status, customer_demographics.cd_education_status [rejected in 47 µs 458 ns]
-Checking UCC web_page.wp_web_page_sk [confirmed in 10 µs 292 ns]
-Checking OD date_dim.d_date_sk |-> date_dim.d_dom [rejected in 77 µs 291 ns]
-Checking FD store_sales.ss_item_sk, store_sales.ss_store_sk [rejected in 2 ms 618 µs]
-Checking IND web_sales.ws_ship_date_sk in date_dim.d_date_sk [confirmed in 85 µs 209 ns]
-Checking UCC ship_mode.sm_type [rejected in 2 µs 834 ns]
-Checking UCC web_site.web_name [rejected in 2 µs 917 ns]
-Checking UCC date_dim.d_qoy [rejected in 1 µs 542 ns]
-Checking OD store.s_store_sk |-> store.s_county [rejected in 30 µs 375 ns]
-Checking UCC store.s_county [rejected in 1 µs 375 ns]
-Checking FD store_sales.ss_customer_sk, store_sales.ss_ticket_number [rejected in 1 ms 121 µs]
-Checking IND store_returns.sr_returned_date_sk in date_dim.d_date_sk [confirmed in 151 µs 125 ns]
-Checking FD store_returns.sr_customer_sk, store_returns.sr_store_sk [rejected in 2 ms 527 µs]
-Checking IND store_returns.sr_store_sk in store.s_store_sk [confirmed in 5 µs 167 ns]
-Checking FD item.i_category_id, item.i_category [rejected in 5 µs 584 ns]
-Checking FD call_center.cc_call_center_id, call_center.cc_name, call_center.cc_manager [rejected in 7 µs 125 ns]
-Checking UCC customer_demographics.cd_education_status [rejected in 7 µs 875 ns]
-Checking UCC customer_demographics.cd_marital_status [rejected in 5 µs 917 ns]
-Checking UCC customer_demographics.cd_gender [rejected in 5 µs 416 ns]
-Checking UCC promotion.p_promo_sk [confirmed in 17 µs 959 ns]
-Checking FD item.i_item_id, item.i_item_desc [rejected in 10 ms 265 µs]
-Checking UCC inventory.inv_item_sk [rejected in 7 ms 69 µs]
-Checking FD store.s_store_id, store.s_store_name [rejected in 11 µs 417 ns]
-Checking IND inventory.inv_date_sk in date_dim.d_date_sk [confirmed in 229 µs 792 ns]
-Checking UCC reason.r_reason_desc [rejected in 9 µs 917 ns]
-Checking UCC item.i_item_sk [confirmed in 3 ms 271 µs]
-Checking UCC catalog_sales.cs_item_sk [rejected in 1 ms 951 µs]
-Checking UCC store_sales.ss_item_sk [rejected in 2 ms 288 µs]
-Checking UCC customer_demographics.cd_demo_sk [confirmed in 77 ms 348 µs]
-Checking IND store_sales.ss_sold_date_sk in date_dim.d_date_sk [confirmed in 195 µs 42 ns]
-Checking FD item.i_current_price, item.i_item_id, item.i_item_desc [rejected in 10 ms 532 µs]
-Checking UCC household_demographics.hd_dep_count [rejected in 5 µs 333 ns]
-Checking UCC store.s_state [rejected in 3 µs 750 ns]
-Checking OD store.s_store_sk |-> store.s_state [rejected in 9 µs 708 ns]
-Checking OD date_dim.d_date_sk |-> date_dim.d_month_seq [confirmed in 2 ms 52 µs]
-Checking FD item.i_brand_id, item.i_manufact_id, item.i_brand, item.i_manufact [rejected in 205 µs 0 ns]
-Checking FD customer_address.ca_city, customer_address.ca_zip [rejected in 365 µs 250 ns]
-Checking UCC date_dim.d_quarter_name [rejected in 55 µs 708 ns]
-Checking IND store_returns.sr_reason_sk in reason.r_reason_sk [confirmed in 20 µs 750 ns]
-Checking IND catalog_returns.cr_returned_date_sk in date_dim.d_date_sk [confirmed in 31 µs 750 ns]
-Checking OD household_demographics.hd_demo_sk |-> household_demographics.hd_dep_count [rejected in 29 µs 125 ns]
-Checking FD item.i_brand_id, item.i_brand [rejected in 88 µs 0 ns]
-Checking OD date_dim.d_date_sk |-> date_dim.d_dow [rejected in 35 µs 292 ns]
-Checking UCC customer_address.ca_county [rejected in 150 µs 792 ns]
-Checking FD date_dim.d_year, date_dim.d_qoy [rejected in 9 µs 167 ns]
-Checking FD store_sales.ss_item_sk, store_sales.ss_customer_sk [rejected in 2 ms 782 µs]
-Checking UCC catalog_returns.cr_returning_customer_sk [rejected in 3 ms 407 µs]
-Checking UCC store.s_city [rejected in 2 µs 875 ns]
-Checking FD warehouse.w_warehouse_sk, warehouse.w_warehouse_name [confirmed in 3 µs 625 ns]
-Checking OD store.s_store_sk |-> store.s_store_name [rejected in 6 µs 42 ns]
-Checking UCC web_site.web_site_sk [confirmed in 4 µs 250 ns]
-Checking IND store_sales.ss_store_sk in store.s_store_sk [confirmed in 99 µs 709 ns]
-Checking FD customer_demographics.cd_purchase_estimate, customer_demographics.cd_gender, customer_demographics.cd_marital_status, customer_demographics.cd_education_status, customer_demographics.cd_credit_rating [rejected in 36 µs 750 ns]
-Checking UCC store.s_store_name [rejected in 2 µs 0 ns]
-Checking OD date_dim.d_date_sk |-> date_dim.d_date [confirmed in 3 ms 778 µs]
-Checking FD customer_demographics.cd_dep_count, customer_demographics.cd_dep_employed_count, customer_demographics.cd_dep_college_count, customer_demographics.cd_gender, customer_demographics.cd_marital_status [rejected in 37 µs 375 ns]
-Checking UCC time_dim.t_hour [rejected in 3 µs 208 ns]
-Checking OD date_dim.d_date_sk |-> date_dim.d_year [confirmed in 2 ms 33 µs]
-Checking FD store_sales.ss_customer_sk, store_sales.ss_addr_sk, store_sales.ss_ticket_number [rejected in 1 ms 353 µs]
-Checking IND catalog_sales.cs_ship_date_sk in date_dim.d_date_sk [confirmed in 99 µs 125 ns]
-Checking UCC customer_address.ca_state [rejected in 7 µs 625 ns]
+Generated 85 candidates in 640 µs 500 ns
+Checking OD reason.r_reason_sk |-> reason.r_reason_desc [rejected in 1 ms 902 µs]
+Checking UCC reason.r_reason_sk [confirmed in 180 µs 83 ns]
+Checking OD household_demographics.hd_demo_sk |-> household_demographics.hd_buy_potential [rejected in 240 µs 125 ns]
+Checking IND customer.c_current_hdemo_sk in household_demographics.hd_demo_sk [confirmed in 25 µs 667 ns]
+Checking UCC web_site.web_company_name [rejected in 201 µs 250 ns]
+Checking FD store_sales.ss_item_sk, store_sales.ss_store_sk [rejected in 2 ms 645 µs]
+Checking FD customer_address.ca_city, customer_address.ca_zip [rejected in 367 µs 0 ns]
+Checking IND web_sales.ws_ship_date_sk in date_dim.d_date_sk [confirmed in 55 µs 583 ns]
+Checking UCC call_center.cc_name [rejected in 3 µs 417 ns]
+Checking UCC ship_mode.sm_type [rejected in 2 µs 750 ns]
+Checking UCC web_site.web_name [rejected in 2 µs 334 ns]
+Checking UCC date_dim.d_qoy [rejected in 1 µs 958 ns]
+Checking FD store_sales.ss_customer_sk, store_sales.ss_ticket_number [rejected in 1 ms 294 µs]
+Checking OD household_demographics.hd_demo_sk |-> household_demographics.hd_dep_count [rejected in 25 µs 709 ns]
+Checking IND store_sales.ss_hdemo_sk in household_demographics.hd_demo_sk [confirmed in 97 µs 125 ns]
+Checking IND store_returns.sr_reason_sk in reason.r_reason_sk [confirmed in 26 µs 291 ns]
+Checking OD date_dim.d_date_sk |-> date_dim.d_dom [rejected in 49 µs 709 ns]
+Checking UCC household_demographics.hd_dep_count [rejected in 1 µs 792 ns]
+Checking FD customer_demographics.cd_marital_status, customer_demographics.cd_education_status [rejected in 19 µs 500 ns]
+Checking FD store_returns.sr_customer_sk, store_returns.sr_store_sk [rejected in 2 ms 342 µs]
+Checking UCC catalog_returns.cr_returning_customer_sk [rejected in 3 ms 357 µs]
+Checking OD store.s_store_sk |-> store.s_state [rejected in 7 µs 583 ns]
+Checking UCC customer_demographics.cd_gender [rejected in 7 µs 875 ns]
+Checking UCC customer_demographics.cd_demo_sk [confirmed in 78 ms 381 µs]
+Checking IND catalog_returns.cr_returned_date_sk in date_dim.d_date_sk [confirmed in 36 µs 625 ns]
+Checking UCC web_site.web_site_sk [confirmed in 7 µs 500 ns]
+Checking IND store_returns.sr_returned_date_sk in date_dim.d_date_sk [confirmed in 70 µs 0 ns]
+Checking FD catalog_sales.cs_bill_customer_sk, catalog_sales.cs_item_sk [rejected in 2 ms 576 µs]
+Checking UCC time_dim.t_time_sk [confirmed in 3 ms 45 µs]
+Checking FD customer_demographics.cd_purchase_estimate, customer_demographics.cd_dep_count, customer_demographics.cd_dep_employed_count, customer_demographics.cd_dep_college_count, customer_demographics.cd_gender, customer_demographics.cd_marital_status, customer_demographics.cd_education_status, customer_demographics.cd_credit_rating [rejected in 63 µs 291 ns]
+Checking FD customer_demographics.cd_purchase_estimate, customer_demographics.cd_gender, customer_demographics.cd_marital_status, customer_demographics.cd_education_status, customer_demographics.cd_credit_rating [rejected in 28 µs 959 ns]
+Checking IND inventory.inv_date_sk in date_dim.d_date_sk [confirmed in 536 µs 916 ns]
+Checking IND store_returns.sr_store_sk in store.s_store_sk [confirmed in 16 µs 583 ns]
+Checking FD item.i_brand_id, item.i_manufact_id, item.i_brand, item.i_manufact [rejected in 201 µs 625 ns]
+Checking UCC customer_address.ca_county [rejected in 139 µs 959 ns]
+Checking FD date_dim.d_year, date_dim.d_qoy [rejected in 9 µs 291 ns]
+Checking OD date_dim.d_date_sk |-> date_dim.d_quarter_name [confirmed in 5 ms 40 µs]
+Checking FD store.s_store_id, store.s_store_name [rejected in 11 µs 542 ns]
+Checking UCC store.s_state [rejected in 1 µs 750 ns]
+Checking OD store.s_store_sk |-> store.s_store_name [rejected in 8 µs 791 ns]
+Checking IND catalog_sales.cs_sold_date_sk in date_dim.d_date_sk [confirmed in 66 µs 875 ns]
+Checking FD store_sales.ss_item_sk, store_sales.ss_customer_sk [rejected in 3 ms 23 µs]
+Checking IND store_sales.ss_store_sk in store.s_store_sk [confirmed in 112 µs 833 ns]
+Checking UCC web_sales.ws_order_number [rejected in 297 µs 333 ns]
+Checking UCC promotion.p_promo_sk [confirmed in 19 µs 208 ns]
+Checking FD customer_demographics.cd_dep_count, customer_demographics.cd_dep_employed_count, customer_demographics.cd_dep_college_count, customer_demographics.cd_gender, customer_demographics.cd_marital_status [rejected in 36 µs 958 ns]
+Checking UCC customer_demographics.cd_marital_status [rejected in 5 µs 750 ns]
+Checking UCC store.s_store_name [rejected in 2 µs 208 ns]
+Checking UCC time_dim.t_hour [rejected in 3 µs 83 ns]
+Checking OD date_dim.d_date_sk |-> date_dim.d_month_seq [confirmed in 2 ms 418 µs]
+Checking FD warehouse.w_warehouse_sk, warehouse.w_warehouse_name [confirmed in 4 µs 750 ns]
+Checking UCC store.s_county [rejected in 2 µs 417 ns]
+Checking OD date_dim.d_date_sk |-> date_dim.d_dow [rejected in 28 µs 667 ns]
+Checking FD item.i_item_id, item.i_item_desc [rejected in 11 ms 175 µs]
+Checking UCC item.i_item_sk [confirmed in 3 ms 392 µs]
+Checking UCC date_dim.d_year [rejected in 10 µs 833 ns]
+Checking UCC customer_demographics.cd_education_status [rejected in 15 µs 667 ns]
+Checking IND store_sales.ss_sold_date_sk in date_dim.d_date_sk [confirmed in 190 µs 208 ns]
+Checking OD date_dim.d_date_sk |-> date_dim.d_year [confirmed in 2 ms 355 µs]
+Checking UCC call_center.cc_county [rejected in 3 µs 917 ns]
+Checking UCC date_dim.d_moy [rejected in 3 µs 42 ns]
+Checking UCC store.s_store_sk [skipped (already known) in 1 µs 83 ns]
+Checking OD date_dim.d_date_sk |-> date_dim.d_date [confirmed in 4 ms 17 µs]
+Checking OD store.s_store_sk |-> store.s_county [rejected in 6 µs 42 ns]
+Checking UCC date_dim.d_dow [rejected in 2 µs 792 ns]
+Checking UCC inventory.inv_item_sk [rejected in 5 ms 62 µs]
+Checking UCC catalog_sales.cs_item_sk [rejected in 1 ms 794 µs]
+Checking FD item.i_current_price, item.i_item_id, item.i_item_desc [rejected in 11 ms 345 µs]
+Checking UCC customer_address.ca_state [rejected in 11 µs 958 ns]
+Checking UCC reason.r_reason_desc [rejected in 7 µs 250 ns]
+Checking IND catalog_sales.cs_ship_date_sk in date_dim.d_date_sk [confirmed in 89 µs 416 ns]
+Checking FD call_center.cc_call_center_id, call_center.cc_name, call_center.cc_manager [rejected in 7 µs 542 ns]
+Checking UCC household_demographics.hd_demo_sk [skipped (already known) in 1 µs 292 ns]
+Checking UCC store.s_city [rejected in 2 µs 708 ns]
+Checking UCC call_center.cc_call_center_sk [confirmed in 3 µs 750 ns]
+Checking UCC store_sales.ss_item_sk [rejected in 2 ms 428 µs]
+Checking IND web_sales.ws_sold_date_sk in date_dim.d_date_sk [confirmed in 51 µs 416 ns]
+Checking UCC web_page.wp_web_page_sk [confirmed in 10 µs 125 ns]
+Checking FD item.i_brand_id, item.i_brand [rejected in 94 µs 334 ns]
+Checking UCC date_dim.d_quarter_name [rejected in 50 µs 83 ns]
 Checking UCC date_dim.d_date_sk [skipped (already known) in 666 ns]
-Checking UCC date_dim.d_moy [rejected in 2 µs 125 ns]
-Checking OD reason.r_reason_sk |-> reason.r_reason_desc [rejected in 7 µs 416 ns]
-Checking IND store_sales.ss_hdemo_sk in household_demographics.hd_demo_sk [confirmed in 106 µs 625 ns]
-Checking UCC store.s_store_sk [skipped (already known) in 750 ns]
-Checking UCC customer_address.ca_address_sk [confirmed in 8 ms 697 µs]
-Checking UCC reason.r_reason_sk [skipped (already known) in 1 µs 458 ns]
-Checking UCC call_center.cc_county [rejected in 3 µs 250 ns]
-Checking UCC web_site.web_company_name [rejected in 2 µs 667 ns]
-Checking UCC call_center.cc_call_center_sk [confirmed in 2 µs 792 ns]
-Checking IND web_sales.ws_sold_date_sk in date_dim.d_date_sk [confirmed in 92 µs 42 ns]
-Checking UCC web_sales.ws_order_number [rejected in 245 µs 375 ns]
-Checking IND catalog_sales.cs_sold_date_sk in date_dim.d_date_sk [confirmed in 49 µs 916 ns]
-Checking FD catalog_sales.cs_bill_customer_sk, catalog_sales.cs_item_sk [rejected in 2 ms 372 µs]
-Checking OD date_dim.d_date_sk |-> date_dim.d_quarter_name [confirmed in 3 ms 397 µs]
-Checking UCC date_dim.d_dow [rejected in 2 µs 708 ns]
-Checking UCC time_dim.t_time_sk [confirmed in 2 ms 788 µs]
-Checking UCC household_demographics.hd_demo_sk [skipped (already known) in 1 µs 125 ns]
-Checking FD customer_demographics.cd_purchase_estimate, customer_demographics.cd_dep_count, customer_demographics.cd_dep_employed_count, customer_demographics.cd_dep_college_count, customer_demographics.cd_gender, customer_demographics.cd_marital_status, customer_demographics.cd_education_status, customer_demographics.cd_credit_rating [rejected in 49 µs 0 ns]
-Checking FD store.s_company_id, store.s_store_name, store.s_street_number, store.s_street_name, store.s_street_type, store.s_suite_number, store.s_city, store.s_county, store.s_state, store.s_zip [rejected in 32 µs 83 ns]
-Checking UCC call_center.cc_name [rejected in 2 µs 708 ns]
-Checking UCC date_dim.d_year [rejected in 7 µs 458 ns]
-Validated 85 candidates in 154 ms 821 µs
+Checking UCC customer_address.ca_address_sk [confirmed in 9 ms 268 µs]
+Checking FD store_sales.ss_customer_sk, store_sales.ss_addr_sk, store_sales.ss_ticket_number [rejected in 1 ms 658 µs]
+Checking FD item.i_category_id, item.i_category [rejected in 7 µs 500 ns]
+Checking FD store.s_company_id, store.s_store_name, store.s_street_number, store.s_street_name, store.s_street_type, store.s_suite_number, store.s_city, store.s_county, store.s_state, store.s_zip [rejected in 33 µs 458 ns]
+Validated 85 candidates in 162 ms 301 µs
 Clearing LQP and PQP cache...
-Executed dependency discovery in 169 ms 790 µs
+Executed dependency discovery in 177 ms 897 µs
 - Benchmarking 01
 O2: rewrite [Join] Mode: Inner [s_store_sk = sr_store_sk] to [Join] Mode: Semi [s_store_sk = sr_store_sk]
 O2: rewrite [Join] Mode: Inner [sr_returned_date_sk = d_date_sk] to [Join] Mode: Semi [sr_returned_date_sk = d_date_sk]
 O2: rewrite [Join] Mode: Inner [sr_returned_date_sk = d_date_sk] to [Join] Mode: Semi [sr_returned_date_sk = d_date_sk]
 O3: rewrite [Join] Mode: Semi [sr_returned_date_sk = d_date_sk] to [Predicate] sr_returned_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
 O3: rewrite [Join] Mode: Semi [sr_returned_date_sk = d_date_sk] to [Predicate] sr_returned_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
-  -> Executed 1 times in 0.152837 seconds (Latency: 152.826 ms/iter, Throughput: 6.54291 iter/s)
+  -> Executed 1 times in 0.155674 seconds (Latency: 155.662 ms/iter, Throughput: 6.42367 iter/s)
 - Benchmarking 03
-  -> Executed 1 times in 0.0611609 seconds (Latency: 61.1515 ms/iter, Throughput: 16.3503 iter/s)
+  -> Executed 1 times in 0.0623294 seconds (Latency: 62.3192 ms/iter, Throughput: 16.0438 iter/s)
 - Benchmarking 06
 O2: rewrite [Join] Mode: Inner [ss_sold_date_sk = d_date_sk] to [Join] Mode: Semi [ss_sold_date_sk = d_date_sk]
-  -> Executed 1 times in 0.094902 seconds (Latency: 94.8881 ms/iter, Throughput: 10.5372 iter/s)
+  -> Executed 1 times in 0.131091 seconds (Latency: 131.073 ms/iter, Throughput: 7.62828 iter/s)
 - Benchmarking 07
 O2: rewrite [Join] Mode: Inner [ss_promo_sk = p_promo_sk] to [Join] Mode: Semi [ss_promo_sk = p_promo_sk]
 O2: rewrite [Join] Mode: Inner [ss_cdemo_sk = cd_demo_sk] to [Join] Mode: Semi [ss_cdemo_sk = cd_demo_sk]
 O2: rewrite [Join] Mode: Inner [ss_sold_date_sk = d_date_sk] to [Join] Mode: Semi [ss_sold_date_sk = d_date_sk]
 O3: rewrite [Join] Mode: Semi [ss_sold_date_sk = d_date_sk] to [Predicate] ss_sold_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
-  -> Executed 1 times in 0.104871 seconds (Latency: 104.858 ms/iter, Throughput: 9.53552 iter/s)
+  -> Executed 1 times in 0.11821 seconds (Latency: 118.199 ms/iter, Throughput: 8.45949 iter/s)
 - Benchmarking 09
-  -> Executed 1 times in 0.584963 seconds (Latency: 584.947 ms/iter, Throughput: 1.70951 iter/s)
+  -> Executed 1 times in 0.57525 seconds (Latency: 575.239 ms/iter, Throughput: 1.73838 iter/s)
 - Benchmarking 10
 O2: rewrite [Join] Mode: Inner [ss_sold_date_sk = d_date_sk] to [Join] Mode: Semi [ss_sold_date_sk = d_date_sk]
 O2: rewrite [Join] Mode: Inner [ws_sold_date_sk = d_date_sk] to [Join] Mode: Semi [ws_sold_date_sk = d_date_sk]
 O2: rewrite [Join] Mode: Inner [cs_sold_date_sk = d_date_sk] to [Join] Mode: Semi [cs_sold_date_sk = d_date_sk]
 O2: rewrite [Join] Mode: Inner [c_current_addr_sk = ca_address_sk] to [Join] Mode: Semi [c_current_addr_sk = ca_address_sk]
-  -> Executed 1 times in 0.115775 seconds (Latency: 115.764 ms/iter, Throughput: 8.63745 iter/s)
+  -> Executed 1 times in 0.125618 seconds (Latency: 125.609 ms/iter, Throughput: 7.96061 iter/s)
 - Benchmarking 13
 O2: rewrite [Join] Mode: Inner [s_store_sk = ss_store_sk] to [Join] Mode: Semi [s_store_sk = ss_store_sk]
 O2: rewrite [Join] Mode: Inner [ss_sold_date_sk = d_date_sk] to [Join] Mode: Semi [ss_sold_date_sk = d_date_sk]
 O3: rewrite [Join] Mode: Semi [ss_sold_date_sk = d_date_sk] to [Predicate] ss_sold_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
-  -> Executed 1 times in 0.504612 seconds (Latency: 504.602 ms/iter, Throughput: 1.98172 iter/s)
+  -> Executed 1 times in 3.06654 seconds (Latency: 3066.53 ms/iter, Throughput: 0.326101 iter/s)
 - Benchmarking 15
 O2: rewrite [Join] Mode: Inner [cs_sold_date_sk = d_date_sk] to [Join] Mode: Semi [cs_sold_date_sk = d_date_sk]
-  -> Executed 1 times in 0.0698887 seconds (Latency: 69.8718 ms/iter, Throughput: 14.3085 iter/s)
+  -> Executed 1 times in 0.0751253 seconds (Latency: 75.1107 ms/iter, Throughput: 13.3111 iter/s)
 - Benchmarking 16
 O2: rewrite [Join] Mode: Inner [cs_call_center_sk = cc_call_center_sk] to [Join] Mode: Semi [cs_call_center_sk = cc_call_center_sk]
 O2: rewrite [Join] Mode: Inner [cs_ship_addr_sk = ca_address_sk] to [Join] Mode: Semi [cs_ship_addr_sk = ca_address_sk]
 O2: rewrite [Join] Mode: Inner [cs_ship_date_sk = d_date_sk] to [Join] Mode: Semi [cs_ship_date_sk = d_date_sk]
 O3: rewrite [Join] Mode: Semi [cs_ship_date_sk = d_date_sk] to [Predicate] cs_ship_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
-  -> Executed 1 times in 0.103116 seconds (Latency: 103.102 ms/iter, Throughput: 9.69777 iter/s)
+  -> Executed 1 times in 0.0471147 seconds (Latency: 47.103 ms/iter, Throughput: 21.2248 iter/s)
 - Benchmarking 17
 O2: rewrite [Join] Mode: Inner [cs_sold_date_sk = d_date_sk] to [Join] Mode: Semi [cs_sold_date_sk = d_date_sk]
 O2: rewrite [Join] Mode: Inner [d_date_sk = ss_sold_date_sk] to [Join] Mode: Semi [d_date_sk = ss_sold_date_sk]
 O2: rewrite [Join] Mode: Inner [sr_returned_date_sk = d_date_sk] to [Join] Mode: Semi [sr_returned_date_sk = d_date_sk]
 O3: rewrite [Join] Mode: Semi [d_date_sk = ss_sold_date_sk] to [Predicate] ss_sold_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
-  -> Executed 1 times in 0.350051 seconds (Latency: 350.039 ms/iter, Throughput: 2.85673 iter/s)
+  -> Executed 1 times in 0.36895 seconds (Latency: 368.936 ms/iter, Throughput: 2.71039 iter/s)
 - Benchmarking 19
 O2: rewrite [Join] Mode: Inner [d_date_sk = ss_sold_date_sk] to [Join] Mode: Semi [d_date_sk = ss_sold_date_sk]
-  -> Executed 1 times in 0.115693 seconds (Latency: 115.684 ms/iter, Throughput: 8.64358 iter/s)
+  -> Executed 1 times in 0.119724 seconds (Latency: 119.708 ms/iter, Throughput: 8.35254 iter/s)
 - Benchmarking 25
 O2: rewrite [Join] Mode: Inner [cs_sold_date_sk = d_date_sk] to [Join] Mode: Semi [cs_sold_date_sk = d_date_sk]
 O2: rewrite [Join] Mode: Inner [d_date_sk = ss_sold_date_sk] to [Join] Mode: Semi [d_date_sk = ss_sold_date_sk]
 O2: rewrite [Join] Mode: Inner [sr_returned_date_sk = d_date_sk] to [Join] Mode: Semi [sr_returned_date_sk = d_date_sk]
-  -> Executed 1 times in 0.297349 seconds (Latency: 297.33 ms/iter, Throughput: 3.36305 iter/s)
+  -> Executed 1 times in 0.313667 seconds (Latency: 313.644 ms/iter, Throughput: 3.18809 iter/s)
 - Benchmarking 26
 O2: rewrite [Join] Mode: Inner [cs_promo_sk = p_promo_sk] to [Join] Mode: Semi [cs_promo_sk = p_promo_sk]
 O2: rewrite [Join] Mode: Inner [cs_bill_cdemo_sk = cd_demo_sk] to [Join] Mode: Semi [cs_bill_cdemo_sk = cd_demo_sk]
 O2: rewrite [Join] Mode: Inner [cs_sold_date_sk = d_date_sk] to [Join] Mode: Semi [cs_sold_date_sk = d_date_sk]
 O3: rewrite [Join] Mode: Semi [cs_sold_date_sk = d_date_sk] to [Predicate] cs_sold_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
-  -> Executed 1 times in 0.047903 seconds (Latency: 47.8902 ms/iter, Throughput: 20.8755 iter/s)
+  -> Executed 1 times in 0.046676 seconds (Latency: 46.6605 ms/iter, Throughput: 21.4243 iter/s)
 - Benchmarking 28
-  -> Executed 1 times in 0.62931 seconds (Latency: 629.292 ms/iter, Throughput: 1.58904 iter/s)
+  -> Executed 1 times in 0.656426 seconds (Latency: 656.41 ms/iter, Throughput: 1.5234 iter/s)
 - Benchmarking 29
 O2: rewrite [Join] Mode: Inner [d_date_sk = ss_sold_date_sk] to [Join] Mode: Semi [d_date_sk = ss_sold_date_sk]
 O2: rewrite [Join] Mode: Inner [sr_returned_date_sk = d_date_sk] to [Join] Mode: Semi [sr_returned_date_sk = d_date_sk]
 O2: rewrite [Join] Mode: Inner [cs_sold_date_sk = d_date_sk] to [Join] Mode: Semi [cs_sold_date_sk = d_date_sk]
-  -> Executed 1 times in 0.473244 seconds (Latency: 473.235 ms/iter, Throughput: 2.11308 iter/s)
+  -> Executed 1 times in 0.512813 seconds (Latency: 512.8 ms/iter, Throughput: 1.95003 iter/s)
 - Benchmarking 31
-  -> Executed 1 times in 0.760894 seconds (Latency: 760.874 ms/iter, Throughput: 1.31424 iter/s)
+  -> Executed 1 times in 0.785645 seconds (Latency: 785.636 ms/iter, Throughput: 1.27284 iter/s)
 - Benchmarking 32
 O2: rewrite [Join] Mode: Inner [d_date_sk = cs_sold_date_sk] to [Join] Mode: Semi [d_date_sk = cs_sold_date_sk]
 O2: rewrite [Join] Mode: Inner [d_date_sk = cs_sold_date_sk] to [Join] Mode: Semi [d_date_sk = cs_sold_date_sk]
 O3: rewrite [Join] Mode: Semi [d_date_sk = cs_sold_date_sk] to [Predicate] cs_sold_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
 O3: rewrite [Join] Mode: Semi [d_date_sk = cs_sold_date_sk] to [Predicate] cs_sold_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
-  -> Executed 1 times in 0.0177363 seconds (Latency: 17.7132 ms/iter, Throughput: 56.3814 iter/s)
+  -> Executed 1 times in 0.0130046 seconds (Latency: 12.9932 ms/iter, Throughput: 76.8957 iter/s)
 - Benchmarking 34
 O2: rewrite [Join] Mode: Inner [ss_hdemo_sk = hd_demo_sk] to [Join] Mode: Semi [ss_hdemo_sk = hd_demo_sk]
 O2: rewrite [Join] Mode: Inner [ss_store_sk = s_store_sk] to [Join] Mode: Semi [ss_store_sk = s_store_sk]
 O2: rewrite [Join] Mode: Inner [ss_sold_date_sk = d_date_sk] to [Join] Mode: Semi [ss_sold_date_sk = d_date_sk]
-  -> Executed 1 times in 0.125309 seconds (Latency: 125.294 ms/iter, Throughput: 7.98026 iter/s)
+  -> Executed 1 times in 0.122996 seconds (Latency: 122.985 ms/iter, Throughput: 8.13038 iter/s)
 - Benchmarking 35
 O2: rewrite [Join] Mode: Inner [ss_sold_date_sk = d_date_sk] to [Join] Mode: Semi [ss_sold_date_sk = d_date_sk]
 O2: rewrite [Join] Mode: Inner [ws_sold_date_sk = d_date_sk] to [Join] Mode: Semi [ws_sold_date_sk = d_date_sk]
 O2: rewrite [Join] Mode: Inner [cs_sold_date_sk = d_date_sk] to [Join] Mode: Semi [cs_sold_date_sk = d_date_sk]
-  -> Executed 1 times in 0.381371 seconds (Latency: 381.353 ms/iter, Throughput: 2.62212 iter/s)
+  -> Executed 1 times in 0.403513 seconds (Latency: 403.501 ms/iter, Throughput: 2.47823 iter/s)
 - Benchmarking 37
 O2: rewrite [Join] Mode: Inner [d_date_sk = inv_date_sk] to [Join] Mode: Semi [d_date_sk = inv_date_sk]
 O3: rewrite [Join] Mode: Semi [d_date_sk = inv_date_sk] to [Predicate] inv_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
-  -> Executed 1 times in 0.0592488 seconds (Latency: 59.2313 ms/iter, Throughput: 16.878 iter/s)
+  -> Executed 1 times in 0.0630389 seconds (Latency: 63.028 ms/iter, Throughput: 15.8632 iter/s)
 - Benchmarking 39a
 O1: rewrite [Aggregate] GroupBy: [w_warehouse_name, w_warehouse_sk, i_item_sk, d_moy] Aggregates: [STDDEV_SAMP(inv_quantity_on_hand), AVG(inv_quantity_on_hand)] to [Aggregate] GroupBy: [w_warehouse_sk, i_item_sk, d_moy] Aggregates: [STDDEV_SAMP(inv_quantity_on_hand), AVG(inv_quantity_on_hand), ANY(w_warehouse_name)]
 O1: rewrite [Aggregate] GroupBy: [w_warehouse_name, w_warehouse_sk, i_item_sk, d_moy] Aggregates: [STDDEV_SAMP(inv_quantity_on_hand), AVG(inv_quantity_on_hand)] to [Aggregate] GroupBy: [w_warehouse_sk, i_item_sk, d_moy] Aggregates: [STDDEV_SAMP(inv_quantity_on_hand), AVG(inv_quantity_on_hand), ANY(w_warehouse_name)]
-  -> Executed 1 times in 1.11047 seconds (Latency: 1110.46 ms/iter, Throughput: 0.900517 iter/s)
+  -> Executed 1 times in 1.15018 seconds (Latency: 1150.16 ms/iter, Throughput: 0.869432 iter/s)
 - Benchmarking 39b
 O1: rewrite [Aggregate] GroupBy: [w_warehouse_name, w_warehouse_sk, i_item_sk, d_moy] Aggregates: [STDDEV_SAMP(inv_quantity_on_hand), AVG(inv_quantity_on_hand)] to [Aggregate] GroupBy: [w_warehouse_sk, i_item_sk, d_moy] Aggregates: [STDDEV_SAMP(inv_quantity_on_hand), AVG(inv_quantity_on_hand), ANY(w_warehouse_name)]
 O1: rewrite [Aggregate] GroupBy: [w_warehouse_name, w_warehouse_sk, i_item_sk, d_moy] Aggregates: [STDDEV_SAMP(inv_quantity_on_hand), AVG(inv_quantity_on_hand)] to [Aggregate] GroupBy: [w_warehouse_sk, i_item_sk, d_moy] Aggregates: [STDDEV_SAMP(inv_quantity_on_hand), AVG(inv_quantity_on_hand), ANY(w_warehouse_name)]
-  -> Executed 1 times in 1.10132 seconds (Latency: 1101.29 ms/iter, Throughput: 0.908004 iter/s)
+  -> Executed 1 times in 1.12729 seconds (Latency: 1127.28 ms/iter, Throughput: 0.88708 iter/s)
 - Benchmarking 41
-  -> Executed 1 times in 0.191472 seconds (Latency: 191.458 ms/iter, Throughput: 5.2227 iter/s)
+  -> Executed 1 times in 0.20045 seconds (Latency: 200.441 ms/iter, Throughput: 4.98877 iter/s)
 - Benchmarking 42
-  -> Executed 1 times in 0.0743603 seconds (Latency: 74.3502 ms/iter, Throughput: 13.448 iter/s)
+  -> Executed 1 times in 0.0722004 seconds (Latency: 72.1906 ms/iter, Throughput: 13.8503 iter/s)
 - Benchmarking 43
-  -> Executed 1 times in 0.496851 seconds (Latency: 496.839 ms/iter, Throughput: 2.01267 iter/s)
+  -> Executed 1 times in 0.517309 seconds (Latency: 517.296 ms/iter, Throughput: 1.93308 iter/s)
 - Benchmarking 45
 O2: rewrite [Join] Mode: Inner [ws_sold_date_sk = d_date_sk] to [Join] Mode: Semi [ws_sold_date_sk = d_date_sk]
-  -> Executed 1 times in 0.0690371 seconds (Latency: 69.0242 ms/iter, Throughput: 14.485 iter/s)
+  -> Executed 1 times in 0.0747205 seconds (Latency: 74.7111 ms/iter, Throughput: 13.3832 iter/s)
 - Benchmarking 48
 O2: rewrite [Join] Mode: Inner [s_store_sk = ss_store_sk] to [Join] Mode: Semi [s_store_sk = ss_store_sk]
 O2: rewrite [Join] Mode: Inner [ss_sold_date_sk = d_date_sk] to [Join] Mode: Semi [ss_sold_date_sk = d_date_sk]
 O3: rewrite [Join] Mode: Semi [ss_sold_date_sk = d_date_sk] to [Predicate] ss_sold_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
-  -> Executed 1 times in 0.568194 seconds (Latency: 568.176 ms/iter, Throughput: 1.75996 iter/s)
+  -> Executed 1 times in 0.685855 seconds (Latency: 685.842 ms/iter, Throughput: 1.45803 iter/s)
 - Benchmarking 50
 O2: rewrite [Join] Mode: Inner [ss_sold_date_sk = d_date_sk] to [Join] Mode: Semi [ss_sold_date_sk = d_date_sk]
 O2: rewrite [Join] Mode: Inner [sr_returned_date_sk = d_date_sk] to [Join] Mode: Semi [sr_returned_date_sk = d_date_sk]
-  -> Executed 1 times in 0.104523 seconds (Latency: 104.51 ms/iter, Throughput: 9.56726 iter/s)
+  -> Executed 1 times in 0.114529 seconds (Latency: 114.515 ms/iter, Throughput: 8.73141 iter/s)
 - Benchmarking 52
-  -> Executed 1 times in 0.0700861 seconds (Latency: 70.0708 ms/iter, Throughput: 14.2682 iter/s)
+  -> Executed 1 times in 0.0711108 seconds (Latency: 71.0992 ms/iter, Throughput: 14.0626 iter/s)
 - Benchmarking 55
 O2: rewrite [Join] Mode: Inner [d_date_sk = ss_sold_date_sk] to [Join] Mode: Semi [d_date_sk = ss_sold_date_sk]
-  -> Executed 1 times in 0.0682305 seconds (Latency: 68.2144 ms/iter, Throughput: 14.6562 iter/s)
+  -> Executed 1 times in 0.0700217 seconds (Latency: 70.0099 ms/iter, Throughput: 14.2813 iter/s)
 - Benchmarking 62
 O2: rewrite [Join] Mode: Inner [ws_ship_date_sk = d_date_sk] to [Join] Mode: Semi [ws_ship_date_sk = d_date_sk]
 O3: rewrite [Join] Mode: Semi [ws_ship_date_sk = d_date_sk] to [Predicate] ws_ship_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
-  -> Executed 1 times in 0.34254 seconds (Latency: 342.521 ms/iter, Throughput: 2.91937 iter/s)
+  -> Executed 1 times in 0.368034 seconds (Latency: 368.02 ms/iter, Throughput: 2.71714 iter/s)
 - Benchmarking 65
 O2: rewrite [Join] Mode: Inner [ss_sold_date_sk = d_date_sk] to [Join] Mode: Semi [ss_sold_date_sk = d_date_sk]
 O2: rewrite [Join] Mode: Inner [ss_sold_date_sk = d_date_sk] to [Join] Mode: Semi [ss_sold_date_sk = d_date_sk]
 O3: rewrite [Join] Mode: Semi [ss_sold_date_sk = d_date_sk] to [Predicate] ss_sold_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
 O3: rewrite [Join] Mode: Semi [ss_sold_date_sk = d_date_sk] to [Predicate] ss_sold_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
-  -> Executed 1 times in 1.10757 seconds (Latency: 1107.56 ms/iter, Throughput: 0.902875 iter/s)
+  -> Executed 1 times in 1.13009 seconds (Latency: 1130.06 ms/iter, Throughput: 0.884886 iter/s)
 - Benchmarking 69
 O2: rewrite [Join] Mode: Inner [ss_sold_date_sk = d_date_sk] to [Join] Mode: Semi [ss_sold_date_sk = d_date_sk]
 O2: rewrite [Join] Mode: Inner [ws_sold_date_sk = d_date_sk] to [Join] Mode: Semi [ws_sold_date_sk = d_date_sk]
 O2: rewrite [Join] Mode: Inner [cs_sold_date_sk = d_date_sk] to [Join] Mode: Semi [cs_sold_date_sk = d_date_sk]
 O2: rewrite [Join] Mode: Inner [c_current_addr_sk = ca_address_sk] to [Join] Mode: Semi [c_current_addr_sk = ca_address_sk]
-  -> Executed 1 times in 0.108595 seconds (Latency: 108.575 ms/iter, Throughput: 9.20857 iter/s)
+  -> Executed 1 times in 0.128181 seconds (Latency: 128.169 ms/iter, Throughput: 7.80145 iter/s)
 - Benchmarking 73
 O2: rewrite [Join] Mode: Inner [ss_hdemo_sk = hd_demo_sk] to [Join] Mode: Semi [ss_hdemo_sk = hd_demo_sk]
 O2: rewrite [Join] Mode: Inner [ss_store_sk = s_store_sk] to [Join] Mode: Semi [ss_store_sk = s_store_sk]
 O2: rewrite [Join] Mode: Inner [ss_sold_date_sk = d_date_sk] to [Join] Mode: Semi [ss_sold_date_sk = d_date_sk]
-  -> Executed 1 times in 0.0791614 seconds (Latency: 79.1423 ms/iter, Throughput: 12.6324 iter/s)
+  -> Executed 1 times in 0.0819618 seconds (Latency: 81.9442 ms/iter, Throughput: 12.2008 iter/s)
 - Benchmarking 79
 O2: rewrite [Join] Mode: Inner [ss_hdemo_sk = hd_demo_sk] to [Join] Mode: Semi [ss_hdemo_sk = hd_demo_sk]
 O2: rewrite [Join] Mode: Inner [ss_sold_date_sk = d_date_sk] to [Join] Mode: Semi [ss_sold_date_sk = d_date_sk]
-  -> Executed 1 times in 0.271004 seconds (Latency: 270.986 ms/iter, Throughput: 3.68998 iter/s)
+  -> Executed 1 times in 0.285328 seconds (Latency: 285.316 ms/iter, Throughput: 3.50474 iter/s)
 - Benchmarking 81
 O2: rewrite [Join] Mode: Inner [cr_returned_date_sk = d_date_sk] to [Join] Mode: Semi [cr_returned_date_sk = d_date_sk]
 O2: rewrite [Join] Mode: Inner [cr_returned_date_sk = d_date_sk] to [Join] Mode: Semi [cr_returned_date_sk = d_date_sk]
 O3: rewrite [Join] Mode: Semi [cr_returned_date_sk = d_date_sk] to [Predicate] cr_returned_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
 O3: rewrite [Join] Mode: Semi [cr_returned_date_sk = d_date_sk] to [Predicate] cr_returned_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
-  -> Executed 1 times in 0.124849 seconds (Latency: 124.832 ms/iter, Throughput: 8.00968 iter/s)
+  -> Executed 1 times in 0.113905 seconds (Latency: 113.892 ms/iter, Throughput: 8.77922 iter/s)
 - Benchmarking 82
 O2: rewrite [Join] Mode: Inner [d_date_sk = inv_date_sk] to [Join] Mode: Semi [d_date_sk = inv_date_sk]
 O3: rewrite [Join] Mode: Semi [d_date_sk = inv_date_sk] to [Predicate] inv_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
-  -> Executed 1 times in 0.113636 seconds (Latency: 113.619 ms/iter, Throughput: 8.80006 iter/s)
+  -> Executed 1 times in 0.0998286 seconds (Latency: 99.8176 ms/iter, Throughput: 10.0172 iter/s)
 - Benchmarking 83
 O2: rewrite [Join] Mode: Inner [wr_returned_date_sk = d_date_sk] to [Join] Mode: Semi [wr_returned_date_sk = d_date_sk]
 O2: rewrite [Join] Mode: Inner [sr_returned_date_sk = d_date_sk] to [Join] Mode: Semi [sr_returned_date_sk = d_date_sk]
 O2: rewrite [Join] Mode: Inner [cr_returned_date_sk = d_date_sk] to [Join] Mode: Semi [cr_returned_date_sk = d_date_sk]
-  -> Executed 1 times in 0.0300369 seconds (Latency: 30.0267 ms/iter, Throughput: 33.2924 iter/s)
+  -> Executed 1 times in 0.0333782 seconds (Latency: 33.3685 ms/iter, Throughput: 29.9596 iter/s)
 - Benchmarking 85
 O2: rewrite [Join] Mode: Inner [ws_web_page_sk = wp_web_page_sk] to [Join] Mode: Semi [ws_web_page_sk = wp_web_page_sk]
 O2: rewrite [Join] Mode: Inner [ws_sold_date_sk = d_date_sk] to [Join] Mode: Semi [ws_sold_date_sk = d_date_sk]
 O3: rewrite [Join] Mode: Semi [ws_sold_date_sk = d_date_sk] to [Predicate] ws_sold_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
-  -> Executed 1 times in 1.30451 seconds (Latency: 1304.5 ms/iter, Throughput: 0.76657 iter/s)
+  -> Executed 1 times in 0.954367 seconds (Latency: 954.353 ms/iter, Throughput: 1.04781 iter/s)
 - Benchmarking 88
 O2: rewrite [Join] Mode: Inner [ss_sold_time_sk = t_time_sk] to [Join] Mode: Semi [ss_sold_time_sk = t_time_sk]
 O2: rewrite [Join] Mode: Inner [ss_sold_time_sk = t_time_sk] to [Join] Mode: Semi [ss_sold_time_sk = t_time_sk]
@@ -375,45 +378,45 @@ O2: rewrite [Join] Mode: Inner [ss_hdemo_sk = hd_demo_sk] to [Join] Mode: Semi [
 O2: rewrite [Join] Mode: Inner [ss_store_sk = s_store_sk] to [Join] Mode: Semi [ss_store_sk = s_store_sk]
 O2: rewrite [Join] Mode: Inner [ss_store_sk = s_store_sk] to [Join] Mode: Semi [ss_store_sk = s_store_sk]
 O2: rewrite [Join] Mode: Inner [ss_store_sk = s_store_sk] to [Join] Mode: Semi [ss_store_sk = s_store_sk]
-  -> Executed 1 times in 0.609455 seconds (Latency: 609.438 ms/iter, Throughput: 1.64081 iter/s)
+  -> Executed 1 times in 0.615104 seconds (Latency: 615.087 ms/iter, Throughput: 1.62574 iter/s)
 - Benchmarking 91
 O2: rewrite [Join] Mode: Inner [ca_address_sk = c_current_addr_sk] to [Join] Mode: Semi [ca_address_sk = c_current_addr_sk]
 O2: rewrite [Join] Mode: Inner [cr_returned_date_sk = d_date_sk] to [Join] Mode: Semi [cr_returned_date_sk = d_date_sk]
 O2: rewrite [Join] Mode: Inner [hd_demo_sk = c_current_hdemo_sk] to [Join] Mode: Semi [hd_demo_sk = c_current_hdemo_sk]
-  -> Executed 1 times in 0.0400986 seconds (Latency: 40.0842 ms/iter, Throughput: 24.9385 iter/s)
+  -> Executed 1 times in 0.0400522 seconds (Latency: 40.04 ms/iter, Throughput: 24.9674 iter/s)
 - Benchmarking 92
 O2: rewrite [Join] Mode: Inner [d_date_sk = ws_sold_date_sk] to [Join] Mode: Semi [d_date_sk = ws_sold_date_sk]
 O2: rewrite [Join] Mode: Inner [d_date_sk = ws_sold_date_sk] to [Join] Mode: Semi [d_date_sk = ws_sold_date_sk]
 O3: rewrite [Join] Mode: Semi [d_date_sk = ws_sold_date_sk] to [Predicate] ws_sold_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
 O3: rewrite [Join] Mode: Semi [d_date_sk = ws_sold_date_sk] to [Predicate] ws_sold_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
-  -> Executed 1 times in 0.0287552 seconds (Latency: 28.7348 ms/iter, Throughput: 34.7764 iter/s)
+  -> Executed 1 times in 0.0232368 seconds (Latency: 23.2235 ms/iter, Throughput: 43.0353 iter/s)
 - Benchmarking 93
 O2: rewrite [Join] Mode: Inner [sr_reason_sk = r_reason_sk] to [Join] Mode: Semi [sr_reason_sk = r_reason_sk]
-  -> Executed 1 times in 1.88065 seconds (Latency: 1880.64 ms/iter, Throughput: 0.53173 iter/s)
+  -> Executed 1 times in 2.00146 seconds (Latency: 2001.45 ms/iter, Throughput: 0.499635 iter/s)
 - Benchmarking 94
 O2: rewrite [Join] Mode: Inner [ws_ship_addr_sk = ca_address_sk] to [Join] Mode: Semi [ws_ship_addr_sk = ca_address_sk]
 O2: rewrite [Join] Mode: Inner [ws_web_site_sk = web_site_sk] to [Join] Mode: Semi [ws_web_site_sk = web_site_sk]
 O2: rewrite [Join] Mode: Inner [ws_ship_date_sk = d_date_sk] to [Join] Mode: Semi [ws_ship_date_sk = d_date_sk]
 O3: rewrite [Join] Mode: Semi [ws_ship_date_sk = d_date_sk] to [Predicate] ws_ship_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
-  -> Executed 1 times in 0.0710849 seconds (Latency: 71.074 ms/iter, Throughput: 14.0677 iter/s)
+  -> Executed 1 times in 0.0359309 seconds (Latency: 35.9195 ms/iter, Throughput: 27.8312 iter/s)
 - Benchmarking 95
 O2: rewrite [Join] Mode: Inner [ws_web_site_sk = web_site_sk] to [Join] Mode: Semi [ws_web_site_sk = web_site_sk]
 O2: rewrite [Join] Mode: Inner [ws_ship_addr_sk = ca_address_sk] to [Join] Mode: Semi [ws_ship_addr_sk = ca_address_sk]
 O2: rewrite [Join] Mode: Inner [ws_ship_date_sk = d_date_sk] to [Join] Mode: Semi [ws_ship_date_sk = d_date_sk]
 O3: rewrite [Join] Mode: Semi [ws_ship_date_sk = d_date_sk] to [Predicate] ws_ship_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
-  -> Executed 1 times in 6.2269 seconds (Latency: 6226.88 ms/iter, Throughput: 0.160594 iter/s)
+  -> Executed 1 times in 3.13376 seconds (Latency: 3133.75 ms/iter, Throughput: 0.319105 iter/s)
 - Benchmarking 96
 O2: rewrite [Join] Mode: Inner [ss_sold_time_sk = t_time_sk] to [Join] Mode: Semi [ss_sold_time_sk = t_time_sk]
 O2: rewrite [Join] Mode: Inner [ss_store_sk = s_store_sk] to [Join] Mode: Semi [ss_store_sk = s_store_sk]
 O2: rewrite [Join] Mode: Inner [ss_hdemo_sk = hd_demo_sk] to [Join] Mode: Semi [ss_hdemo_sk = hd_demo_sk]
-  -> Executed 1 times in 0.0581566 seconds (Latency: 58.1412 ms/iter, Throughput: 17.195 iter/s)
+  -> Executed 1 times in 0.0613881 seconds (Latency: 61.3728 ms/iter, Throughput: 16.2898 iter/s)
 - Benchmarking 97
 O2: rewrite [Join] Mode: Inner [ss_sold_date_sk = d_date_sk] to [Join] Mode: Semi [ss_sold_date_sk = d_date_sk]
 O2: rewrite [Join] Mode: Inner [cs_sold_date_sk = d_date_sk] to [Join] Mode: Semi [cs_sold_date_sk = d_date_sk]
 O3: rewrite [Join] Mode: Semi [ss_sold_date_sk = d_date_sk] to [Predicate] ss_sold_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
 O3: rewrite [Join] Mode: Semi [cs_sold_date_sk = d_date_sk] to [Predicate] cs_sold_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
-  -> Executed 1 times in 2.14255 seconds (Latency: 2142.53 ms/iter, Throughput: 0.466734 iter/s)
+  -> Executed 1 times in 2.20815 seconds (Latency: 2208.14 ms/iter, Throughput: 0.452867 iter/s)
 - Benchmarking 99
 O2: rewrite [Join] Mode: Inner [cs_ship_date_sk = d_date_sk] to [Join] Mode: Semi [cs_ship_date_sk = d_date_sk]
 O3: rewrite [Join] Mode: Semi [cs_ship_date_sk = d_date_sk] to [Predicate] cs_ship_date_sk BETWEEN MIN(d_date_sk) AND MAX(d_date_sk)
-  -> Executed 1 times in 0.655382 seconds (Latency: 655.366 ms/iter, Throughput: 1.52583 iter/s)
+  -> Executed 1 times in 0.718799 seconds (Latency: 718.787 ms/iter, Throughput: 1.39121 iter/s)

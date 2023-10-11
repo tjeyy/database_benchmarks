@@ -3,3 +3,9 @@ __pycache__/
 *$py.class
 
 .DS_Store
+
+resources/database_connection.json
+*.zip
+*.csv
+
+resources/experiment_data/

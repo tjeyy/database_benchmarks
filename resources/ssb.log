@@ -1,0 +1,110 @@
+- Running in single-threaded mode
+- Data preparation will use all available cores
+- 1 simulated client is scheduling items
+- Running benchmark in 'Ordered' mode
+- Encoding is 'Dictionary'
+- Chunk size is 65535
+- Max runs per item is 1
+- Max duration per item is 60 seconds
+- No warmup runs are performed
+- Caching tables as binary files
+- Not tracking SQL metrics
+- Running all queries
+- SSB scale factor is 10
+- Using SSB dbgen from "/Users/deyass/Documents/phd/hyrise/cmake-build-release/third_party/ssb-dbgen"
+- Storing SSB tables in "/Users/deyass/Documents/phd/hyrise/ssb_data/sf-10"
+- Loading/Generating tables 
+-  Loading table 'lineorder' from "/Users/deyass/Documents/phd/hyrise/ssb_data/sf-10/lineorder.bin" (59986214 rows; 1 s 116 ms)
+-  Loading table 'supplier' from "/Users/deyass/Documents/phd/hyrise/ssb_data/sf-10/supplier.bin" (20000 rows; 3 ms 248 µs)
+-  Loading table 'date' from "/Users/deyass/Documents/phd/hyrise/ssb_data/sf-10/date.bin" (2556 rows; 827 µs 375 ns)
+-  Loading table 'customer' from "/Users/deyass/Documents/phd/hyrise/ssb_data/sf-10/customer.bin" (300000 rows; 22 ms 516 µs)
+-  Loading table 'part' from "/Users/deyass/Documents/phd/hyrise/ssb_data/sf-10/part.bin" (800000 rows; 11 ms 573 µs)
+- Loading/Generating tables done (1 s 155 ms)
+- Encoding tables (if necessary) and generating pruning statistics
+-  Processing 'supplier' - no encoding necessary (93 µs 375 ns)
+-  Processing 'date' - no encoding necessary (174 µs 583 ns)
+-  Processing 'customer' - no encoding necessary (1 ms 61 µs)
+-  Processing 'part' - no encoding necessary (2 ms 270 µs)
+-  Processing 'lineorder' - no encoding necessary (5 s 163 ms)
+- Encoding tables and generating pruning statistic done (5 s 164 ms)
+- Writing tables into binary files if necessary
+- Writing tables into binary files done (14 µs 500 ns)
+- Adding tables to StorageManager and generating table statistics
+-  Added 'date' (62 ms 923 µs)
+-  Added 'part' (223 ms 853 µs)
+-  Added 'customer' (320 ms 447 µs)
+-  Added 'supplier' (1 s 771 ms)
+-  Added 'lineorder' (4 s 56 ms)
+- Adding tables to StorageManager and generating table statistics done (4 s 57 ms)
+- No chunk indexes created as --chunk_indexes was not specified or set to false
+- No table indexes created as --table_indexes was not specified or set to false
+- Load plugin hyriseDependencyDiscoveryPlugin from cmake-build-release/lib/libhyriseDependencyDiscoveryPlugin.dylib
+- Enable Dependent Group-by Reduction
+- Enable Join to Semi-join
+- Enable Join to Predicate
+- Starting Benchmark...
+- Run pre-benchmark hook of 'hyriseDependencyDiscoveryPlugin'
+Generated 22 candidates in 89 µs 833 ns
+Checking OD date.d_datekey |-> date.d_yearmonthnum [confirmed in 114 µs 958 ns]
+Checking UCC date.d_yearmonthnum [rejected in 8 µs 584 ns]
+Checking IND lineorder.lo_custkey in customer.c_custkey [confirmed in 290 µs 750 ns]
+Checking UCC part.p_partkey [confirmed in 31 ms 23 µs]
+Checking UCC customer.c_nation [rejected in 23 µs 542 ns]
+Checking UCC part.p_category [rejected in 10 µs 125 ns]
+Checking UCC customer.c_region [rejected in 2 µs 583 ns]
+Checking OD supplier.s_suppkey |-> supplier.s_region [rejected in 53 µs 833 ns]
+Checking UCC date.d_year [rejected in 3 µs 875 ns]
+Checking UCC customer.c_city [rejected in 19 µs 542 ns]
+Checking UCC supplier.s_region [rejected in 1 µs 416 ns]
+Checking UCC customer.c_custkey [skipped (already known) in 417 ns]
+Checking UCC part.p_brand1 [rejected in 75 µs 42 ns]
+Checking UCC supplier.s_suppkey [confirmed in 676 µs 875 ns]
+Checking UCC supplier.s_nation [rejected in 3 µs 42 ns]
+Checking UCC supplier.s_city [rejected in 17 µs 250 ns]
+Checking IND lineorder.lo_suppkey in supplier.s_suppkey [confirmed in 399 µs 333 ns]
+Checking OD customer.c_custkey |-> customer.c_region [rejected in 65 µs 459 ns]
+Checking OD date.d_datekey |-> date.d_year [confirmed in 100 µs 0 ns]
+Checking IND lineorder.lo_orderdate in date.d_datekey [confirmed in 4 ms 75 µs]
+Checking UCC date.d_weeknuminyear [rejected in 4 µs 625 ns]
+Checking UCC date.d_datekey [skipped (already known) in 625 ns]
+Validated 22 candidates in 37 ms 12 µs
+Clearing LQP and PQP cache...
+Executed dependency discovery in 37 ms 706 µs
+- Benchmarking 1.1
+O2: rewrite [Join] Mode: Inner [lo_orderdate = d_datekey] to [Join] Mode: Semi [lo_orderdate = d_datekey]
+O3: rewrite [Join] Mode: Semi [lo_orderdate = d_datekey] to [Predicate] lo_orderdate BETWEEN MIN(d_datekey) AND MAX(d_datekey)
+  -> Executed 1 times in 0.148433 seconds (Latency: 148.428 ms/iter, Throughput: 6.73703 iter/s)
+- Benchmarking 1.2
+O2: rewrite [Join] Mode: Inner [lo_orderdate = d_datekey] to [Join] Mode: Semi [lo_orderdate = d_datekey]
+O3: rewrite [Join] Mode: Semi [lo_orderdate = d_datekey] to [Predicate] lo_orderdate BETWEEN MIN(d_datekey) AND MAX(d_datekey)
+  -> Executed 1 times in 0.0543687 seconds (Latency: 54.3639 ms/iter, Throughput: 18.3929 iter/s)
+- Benchmarking 1.3
+O2: rewrite [Join] Mode: Inner [lo_orderdate = d_datekey] to [Join] Mode: Semi [lo_orderdate = d_datekey]
+  -> Executed 1 times in 0.190716 seconds (Latency: 190.712 ms/iter, Throughput: 5.24341 iter/s)
+- Benchmarking 2.1
+O2: rewrite [Join] Mode: Inner [lo_suppkey = s_suppkey] to [Join] Mode: Semi [lo_suppkey = s_suppkey]
+  -> Executed 1 times in 0.386532 seconds (Latency: 386.528 ms/iter, Throughput: 2.58711 iter/s)
+- Benchmarking 2.2
+O2: rewrite [Join] Mode: Inner [lo_suppkey = s_suppkey] to [Join] Mode: Semi [lo_suppkey = s_suppkey]
+  -> Executed 1 times in 0.220052 seconds (Latency: 220.047 ms/iter, Throughput: 4.54438 iter/s)
+- Benchmarking 2.3
+O2: rewrite [Join] Mode: Inner [lo_suppkey = s_suppkey] to [Join] Mode: Semi [lo_suppkey = s_suppkey]
+  -> Executed 1 times in 0.170596 seconds (Latency: 170.59 ms/iter, Throughput: 5.86182 iter/s)
+- Benchmarking 3.1
+  -> Executed 1 times in 1.89681 seconds (Latency: 1896.8 ms/iter, Throughput: 0.527201 iter/s)
+- Benchmarking 3.2
+  -> Executed 1 times in 0.221461 seconds (Latency: 221.457 ms/iter, Throughput: 4.51547 iter/s)
+- Benchmarking 3.3
+  -> Executed 1 times in 0.130779 seconds (Latency: 130.772 ms/iter, Throughput: 7.64648 iter/s)
+- Benchmarking 3.4
+  -> Executed 1 times in 0.113355 seconds (Latency: 113.35 ms/iter, Throughput: 8.82183 iter/s)
+- Benchmarking 4.1
+O2: rewrite [Join] Mode: Inner [lo_partkey = p_partkey] to [Join] Mode: Semi [lo_partkey = p_partkey]
+O2: rewrite [Join] Mode: Inner [lo_suppkey = s_suppkey] to [Join] Mode: Semi [lo_suppkey = s_suppkey]
+  -> Executed 1 times in 1.80208 seconds (Latency: 1802.07 ms/iter, Throughput: 0.554916 iter/s)
+- Benchmarking 4.2
+O2: rewrite [Join] Mode: Inner [lo_custkey = c_custkey] to [Join] Mode: Semi [lo_custkey = c_custkey]
+  -> Executed 1 times in 0.580145 seconds (Latency: 580.139 ms/iter, Throughput: 1.72371 iter/s)
+- Benchmarking 4.3
+O2: rewrite [Join] Mode: Inner [lo_custkey = c_custkey] to [Join] Mode: Semi [lo_custkey = c_custkey]
+  -> Executed 1 times in 0.211655 seconds (Latency: 211.65 ms/iter, Throughput: 4.72468 iter/s)

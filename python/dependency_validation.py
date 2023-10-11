@@ -8,6 +8,11 @@ Optimization Support/Trigger:
             - no join to semi (not forceable)
             - no join to scan
             - does not rewrite subqueries to joins (nice)
+  Umbra: - dependent-group by reduction (at least for primary keys, also Unique?)
+         - probably no join to semi-join
+         - no join to scan
+  Orca: - dependent group-by reduction, distinct removal
+        - rest s.t. test
 """
 
 

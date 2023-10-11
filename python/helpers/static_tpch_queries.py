@@ -50,7 +50,7 @@ queries_o1 = {
     # Q10
     "10": """select c_custkey, min(c_name), sum(l_extendedprice * (1 - l_discount)) as revenue, min(c_acctbal), min(n_name), min(c_address), min(c_phone), min(c_comment) from tpch_customer, orders, lineitem, nation where c_custkey = o_custkey and l_orderkey = o_orderkey and o_orderdate >= date '1993-10-01' and o_orderdate < date '1993-10-01' + interval '3' month and l_returnflag = 'R' and c_nationkey = n_nationkey group by c_custkey order by revenue desc limit 20;""",
     # Q18
-    "18": """select min(c_name), c_custkey, o_orderkey, min(o_orderdate), min(o_totalprice), sum(l_quantity) from tpch_customer, orders, lineitem where o_orderkey in ( select l_orderkey from lineitem group by l_orderkey having sum(l_quantity) > 300 ) and c_custkey = o_custkey and o_orderkey = l_orderkey group by c_custkey, o_orderkey order by o_totalprice desc, o_orderdate limit 100;""",
+    "18": """select min(c_name), c_custkey, o_orderkey, min(o_orderdate), min(o_totalprice), sum(l_quantity) from tpch_customer, orders, lineitem where o_orderkey in ( select l_orderkey from lineitem group by l_orderkey having sum(l_quantity) > 300 ) and c_custkey = o_custkey and o_orderkey = l_orderkey group by c_custkey, o_orderkey order by min(o_totalprice) desc, min(o_orderdate) limit 100;""",
 }
 
 queries_o3 = {

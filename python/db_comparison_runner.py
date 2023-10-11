@@ -170,7 +170,7 @@ if args.dbms == "monetdb":
         line = dbms_process.stdout.readline()
         if b"MonetDB/SQL module loaded" in line:
             break
-elif args.dbms == "hyrise" || args.dbms == "hyrise-int":
+elif args.dbms in ["hyrise", "hyrise-int"]:
     import psycopg2
     dbms_process = subprocess.Popen(
         [
@@ -224,7 +224,7 @@ def get_cursor():
                 print(e)
                 time.sleep(1)
         connection.settimeout(600)
-    elif args.dbms == "hyrise" || args.dbms == "hyrise-int":
+    elif args.dbms in ["hyrise", "hyrise-int"]:
         connection = psycopg2.connect("host=localhost port={}".format(args.port))
     elif args.dbms == "umbra":
         connection = psycopg2.connect(host="/tmp", user="postgres")
@@ -263,7 +263,7 @@ def import_data():
 
     if args.dbms == "monetdb":
         load_command = """COPY INTO "{}" FROM '{}' USING DELIMITERS ',' NULL AS '';"""
-    elif in ["hyrise", "hyrise-int"]:
+    elif args.dbms in ["hyrise", "hyrise-int"]:
         load_command = """COPY "{}" FROM '{}';"""
     elif args.dbms in ["umbra", "greenplum"]
         load_command = """COPY "{}" FROM '{}' WITH DELIMITER ',';"""

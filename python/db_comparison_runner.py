@@ -270,7 +270,7 @@ def get_cursor():
             password=connection_data["db_user_password"],
             encrypt=True,
             sslValidateCertificate=False,
-            autocommit=config.autocommit,
+            autocommit=connection_data["autocommit"],
         )
 
     cursor = connection.cursor()

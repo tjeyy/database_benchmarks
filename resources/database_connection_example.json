@@ -3,4 +3,5 @@
     "port": 12345,
     "db_user": "user",
     "db_user_password": "password",
+    "autocommit": false
 }

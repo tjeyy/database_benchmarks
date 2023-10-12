@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# Thanks to Markus Dreseler, who initially built this script, and Martin Boissier, who extended it.
+# Thanks to Markus Dreseler, who initially built this script, and Martin Boissier, Daniel Lindner and Daniel Ritter, who extended it.
 
 import argparse
 import atexit
@@ -336,7 +336,10 @@ def import_data():
                     line = l.strip()
                     if not l:
                         continue
-                    cursor.execute(line)
+                    if args.dbms == "hana":
+                      cursor.execute(line.replace("text", "nvarchar(420)"))
+                    else:
+                      cursor.execute(line)
 
     for t_id, table_file in enumerate(table_files):
         table_name = table_file[:-len(".csv")]
@@ -348,7 +351,7 @@ def import_data():
             with open(f"{table_file_path}.json") as meta_file:
                 meta = json.load(meta_file)
                 column_names, column_data_types = parse_csv_meta(meta)
-            parsed_values = pd.read_csv(table_file_path, names=column_names, dtype=column_data_types)
+            parsed_values = pd.read_csv(table_file_path, names=column_names, dtype=column_data_types).fillna(value=0)
             parsed_values = parsed_values.values.tolist()
             parameter_count = len(column_names)
             parameter_placeholder = ",".join(["?" for _ in range(parameter_count)])

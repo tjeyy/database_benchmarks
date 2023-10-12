@@ -282,9 +282,9 @@ def get_cursor():
 
 def parse_data_type(type_string):
     if type_string == "int":
-        return np.int32
+        return 'Int64' # np.int32
     elif type_string == "long":
-        return np.int64
+        return 'Int64' # np.int64
     elif type_string == "float":
         return np.single
     elif type_string == "double":
@@ -303,6 +303,12 @@ def parse_csv_meta(meta):
         column_data_types[column_name] = parse_data_type(column_meta["type"])
     return column_names, column_data_types
 
+def escape(val):
+    if type(val) == str:
+        return "'" + val.replace("'", '"') + "'"
+    if pd.isna(val):
+        return 'null'
+    return f"{val}"
 
 def import_data():
     # hyrise
@@ -351,11 +357,19 @@ def import_data():
             with open(f"{table_file_path}.json") as meta_file:
                 meta = json.load(meta_file)
                 column_names, column_data_types = parse_csv_meta(meta)
-            parsed_values = pd.read_csv(table_file_path, names=column_names, dtype=column_data_types).fillna(value=0)
+
+            parsed_values = pd.read_csv(table_file_path, names=column_names, dtype=column_data_types, header=None)
             parsed_values = parsed_values.values.tolist()
             parameter_count = len(column_names)
             parameter_placeholder = ",".join(["?" for _ in range(parameter_count)])
-            cursor.executemany(f"INSERT INTO {table_name} VALUES ({parameter_placeholder})", parsed_values)
+            # parsed_values = [ [ f if type(f) != str and not pd.isna(f) else "null" for f in row] for row in parsed_values]
+            
+            for row in parsed_values:
+              row_escaped = ", ".join([escape(f) for f in row])
+              column_names_comma = ", ".join([c for c in column_names])
+              # print("DRITTER=" + f"INSERT INTO {table_name} ({column_names_comma}) VALUES ({row_escaped})")
+              cursor.execute(f"INSERT INTO {table_name} ({column_names_comma}) VALUES ({row_escaped})")
+            # cursor.executemany(f"INSERT INTO {table_name} VALUES ({parameter_placeholder})", parsed_values)
             cursor.execute(f"MERGE DELTA OF {table_name};")
 
     cursor.close()

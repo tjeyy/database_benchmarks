@@ -16,12 +16,14 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+import numpy as np
+import pandas as pd
+
 from helpers import static_job_queries, static_ssb_queries, static_tpcds_queries, static_tpch_queries
 
 # For a fair comparison, we use the same queries as the Umbra demo does.
 tpch_queries = static_tpch_queries.queries
 ssb_queries = static_ssb_queries.queries
-
 
 def query_blacklist(filename):
     blacklist = set()
@@ -277,6 +279,31 @@ def get_cursor():
     return (connection, cursor)
 
 
+
+def parse_data_type(type_string):
+    if type_string == "int":
+        return np.int32
+    elif type_string == "long":
+        return np.int64
+    elif type_string == "float":
+        return np.single
+    elif type_string == "double":
+        return np.double
+    elif type_string == "string":
+        return str
+    raise AttributeError(f"Unknown data type: '{type_string}'")
+
+
+def parse_csv_meta(meta):
+    column_names = list()
+    column_data_types = dict()
+    for column_meta in meta["columns"]:
+        column_name = column_meta["name"]
+        column_names.append(column_name)
+        column_data_types[column_name] = parse_data_type(column_meta["type"])
+    return column_names, column_data_types
+
+
 def import_data():
     # hyrise
     # """COPY "{}" FROM '{}';"""
@@ -318,7 +345,14 @@ def import_data():
         if args.dbms != "hana":
             cursor.execute(load_command.format(table_name, table_file_path))
         else:
-            cursor.execute(load_command.format(table_file_path, table_name))
+            with open(f"{table_file_path}.json") as meta_file:
+                meta = json.load(meta_file)
+                column_names, column_data_types = parse_csv_meta(meta)
+            parsed_values = pd.read_csv(table_file_path, names=column_names, dtype=column_data_types)
+            parsed_values = parsed_values.values.tolist()
+            parameter_count = len(column_names)
+            parameter_placeholder = ",".join(["?" for _ in range(parameter_count)])
+            cursor.executemany(f"INSERT INTO {table_name} VALUES ({parameter_placeholder})", parsed_values)
             cursor.execute(f"MERGE DELTA OF {table_name};")
 
     cursor.close()

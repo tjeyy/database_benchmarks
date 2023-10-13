@@ -18,7 +18,6 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-
 from helpers import static_job_queries, static_ssb_queries, static_tpcds_queries, static_tpch_queries
 
 # For a fair comparison, we use the same queries as the Umbra demo does.
@@ -180,10 +179,8 @@ if args.dbms == "monetdb":
         f"+0-+{args.cores - 1}",
         "-m",
         "2",
-        "mserver5",
-        "--dbpath={}/monetdb_farm/SF-{}".format(Path.home(), monetdb_scale_factor_string),
-        "--set",
-        "monet_vault_key={}/monetdb_farm/SF-{}/.vaultkey".format(Path.home(), monetdb_scale_factor_string),
+        f"{Path.home()}/monetdb_bin/bin/mserver5",
+        "--dbpath={}/monetdb_farm".format(Path.home()),
         "--set",
         "gdk_nr_threads={}".format(args.cores),
     ]
@@ -248,7 +245,7 @@ def get_cursor():
         connection = None
         while connection is None:
             try:
-                connection = pymonetdb.connect("SF-{}".format(monetdb_scale_factor_string), connect_timeout=600)
+                connection = pymonetdb.connect("", connect_timeout=600)
             except:
                 e = sys.exc_info()[0]
                 print(e)
@@ -350,6 +347,7 @@ def import_data():
                 column_names, column_data_types = parse_csv_meta(meta)
             parsed_values = pd.read_csv(table_file_path, names=column_names, dtype=column_data_types)
             parsed_values = parsed_values.values.tolist()
+            parsed_values = [[field if field not in  for field in row] for row in parsed_values]
             parameter_count = len(column_names)
             parameter_placeholder = ",".join(["?" for _ in range(parameter_count)])
             cursor.executemany(f"INSERT INTO {table_name} VALUES ({parameter_placeholder})", parsed_values)

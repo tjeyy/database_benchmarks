@@ -357,18 +357,18 @@ def import_data():
             with open(f"{table_file_path}.json") as meta_file:
                 meta = json.load(meta_file)
                 column_names, column_data_types = parse_csv_meta(meta)
-
+  
             parsed_values = pd.read_csv(table_file_path, names=column_names, dtype=column_data_types, header=None)
             parsed_values = parsed_values.values.tolist()
             parameter_count = len(column_names)
             parameter_placeholder = ",".join(["?" for _ in range(parameter_count)])
-            
+          
             for row in parsed_values:
               row_escaped = ", ".join([escape(f) for f in row])
               column_names_comma = ", ".join([c for c in column_names])
               cursor.execute(f"INSERT INTO {table_name} ({column_names_comma}) VALUES ({row_escaped})")
             cursor.execute(f"MERGE DELTA OF {table_name};")
-            cursor.commit()
+            connection.commit()
 
     cursor.close()
     connection.close()

@@ -343,7 +343,7 @@ def import_data():
                     if not l:
                         continue
                     if args.dbms == "hana":
-                      cursor.execute(line.replace("text", "nvarchar(420)"))
+                      cursor.execute(line.replace("text", "nvarchar(1024)"))
                     else:
                       cursor.execute(line)
 
@@ -368,6 +368,7 @@ def import_data():
               column_names_comma = ", ".join([c for c in column_names])
               cursor.execute(f"INSERT INTO {table_name} ({column_names_comma}) VALUES ({row_escaped})")
             cursor.execute(f"MERGE DELTA OF {table_name};")
+            cursor.commit()
 
     cursor.close()
     connection.close()

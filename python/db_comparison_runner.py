@@ -385,6 +385,10 @@ def adapt_query(query):
     return query
 
 
+def split_query(query):
+    return [statement for statement in query.split(";") if statement.strip()]
+
+
 def loop(thread_id, queries, query_id, start_time, successful_runs, timeout, is_warmup=False):
     connection, cursor = get_cursor()
 
@@ -406,6 +410,11 @@ def loop(thread_id, queries, query_id, start_time, successful_runs, timeout, is_
             random.shuffle(items)
         else:
             items = [queries[query_id - 1]]
+        if args.dbms == "hana":
+            split_items = []
+            for item in items:
+                split_items += split_query(item)
+            items = split_items
         item_start_time = time.time()
         for query in items:
             try :

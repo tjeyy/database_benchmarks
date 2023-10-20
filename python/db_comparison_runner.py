@@ -318,7 +318,7 @@ def import_data():
     # monetdb
     # """COPY INTO "{}" FROM '{}' USING DELIMITERS ',' NULL AS '';"""
     # hana
-    # """IMPORT FROM CSV FILE '{}' INTO "{}" WITH FIELD DELIMITED BY ',';"""
+    # """IMPORT FROM CSV FILE '{}' INTO {} WITH FIELD DELIMITED BY ',';"""
 
     data_path = os.path.join(os.getcwd(), "resources/experiment_data")
     table_files = sorted([f for f in os.listdir(data_path) if f.endswith(".csv")])
@@ -330,7 +330,7 @@ def import_data():
     elif args.dbms in ["umbra", "greenplum"]:
         load_command = """COPY "{}" FROM '{}' WITH DELIMITER ',';"""
     elif args.dbms == "hana":
-        load_command = """IMPORT FROM CSV FILE '{}' INTO "{}" WITH FIELD DELIMITED BY ',';"""
+        load_command = """IMPORT FROM CSV FILE '{}' INTO {} WITH FIELD DELIMITED BY ',';"""
 
     connection, cursor = get_cursor()
     print("- Loading data ...")
@@ -343,9 +343,12 @@ def import_data():
                     if not l:
                         continue
                     if args.dbms == "hana":
-                      cursor.execute(line.replace("text", "nvarchar(1024)"))
+                        cursor.execute(line.replace("text", "nvarchar(1024)"))
                     else:
                       cursor.execute(line)
+
+    if args.dbms == "hana":
+        cursor.execute(f"alter system alter configuration ('indexserver.ini','SYSTEM') set ('import_export','enable_csv_import_path_filter') = 'false' with reconfigure;")
 
     for t_id, table_file in enumerate(table_files):
         table_name = table_file[:-len(".csv")]
@@ -354,21 +357,17 @@ def import_data():
         if args.dbms != "hana":
             cursor.execute(load_command.format(table_name, table_file_path))
         else:
-            with open(f"{table_file_path}.json") as meta_file:
-                meta = json.load(meta_file)
-                column_names, column_data_types = parse_csv_meta(meta)
-  
-            parsed_values = pd.read_csv(table_file_path, names=column_names, dtype=column_data_types, header=None)
-            parsed_values = parsed_values.values.tolist()
-            parameter_count = len(column_names)
-            parameter_placeholder = ",".join(["?" for _ in range(parameter_count)])
-          
-            for row in parsed_values:
-              row_escaped = ", ".join([escape(f) for f in row])
-              column_names_comma = ", ".join([c for c in column_names])
-              cursor.execute(f"INSERT INTO {table_name} ({column_names_comma}) VALUES ({row_escaped})")
-            cursor.execute(f"MERGE DELTA OF {table_name};")
-            connection.commit()
+            # print("Importing table {}... with stmt {}".format(table_name, load_command.format(table_file_path, table_name)))
+            start = time.time()
+            try:
+              cursor.execute(load_command.format(table_file_path, table_name))
+              cursor.execute(f"MERGE DELTA OF {table_name};")
+            except Exception as e:
+              print("Failed to import table {}... with exception {}".format(table_name, e))
+              pass
+            end = time.time()
+            print("Imported data into table {} in {} sec.".format(table_name, end - start))
+            #  connection.commit()
 
     cursor.close()
     connection.close()
@@ -401,8 +400,12 @@ def loop(thread_id, queries, query_id, start_time, successful_runs, timeout, is_
             items = [queries[query_id - 1]]
         item_start_time = time.time()
         for query in items:
-            cursor.execute(adapt_query(query))
-            cursor.fetchall()
+            try :
+              cursor.execute(adapt_query(query))
+              cursor.fetchall()
+            except Exception as e:
+              print(e)
+              print(adapt_query(query))
             item_end_time = time.time()
 
         if (time.time() - start_time < timeout) or len(successful_runs) == 0:

@@ -347,7 +347,7 @@ def import_data():
                 column_names, column_data_types = parse_csv_meta(meta)
             parsed_values = pd.read_csv(table_file_path, names=column_names, dtype=column_data_types)
             parsed_values = parsed_values.values.tolist()
-            parsed_values = [[field if field not in  for field in row] for row in parsed_values]
+            # parsed_values = [[field if field not in  for field in row] for row in parsed_values]
             parameter_count = len(column_names)
             parameter_placeholder = ",".join(["?" for _ in range(parameter_count)])
             cursor.executemany(f"INSERT INTO {table_name} VALUES ({parameter_placeholder})", parsed_values)

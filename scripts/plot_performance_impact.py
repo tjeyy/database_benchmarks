@@ -14,14 +14,179 @@ import math
 
 from collections import defaultdict
 from matplotlib import rc
-from matplotlib.ticker import MaxNLocator, FixedLocator, FuncFormatter
+from matplotlib.ticker import MaxNLocator, FixedLocator, FuncFormatter, AutoLocator
 
 import matplotlib as mpl
 
 
 from palettable.cartocolors.qualitative import Antique_6, Bold_6, Pastel_6, Prism_6, Safe_6, Vivid_6
 
+
+from matplotlib import scale as mscale
+from matplotlib import transforms as mtransforms
+from matplotlib.ticker import FixedLocator, FuncFormatter
+from numpy import ma
+
+class DoubleLogScale(mscale.ScaleBase):
+    """
+    Scales data in range -pi/2 to pi/2 (-90 to 90 degrees) using
+    the system used to scale latitudes in a Mercator__ projection.
+
+    The scale function:
+      ln(tan(y) + sec(y))
+
+    The inverse scale function:
+      atan(sinh(y))
+
+    Since the Mercator scale tends to infinity at +/- 90 degrees,
+    there is user-defined threshold, above and below which nothing
+    will be plotted.  This defaults to +/- 85 degrees.
+
+    __ https://en.wikipedia.org/wiki/Mercator_projection
+    """
+
+    # The scale class must have a member ``name`` that defines the string used
+    # to select the scale.  For example, ``ax.set_yscale("mercator")`` would be
+    # used to select this scale.
+    name = 'loglog'
+
+    def __init__(self, axis, **kwargs):
+        """
+        Any keyword arguments passed to ``set_xscale`` and ``set_yscale`` will
+        be passed along to the scale's constructor.
+
+        thresh: The degree above which to crop the data.
+        """
+        super().__init__(axis)
+
+    def get_transform(self):
+        """
+        Override this method to return a new instance that does the
+        actual transformation of the data.
+
+        The MercatorLatitudeTransform class is defined below as a
+        nested class of this one.
+        """
+        return self.MercatorLatitudeTransform()
+
+    def set_default_locators_and_formatters(self, axis):
+        """
+        Override to set up the locators and formatters to use with the
+        scale.  This is only required if the scale requires custom
+        locators and formatters.  Writing custom locators and
+        formatters is rather outside the scope of this example, but
+        there are many helpful examples in :mod:`.ticker`.
+
+        In our case, the Mercator example uses a fixed locator from -90 to 90
+        degrees and a custom formatter to convert the radians to degrees and
+        put a degree symbol after the value.
+        """
+        fmt = FuncFormatter(
+            lambda x, pos=None: f"{x / 10 ** 9}")
+        axis.set(major_locator=AutoLocator(),
+                 major_formatter=fmt, minor_formatter=fmt)
+
+    def limit_range_for_scale(self, vmin, vmax, minpos):
+        """
+        Override to limit the bounds of the axis to the domain of the
+        transform.  In the case of Mercator, the bounds should be
+        limited to the threshold that was passed in.  Unlike the
+        autoscaling provided by the tick locators, this range limiting
+        will always be adhered to, whether the axis range is set
+        manually, determined automatically or changed through panning
+        and zooming.
+        """
+        m = vmin if vmin > 0 else 0.01
+        return m, vmax
+
+    class MercatorLatitudeTransform(mtransforms.Transform):
+        # There are two value members that must be defined.
+        # ``input_dims`` and ``output_dims`` specify number of input
+        # dimensions and output dimensions to the transformation.
+        # These are used by the transformation framework to do some
+        # error checking and prevent incompatible transformations from
+        # being connected together.  When defining transforms for a
+        # scale, which are, by definition, separable and have only one
+        # dimension, these members should always be set to 1.
+        input_dims = output_dims = 1
+
+        def __init__(self):
+            mtransforms.Transform.__init__(self)
+
+        def transform_non_affine(self, a):
+            """
+            This transform takes a numpy array and returns a transformed copy.
+            Since the range of the Mercator scale is limited by the
+            user-specified threshold, the input array must be masked to
+            contain only valid values.  Matplotlib will handle masked arrays
+            and remove the out-of-range data from the plot.  However, the
+            returned array *must* have the same shape as the input array, since
+            these values need to remain synchronized with values in the other
+            dimension.
+            """
+            masked = ma.masked_where((a < 10), a)
+            if masked.mask.any():
+                print("m", ma.log10(ma.log10(masked)))
+                return ma.log10(ma.log10(masked))
+            else:
+                print("a", np.log10(np.log10(a)))
+                return np.log10(np.log10(a))
+
+        def inverted(self):
+            """
+            Override this method so Matplotlib knows how to get the
+            inverse transform for this transform.
+            """
+            return MercatorLatitudeScale.InvertedMercatorLatitudeTransform()
+
+    class InvertedMercatorLatitudeTransform(mtransforms.Transform):
+        input_dims = output_dims = 1
+
+        def __init__(self):
+            mtransforms.Transform.__init__(self)
+
+        def transform_non_affine(self, a):
+            return 10 ** 10 ** x
+
+        def inverted(self):
+            return MercatorLatitudeScale.MercatorLatitudeTransform()
+
+
+# Now that the Scale class has been defined, it must be registered so
+# that Matplotlib can find it.
+mscale.register_scale(DoubleLogScale)
+
+def fw(x):
+    if len(x) > 0:
+        print(np.min(x))
+    # print(x, np.log10(x), np.log10(np.log10(x)))
+    return np.log10(np.log10(x))
+
+def bw(x):
+    return 10 ** 10 ** x
+
+def fw2(x):
+
+    y = ma.masked_where(x < 10, x)
+    #y = x.copy()
+    #y = ma.fix_invalid(y, mask=(y<10), fill_value=10)
+
+    #print(y, y < 10)
+
+    #print(y.data)
+
+    # print(x, np.log10(x), np.log10(np.log10(x)))
+    # print(ma.log10(ma.log10(y)))
+    return np.nan_to_num(ma.log10(ma.log10(y)), nan=1.0, neginf=1.0, posinf=123454)
+
+def bw2(x):
+    return 10 ** 10 ** x
+
 def format_number(n):
+    #print(n, str(n))
+
+    return '{:.2e}'.format(n)
+    """n = n / 10**9
     if n < 1:
         return str(n)
     return str(int(n))
@@ -30,9 +195,11 @@ def format_number(n):
         if n == x:
             return str(int(n))
     return ""
+    """
 
 
 def to_s(lst):
+    #return lst
     return [ x / 10**9 for x in lst]
 
 
@@ -133,10 +300,13 @@ def main():
         ax.tick_params(axis='both', which='major', labelsize=7*2)
         ax.tick_params(axis='both', which='minor', labelsize=7*2)
 
+        min_lim = min(ax.get_ylim()[0], ax.get_xlim()[0])
+        print(min_lim)
+        min_lim = max(min_lim, 10**7)
+        max_lim = max(ax.get_ylim()[1], ax.get_xlim()[1])
 
-        ax.set_yscale('log')
-        ax.set_xscale('log')
-
+        ax.set_ylim(min_lim, max_lim)
+        ax.set_xlim(min_lim, max_lim)
 
         significant_improvement = 0
         significant_degradation = 0
@@ -156,13 +326,14 @@ def main():
         #    max_value = 3.99
 
 
-        min_lim = min(ax.get_ylim()[0], ax.get_xlim()[0])
-        max_lim = max(ax.get_ylim()[1], ax.get_xlim()[1])
+
         if benchmark == "StarSchema":
             max_lim = 6
 
         possible_ticks_below_one = [10**(-exp) for exp in reversed(range(1, 4))]
+        possible_ticks_below_one = [x * 10**9 for x in possible_ticks_below_one]
         possible_ticks_above_one = [1, 3, 5, 10]
+        possible_ticks_above_one = [x * 10**9 for x in possible_ticks_above_one]
         ticks = list()
         for tick in possible_ticks_below_one:
             if tick >= min_lim:
@@ -184,10 +355,22 @@ def main():
         #ax.set_xlim(0, max_value)
         #ax.xaxis.set_major_locator(MaxNLocator(integer=True))
         #ax.yaxis.set_major_locator(MaxNLocator(integer=True))
-        ax.xaxis.set_major_locator(FixedLocator(ticks))
-        ax.yaxis.set_major_locator(FixedLocator(ticks))
-        ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
-        ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
+
+        print(ticks)
+
+        # ax.xaxis.set_major_locator(FixedLocator(ticks))
+        # ax.yaxis.set_major_locator(FixedLocator(ticks))
+        # ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
+        # ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
+
+        ax.set_yscale('function', functions=(fw2, bw2))
+        ax.set_xscale('function', functions=(fw2, bw2))
+
+        # ax.xaxis.set_major_locator(FixedLocator(ticks))
+        # ax.yaxis.set_major_locator(FixedLocator(ticks))
+        # ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
+        # ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
+
         plt.grid(dashes=(3,5))
 
         fig = plt.gcf()
@@ -204,7 +387,7 @@ def main():
 
         # print(os.path.join(output, f"{benchmark}_{file_indicator}_{config}_{metric}.{extension}"))
         # plt.savefig(f"{benchmark}_log_{commit}.pdf", dpi=300, bbox_inches="tight")
-        plt.savefig(f"{benchmark}_log.pdf", dpi=300, bbox_inches="tight")
+        plt.savefig(f"{benchmark}_loglog.pdf", dpi=300, bbox_inches="tight")
         plt.close()
 
 if __name__ == '__main__':

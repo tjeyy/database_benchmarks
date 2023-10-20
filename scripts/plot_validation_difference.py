@@ -151,6 +151,8 @@ def main():
     offsets = [-0.5, 0.5]
     offsets = [-0.5, 0.5]
 
+    sums = []
+
 
     for impl, disc_times, offset in zip([r"na\"{i}ve", "optimized"], [discovery_times_old, discovery_times_new], offsets):
 
@@ -160,20 +162,27 @@ def main():
         bar_positions_b = [p + offset * (bar_width + margin) for p in group_centers]
         if impl != r"na\"{i}ve":
             bar_positions_a, bar_positions_b = [bar_positions_b, bar_positions_a]
+        bar_positions_s = [ (x + y) / 2 for x, y in zip(bar_positions_a, bar_positions_b)]
+
 
         #vals = [max(sum(data[b]["invalid"][impl]) / 10**6, min_val) for b in bens]
         t_invalid = [sum(disc_times[b]["invalid"]) / 10**9 for b in bens]
         # t_skip = [sum(disc_times[b]["skipped"]) / 10**9 for b in benchmarks.values()]
         t_valid = [sum(disc_times[b]["valid"]) / 10**9 for b in bens]
+        t_sum = [(sum(disc_times[b]["valid"]) + sum(disc_times[b]["invalid"]))/ 10**9 for b in bens]
+
         # t_skip = [t_invalid[i] + t_skip[i] for i in range(len(benchmarks))]
         # t_valid = [t_invalid[i] + t_valid[i] for i in range(len(bens))]
         # print(t_invalid)
         # print(t_valid)
         print([len(disc_times[b]["invalid"]) for b in bens])
         ax = plt.gca()
+        ax.bar(bar_positions_s, t_sum, bar_width, color='lightgrey')
         ax.bar(bar_positions_a, t_valid, bar_width, color=get_color("valid", impl), label=f"Valid {impl}")
         # ax.bar(bar_positions, t_skip, bar_width, color=get_color("skipped", impl), label=f"Skipped")
         ax.bar(bar_positions_b, t_invalid, bar_width, color=get_color("invalid", impl), label=f"Invalid {impl}")
+
+        sums.append((t_sum, bar_positions_s))
 
 
         for values, positions in [(t_invalid, bar_positions_b), (t_valid, bar_positions_a)]:
@@ -183,8 +192,18 @@ def main():
                     print(v)
                 label = str(round(v, 2))
                 label = label if label != "0.0" else r"$\ast$"
-                print(label)
+                # print(label)
                 ax.text(x, y * 1.05, label,  ha='center', va='bottom')
+
+    max_s = max([max(s) for s, _ in sums])
+
+    for t_sum, bar_positions_s in sums:
+        for v, x in zip(t_sum, bar_positions_s):
+            y = v
+
+            label = r"$\Sigma " + str(round(v, 2)) + "$"
+            # print(label)
+            ax.text(x, max_s * 1.75, label,  ha='center', va='top')
 
     min_lim = ax.get_ylim()[0]
     max_lim = ax.get_ylim()[1]
@@ -205,6 +224,7 @@ def main():
     min_lim = ax.get_ylim()[0]
     max_lim = ax.get_ylim()[1]
     ax.set_ylim(0.005, max_lim * 1.5)
+    ax.set_ylim(0.005, max_lim * 1.3)
     # ax.yaxis.set_major_locator(FixedLocator(ticks))
     ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
 

@@ -139,6 +139,10 @@ assert (
 
 dbms_process = None
 
+if args.dbms == "hana":
+    tpch_queries.update(static_tpch_queries.hana_queries)
+    job_queries.update(static_job_queries.hana_queries)
+
 if args.rewrites:
     tpch_queries.update(static_tpch_queries.queries_o1)
     tpch_queries.update(static_tpch_queries.queries_o3)
@@ -147,6 +151,10 @@ if args.rewrites:
     tpcds_queries.update(static_tpcds_queries.queries_o1)
     tpcds_queries.update(static_tpcds_queries.queries_o3)
 
+    if args.dbms == "hana":
+        tpch_queries.update(static_tpch_queries.hana_queries_o1)
+        tpch_queries.update(static_tpch_queries.hana_queries_o3)
+        job_queries.update(static_job_queries.hana_queries_o3)
 
 tpch_queries = list(tpch_queries.values())
 tpcds_queries = list(tpcds_queries.values())

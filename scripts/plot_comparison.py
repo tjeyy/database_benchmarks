@@ -25,13 +25,15 @@ def per(n):
 
 def main():
     changes = {
-        "hyrise-int": 10,
-        "hyrise": 5,
-        "monetdb": 4,
-        "umbra": 2,
-        "hana": 3,
+        "hyrise-int": 1.1923391275275477,
+        "hyrise": 1.0988836723766244,
+        "monetdb": 1,
+        "umbra": 1,
+        "hana": 1.0891167896061382,
         "greenplum": 1,
     }
+
+    changes = {k: (v  - 1) * 100 for k, v in changes.items() }
 
     order = list(reversed(["hyrise-int", "hyrise", "hana",  "umbra", "monetdb", "greenplum"]))
     names = {

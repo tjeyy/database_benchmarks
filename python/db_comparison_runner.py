@@ -13,6 +13,7 @@ import subprocess
 import sys
 import threading
 import time
+import struct
 from datetime import datetime
 from pathlib import Path
 
@@ -189,9 +190,7 @@ if args.dbms == "monetdb":
         "-m",
         "2",
         "mserver5",
-        "--dbpath={}/monetdb_farm/SF-{}".format(Path.home(), monetdb_scale_factor_string),
-        "--set",
-        "monet_vault_key={}/monetdb_farm/SF-{}/.vaultkey".format(Path.home(), monetdb_scale_factor_string),
+        "--dbpath={}/monetdb_farm".format(Path.home()),
         "--set",
         "gdk_nr_threads={}".format(args.cores),
     ]
@@ -256,7 +255,7 @@ def get_cursor():
         connection = None
         while connection is None:
             try:
-                connection = pymonetdb.connect("SF-{}".format(monetdb_scale_factor_string), connect_timeout=600)
+                connection = pymonetdb.connect("", connect_timeout=600)
             except:
                 e = sys.exc_info()[0]
                 print(e)
@@ -290,15 +289,15 @@ def get_cursor():
 
 def parse_data_type(type_string):
     if type_string == "int":
-        return 'Int64'
+        return 'Int32'
     elif type_string == "long":
         return 'Int64'
     elif type_string == "float":
-        return np.single
+        return "Float32"
     elif type_string == "double":
-        return np.double
+        return "Float64"
     elif type_string == "string":
-        return str
+        return 'string'
     raise AttributeError(f"Unknown data type: '{type_string}'")
 
 
@@ -358,11 +357,41 @@ def import_data():
     if args.dbms == "hana":
         cursor.execute(f"alter system alter configuration ('indexserver.ini','SYSTEM') set ('import_export','enable_csv_import_path_filter') = 'false' with reconfigure;")
 
+    binary_data_types = {"int": "<4i", "long": "<8i"}
+
+
     for t_id, table_file in enumerate(table_files):
         table_name = table_file[:-len(".csv")]
         table_file_path = f"{data_path}/{table_file}"
         print(f" - ({t_id + 1}/{len(table_files)}) Import {table_name} from {table_file_path}")
-        if args.dbms != "hana":
+
+        if args.dbms == "monetdb" and table_name in tables["JOB"]:
+            column_names, column_types = parse_csv_meta(table_file_path + ".json")
+            data = pd.read_csv(table_file_path, header=None, names=column_names, dtype=column_types)
+
+            for column_name, column_data in data.iteritems():
+                binary_file_path = f"{data_path}/{table_name}.{column_name}.bin"
+                with open(binary_file_path, "wb") as f:
+                    if column_types[column_name] == "string":
+                        for value in column_data.values:
+                            if pd.isna(value):
+                                f.write(b"\x80")
+                            else:
+                                f.write(value.encode())
+                            f.write(b"\x00")
+                    else:
+                        binary_type = binary_data_types[column_types[column_name]]
+                        for value in column_data.values:
+                            if pd.isna(value):
+                                assert column_types[column_name] == "int"
+                                f.write(b"\x00\x00\x00\x80")
+                            else:
+                                f.write(struct.pack(binary_type, value))
+                            f.write(b"\x00")
+
+            all_column_files = [f"'{data_path}/{table_name}.{column_name}.bin'" for column_name in column_names]
+            cursor.execute("""COPY LITTLE ENDIAN BINARY INTO "{}" FROM {} ON SERVER;""".format(table_name, ", ".join(all_column_files)))
+        elif args.dbms != "hana":
             cursor.execute(load_command.format(table_name, table_file_path))
         else:
             # print("Importing table {}... with stmt {}".format(table_name, load_command.format(table_file_path, table_name)))

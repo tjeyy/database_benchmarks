@@ -101,18 +101,19 @@ def main():
     commit = "b456ab78a170a9bb38958ccebb1293e12ade555b"
     commit = "6c461ce2cded091e5e58812a2a7106c0d9f73984"
     commit = "9eb09b4feceb6eeb1c2bf8229f75ef7f6f8d001a"
+    commit = "b92212cce5f01ca1f9d1a09b48ea219f64841a17"
 
     benchmarks = ["TPCH", "TPCDS", "JoinOrder", "StarSchema"]
 
     base_palette = Safe_6.hex_colors
 
     color = base_palette[:1]
-
+          
     for benchmark in benchmarks:
         common_path = f"hyriseBenchmark{benchmark}_{commit}_st"
         if benchmark != "JoinOrder":
             common_path = common_path + "_s10"
-        old_path = common_path + ".json"
+        old_path = common_path + "_all_off.json"
         new_path = common_path + "_plugin.json"
         old_latencies, new_latencies = get_old_new_latencies(old_path, new_path)
 

@@ -188,13 +188,12 @@ if args.dbms == "monetdb":
         f"+0-+{args.cores - 1}",
         "-m",
         "2",
-        "mserver5",
-        "--dbpath={}/monetdb_farm/SF-{}".format(Path.home(), monetdb_scale_factor_string),
-        "--set",
-        "monet_vault_key={}/monetdb_farm/SF-{}/.vaultkey".format(Path.home(), monetdb_scale_factor_string),
+        "{}/monetdb_bin/bin/mserver5".format(Path.home()),
+        "--dbpath={}/monetdb_farm".format(Path.home()),
         "--set",
         "gdk_nr_threads={}".format(args.cores),
     ]
+    print(" ".join(cmd))
     if args.clients > 62:
         cmd.extend(["--set", f"max_clients={args.clients + 2}"])
     if args.clients < 33:
@@ -256,11 +255,12 @@ def get_cursor():
         connection = None
         while connection is None:
             try:
-                connection = pymonetdb.connect("SF-{}".format(monetdb_scale_factor_string), connect_timeout=600)
+                connection = pymonetdb.connect("", connect_timeout=600)
             except:
                 e = sys.exc_info()[0]
                 print(e)
                 time.sleep(1)
+                raise e
         connection.settimeout(600)
     elif args.dbms in ["hyrise", "hyrise-int"]:
         connection = psycopg2.connect("host=localhost port={}".format(args.port))
@@ -332,7 +332,7 @@ def import_data():
     table_files = sorted([f for f in os.listdir(data_path) if f.endswith(".csv")])
 
     if args.dbms == "monetdb":
-        load_command = """COPY INTO "{}" FROM '{}' USING DELIMITERS ',' NULL AS '';"""
+        load_command = """COPY INTO "{}" FROM '{}' USING DELIMITERS ',', '\n', '"' NULL AS '';"""
     elif args.dbms in ["hyrise", "hyrise-int"]:
         load_command = """COPY "{}" FROM '{}';"""
     elif args.dbms in ["umbra", "greenplum"]:
@@ -423,6 +423,7 @@ def loop(thread_id, queries, query_id, start_time, successful_runs, timeout, is_
             except Exception as e:
               print(e)
               print(adapt_query(query))
+              raise e
             item_end_time = time.time()
 
         if (time.time() - start_time < timeout) or len(successful_runs) == 0:

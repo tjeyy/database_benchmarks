@@ -264,7 +264,7 @@ def get_cursor():
                 raise e
         connection.settimeout(600)
     elif args.dbms in ["hyrise", "hyrise-int"]:
-        connection = psycopg2.connect("host=localhost port={}".format(args.port))
+        connection = psycopg2.connect("host=localhost port={}".format(args.port), autocommit=True)
     elif args.dbms == "umbra":
         connection = psycopg2.connect(host="/tmp", user="postgres")
     elif args.dbms == "greenplum":
@@ -325,14 +325,14 @@ def import_data():
     # """IMPORT FROM CSV FILE '{}' INTO {} WITH FIELD DELIMITED BY ',';"""
 
     data_path = os.path.join(os.getcwd(), "resources/experiment_data")
-    table_files = sorted([f for f in os.listdir(data_path) if f.endswith(".csv")])
+    table_files = sorted([f for f in os.listdir(data_path) if f.endswith(".csv")  and not ".umbra." in f])
 
     if args.dbms == "monetdb":
         load_command = """COPY INTO "{}" FROM '{}' USING DELIMITERS ',', '\n', '"' NULL AS '';"""
     elif args.dbms in ["hyrise", "hyrise-int"]:
         load_command = """COPY "{}" FROM '{}';"""
     elif args.dbms in ["umbra", "greenplum"]:
-        load_command = """COPY "{}" FROM '{}' WITH DELIMITER ',';"""
+        load_command = """COPY "{}" FROM '{}' WITH DELIMITER ',' NULL '';"""
     elif args.dbms == "hana":
         load_command = """IMPORT FROM CSV FILE '{}' INTO {} WITH FIELD DELIMITED BY ',';"""
 
@@ -405,19 +405,22 @@ def import_data():
                     )
                 )
 
-        if args.dbms == "monetdb" and table_name in tables["JOB"]:
+        elif args.dbms == "umbra": #and table_name in tables["JOB"]:
             # Umbra seems to have issues as well, so we rewrite the CSVs with '\r' as delimiter (which is an ASCII
             # character that does not occur in any file).
             new_file_path = f"{data_path}/{table_name}.umbra.csv"
-            if not os.path.isfile(binary_file_path):
+            sep = "|" if table_name not in ["movie_info", "person_info"] else "\r"
+            # sep = "\r"
+            if not os.path.isfile(new_file_path):
                 with open(table_file_path + ".json") as f:
                     meta = json.load(f)
                 column_names, column_types, nullable = parse_csv_meta(meta)
                 data = pd.read_csv(
                     table_file_path, header=None, names=column_names, dtype=column_types, keep_default_na=False
                 )
-                data.to_csv(new_file_path, sep="\r", header=False, index=False)
-            cursor.execute("""COPY "{}" FROM '{}' WITH DELIMITER '\r';""".format(table_name, new_file_path))
+                data.to_csv(new_file_path, sep=sep, header=False, index=False)
+            # print("""COPY "{}" FROM '{}' WITH DELIMITER '{}';""".format(table_name, new_file_path, sep))
+            cursor.execute("""COPY "{}" FROM '{}' WITH DELIMITER '{}' NULL '';""".format(table_name, new_file_path, sep))
 
         elif args.dbms != "hana":
             cursor.execute(load_command.format(table_name, table_file_path))
@@ -436,6 +439,8 @@ def import_data():
             #  connection.commit()
 
     cursor.close()
+    if args.dbms == 'umbra':
+        connection.commit()
     connection.close()
 
 
@@ -455,8 +460,14 @@ def loop(thread_id, queries, query_id, start_time, successful_runs, timeout, is_
             return
 
         for q_id, query in enumerate(queries):
-            cursor.execute(adapt_query(query))
-            print("({})".format(q_id + 1), end="", flush=True)
+            try:
+                cursor.execute(adapt_query(query))
+                print("({})".format(q_id + 1), end="", flush=True)
+            except Exception as e:
+                print(e)
+                print(adapt_query(query))
+                raise e
+
 
         cursor.close()
         connection.close()

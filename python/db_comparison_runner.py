@@ -9,22 +9,22 @@ import os
 import random
 import re
 import statistics
+import struct
 import subprocess
 import sys
 import threading
 import time
-import struct
 from datetime import datetime
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
-
 from helpers import static_job_queries, static_ssb_queries, static_tpcds_queries, static_tpch_queries
 
 # For a fair comparison, we use the same queries as the Umbra demo does.
 tpch_queries = static_tpch_queries.queries
 ssb_queries = static_ssb_queries.queries
+
 
 def query_blacklist(filename):
     blacklist = set()
@@ -256,7 +256,7 @@ def get_cursor():
         connection = None
         while connection is None:
             try:
-                connection = pymonetdb.connect("", connect_timeout=600)
+                connection = pymonetdb.connect("", connect_timeout=600, autocommit=True)
             except:
                 e = sys.exc_info()[0]
                 print(e)
@@ -288,36 +288,31 @@ def get_cursor():
     return (connection, cursor)
 
 
-
 def parse_data_type(type_string):
     if type_string == "int":
-        return 'Int32'
+        return "Int32"
     elif type_string == "long":
-        return 'Int64'
+        return "Int64"
     elif type_string == "float":
         return "Float32"
     elif type_string == "double":
         return "Float64"
     elif type_string == "string":
-        return 'string'
+        return "string"
     raise AttributeError(f"Unknown data type: '{type_string}'")
 
 
 def parse_csv_meta(meta):
     column_names = list()
     column_data_types = dict()
+    nullable = dict()
     for column_meta in meta["columns"]:
         column_name = column_meta["name"]
         column_names.append(column_name)
         column_data_types[column_name] = parse_data_type(column_meta["type"])
-    return column_names, column_data_types
+        nullable[column_name] = column_meta["nullable"]
+    return column_names, column_data_types, nullable
 
-def escape(val):
-    if type(val) == str:
-        return "'" + val.replace("'", '"') + "'"
-    if pd.isna(val):
-        return 'null'
-    return f"{val}"
 
 def import_data():
     # hyrise
@@ -354,56 +349,88 @@ def import_data():
                     if args.dbms == "hana":
                         cursor.execute(line.replace("text", "nvarchar(1024)"))
                     else:
-                      cursor.execute(line)
+                        cursor.execute(line)
 
     if args.dbms == "hana":
-        cursor.execute(f"alter system alter configuration ('indexserver.ini','SYSTEM') set ('import_export','enable_csv_import_path_filter') = 'false' with reconfigure;")
-
-    binary_data_types = {"int": "<4i", "long": "<8i"}
-
+        cursor.execute(
+            f"alter system alter configuration ('indexserver.ini','SYSTEM') set ('import_export','enable_csv_import_path_filter') = 'false' with reconfigure;"
+        )
 
     for t_id, table_file in enumerate(table_files):
-        table_name = table_file[:-len(".csv")]
+        table_name = table_file[: -len(".csv")]
         table_file_path = f"{data_path}/{table_file}"
         print(f" - ({t_id + 1}/{len(table_files)}) Import {table_name} from {table_file_path}")
 
         if args.dbms == "monetdb" and table_name in tables["JOB"]:
-            column_names, column_types = parse_csv_meta(table_file_path + ".json")
-            data = pd.read_csv(table_file_path, header=None, names=column_names, dtype=column_types)
-
-            for column_name, column_data in data.iteritems():
+            # MonetDB does not like some IMDB CSV files, so we encode them in their binary format.
+            binary_data_types = {"Int32": "<i", "Int64": "<q"}
+            with open(table_file_path + ".json") as f:
+                meta = json.load(f)
+            column_names, column_types, nullable = parse_csv_meta(meta)
+            data = pd.read_csv(
+                table_file_path, header=None, names=column_names, dtype=column_types, keep_default_na=False
+            )
+            all_column_files = list()
+            for column_name in column_names:
+                t_id = 0
                 binary_file_path = f"{data_path}/{table_name}.{column_name}.bin"
-                with open(binary_file_path, "wb") as f:
-                    if column_types[column_name] == "string":
-                        for value in column_data.values:
-                            if pd.isna(value):
-                                f.write(b"\x80")
-                            else:
-                                f.write(value.encode())
-                            f.write(b"\x00")
-                    else:
-                        binary_type = binary_data_types[column_types[column_name]]
-                        for value in column_data.values:
-                            if pd.isna(value):
-                                assert column_types[column_name] == "int"
-                                f.write(b"\x00\x00\x00\x80")
-                            else:
-                                f.write(struct.pack(binary_type, value))
-                            f.write(b"\x00")
+                all_column_files.append(f"'{binary_file_path}'")
 
-            all_column_files = [f"'{data_path}/{table_name}.{column_name}.bin'" for column_name in column_names]
-            cursor.execute("""COPY LITTLE ENDIAN BINARY INTO "{}" FROM {} ON SERVER;""".format(table_name, ", ".join(all_column_files)))
+                if not os.path.isfile(binary_file_path):
+                    with open(binary_file_path, "wb") as f:
+                        if column_types[column_name] == "string":
+                            for value in data[column_name].values:
+                                t_id = t_id + 1
+                                if pd.isna(value):
+                                    assert nullable[column_name], f"{column_name} NULL in L{t_id}"
+                                    f.write(b"\x80")
+                                else:
+                                    f.write(value.encode())
+                                f.write(b"\x00")
+                        else:
+                            binary_type = binary_data_types[column_types[column_name]]
+                            s = struct.Struct(binary_type)
+                            for value in data[column_name].values:
+                                t_id = t_id + 1
+                                if pd.isna(value):
+                                    assert nullable[column_name], f"{column_name} NULL in L{t_id}"
+                                    assert column_types[column_name] == "Int32"
+                                    f.write(b"\x00\x00\x00\x80")
+                                else:
+                                    f.write(s.pack(value))
+
+                cursor.execute(
+                    """COPY LITTLE ENDIAN BINARY INTO "{}" FROM {} ON SERVER;""".format(
+                        table_name, ", ".join(all_column_files)
+                    )
+                )
+
+        if args.dbms == "monetdb" and table_name in tables["JOB"]:
+            # Umbra seems to have issues as well, so we rewrite the CSVs with '\r' as delimiter (which is an ASCII
+            # character that does not occur in any file).
+            new_file_path = f"{data_path}/{table_name}.umbra.csv"
+            if not os.path.isfile(binary_file_path):
+                with open(table_file_path + ".json") as f:
+                    meta = json.load(f)
+                column_names, column_types, nullable = parse_csv_meta(meta)
+                data = pd.read_csv(
+                    table_file_path, header=None, names=column_names, dtype=column_types, keep_default_na=False
+                )
+                data.to_csv(new_file_path, sep="\r", header=False, index=False)
+            cursor.execute("""COPY "{}" FROM '{}' WITH DELIMITER '\r';""".format(table_name, new_file_path))
+
         elif args.dbms != "hana":
             cursor.execute(load_command.format(table_name, table_file_path))
+
         else:
             # print("Importing table {}... with stmt {}".format(table_name, load_command.format(table_file_path, table_name)))
             start = time.time()
             try:
-              cursor.execute(load_command.format(table_file_path, table_name))
-              cursor.execute(f"MERGE DELTA OF {table_name};")
+                cursor.execute(load_command.format(table_file_path, table_name))
+                cursor.execute(f"MERGE DELTA OF {table_name};")
             except Exception as e:
-              print("Failed to import table {}... with exception {}".format(table_name, e))
-              pass
+                print("Failed to import table {}... with exception {}".format(table_name, e))
+                pass
             end = time.time()
             print("Imported data into table {} in {} sec.".format(table_name, end - start))
             #  connection.commit()
@@ -448,13 +475,13 @@ def loop(thread_id, queries, query_id, start_time, successful_runs, timeout, is_
             items = split_items
         item_start_time = time.time()
         for query in items:
-            try :
-              cursor.execute(adapt_query(query))
-              cursor.fetchall()
+            try:
+                cursor.execute(adapt_query(query))
+                cursor.fetchall()
             except Exception as e:
-              print(e)
-              print(adapt_query(query))
-              raise e
+                print(e)
+                print(adapt_query(query))
+                raise e
             item_end_time = time.time()
 
         if (time.time() - start_time < timeout) or len(successful_runs) == 0:
@@ -476,6 +503,12 @@ elif args.benchmark == "JOB":
     selected_benchmark_queries = job_queries
 elif args.benchmark == "all":
     selected_benchmark_queries = tpch_queries + tpcds_queries + ssb_queries + job_queries
+
+if args.dbms == "monetdb":
+    selected_benchmark_queries = [
+        q.replace("!=", "<>").replace("SELECT MIN(chn.name) AS character,", 'SELECT MIN(chn.name) AS "character",')
+        for q in selected_benchmark_queries
+    ]
 
 if not args.skip_data_loading:
     import_data()
@@ -566,7 +599,9 @@ for query_id in benchmark_queries:
     runtimes[query_name] = successful_runs
 
 rewrite_suffix = "__rewrites" if args.rewrites else ""
-result_csv_filename = "db_comparison_results/database_comparison__{}__{}{}.csv".format(args.benchmark, args.dbms, rewrite_suffix)
+result_csv_filename = "db_comparison_results/database_comparison__{}__{}{}.csv".format(
+    args.benchmark, args.dbms, rewrite_suffix
+)
 result_csv_exists = Path(result_csv_filename).exists()
 with open(result_csv_filename, "a" if result_csv_exists else "w") as result_csv:
     if not result_csv_exists:

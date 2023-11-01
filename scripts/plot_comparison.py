@@ -16,26 +16,40 @@ from palettable.cartocolors.qualitative import Antique_6, Bold_6, Pastel_6, Pris
 
 import matplotlib as mpl
 
+def grep_throughput_change(old_result_file, new_result_file, clients):
+    if not (os.path.isfile(old_result_file) and os.path.isfile(new_result_file)):
+        return 1
+    df_old = pd.read_csv(old_result_file)
+    df_new = pd.read_csv(new_result_file)
 
-def to_ms(n):
-    return round(n / (10**6), 2)
+    df_old = df_old[df_old.CLIENTS == clients]
+    df_new = df_new[df_new.CLIENTS == clients]
 
-def per(n):
-    return round(n * 100, 2)
+    old_throughput = 7200 / (df_old["RUNTIME_MS"].mean() / 1000)
+    new_throughput = 7200 / (df_new["RUNTIME_MS"].mean() / 1000)
+
+    return new_throughput / old_throughput
 
 def main():
-    changes = {
-        "hyrise-int": 1.1923391275275477,
-        "hyrise": 1.0988836723766244,
-        "monetdb": 1,
-        "umbra": 1,
-        "hana": 1.0891167896061382,
-        "greenplum": 1,
-    }
+    clients = 18
+
+    order = list(reversed(["hyrise-int", "hyrise", "hana",  "umbra", "monetdb", "greenplum"]))
+
+    changes = dict()
+
+    for dbms in order[:-1]:
+        common_path = f"db_comparison_results/database_comparison__all__{dbms}"
+        old_path = common_path + ".csv"
+        new_path = common_path + "__rewrites.csv"
+        changes[dbms] = grep_throughput_change(old_path, new_path, clients)
+    changes["hyrise-int"] = grep_throughput_change("db_comparison_results/database_comparison__all__hyrise.csv", "db_comparison_results/database_comparison__all__hyrise-int.csv", clients)
 
     changes = {k: (v  - 1) * 100 for k, v in changes.items() }
 
-    order = list(reversed(["hyrise-int", "hyrise", "hana",  "umbra", "monetdb", "greenplum"]))
+    max_len = max([len(db) for db in order])
+    for dbms in order:
+        print(f"{dbms.rjust(max_len)}: {round(changes[dbms], 2)}%")
+
     names = {
         "hyrise-int": "Hyrise\n(internal)",
         "hyrise": "Hyrise",
@@ -50,9 +64,6 @@ def main():
     plt.rcParams["font.family"] = "serif"
 
     bar_width = 0.4
-    epsilon = 0.015
-    margin = 0.01
-
 
     mpl.use('pgf')
 
@@ -79,9 +90,9 @@ def main():
     })
 
     group_centers = np.arange(len(order))
-    offsets = [-1, 0, 1]
-    hatches = [None, None, None, None, None,  "/"]
-    colors = [c for c in Safe_6.hex_colors[:5]] + [Safe_6.hex_colors[4]]
+    db_count = len(order) - 1
+    hatches = [None] * db_count + ["/"]
+    colors = [c for c in Safe_6.hex_colors[:db_count]] + [Safe_6.hex_colors[db_count - 1]]
 
     for d, color, pos, h in zip(order, colors, group_centers, hatches):
         plt.bar([pos], [changes[d]], bar_width, color=color, hatch=h)

@@ -8,4 +8,6 @@ resources/database_connection.json
 *.zip
 *.csv
 
+figures/
+db_comparison_results/
 resources/experiment_data/

@@ -1,23 +1,21 @@
 #!/usr/bin/env python3
 
+import math
 import os
 import re
-
-import pandas as pd
-import numpy as np
-import seaborn as sns
-
-import math
-import matplotlib.pyplot as plt
-
 from collections import defaultdict
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
 from matplotlib import rc
 from palettable.cartocolors.qualitative import Antique_6, Bold_6, Pastel_6, Prism_6, Safe_6, Vivid_6
 
-import matplotlib as mpl
 
 def grep_throughput_change(old_result_file, new_result_file, clients, runtime):
-    #if not (os.path.isfile(old_result_file) and os.path.isfile(new_result_file)):
+    # if not (os.path.isfile(old_result_file) and os.path.isfile(new_result_file)):
     #    return 1
     df_old = pd.read_csv(old_result_file)
     df_new = pd.read_csv(new_result_file)
@@ -29,6 +27,7 @@ def grep_throughput_change(old_result_file, new_result_file, clients, runtime):
     new_throughput = runtime / (df_new["RUNTIME_MS"].mean() / 1000)
 
     return new_throughput / old_throughput
+
 
 def main():
     clients = 32
@@ -44,18 +43,13 @@ def main():
         new_path = common_path + "__rewrites.csv"
         changes[benchmark] = grep_throughput_change(old_path, new_path, clients, runtime)
 
-    changes = {k: (v  - 1) * 100 for k, v in changes.items() }
+    changes = {k: (v - 1) * 100 for k, v in changes.items()}
 
     max_len = max([len(db) for db in order])
     for benchmark in order:
         print(f"{benchmark.rjust(max_len)}: {round(changes[benchmark], 2)}%")
 
-    names = {
-        "TPCH": "TPC-H",
-        "TPCDS": "TPC-DS",
-        "SSB": "SSB",
-        "JOB": "JOB"
-    }
+    names = {"TPCH": "TPC-H", "TPCDS": "TPC-DS", "SSB": "SSB", "JOB": "JOB"}
 
     sns.set()
     sns.set_theme(style="whitegrid")
@@ -63,13 +57,14 @@ def main():
 
     bar_width = 0.4
 
-    mpl.use('pgf')
+    mpl.use("pgf")
 
-    plt.rcParams.update({
-        "font.family": "serif",  # use serif/main font for text elements
-        "text.usetex": True,     # use inline math for ticks
-        "pgf.rcfonts": False,    # don't setup fonts from rc parameters
-        "pgf.preamble":  r"""\usepackage{iftex}
+    plt.rcParams.update(
+        {
+            "font.family": "serif",  # use serif/main font for text elements
+            "text.usetex": True,  # use inline math for ticks
+            "pgf.rcfonts": False,  # don't setup fonts from rc parameters
+            "pgf.preamble": r"""\usepackage{iftex}
       \ifxetex
         \usepackage[libertine]{newtxmath}
         \usepackage[tt=false]{libertine}
@@ -84,22 +79,22 @@ def main():
            \usepackage[varqu]{zi4}
            \usepackage[libertine]{newtxmath}
         \fi
-      \fi"""
-    })
+      \fi""",
+        }
+    )
 
     group_centers = np.arange(len(order))
-    colors = [c for c in Safe_6.hex_colors[:len(order)]]
+    colors = [c for c in Safe_6.hex_colors[: len(order)]]
 
     for d, color, pos in zip(order, colors, group_centers):
         plt.bar([pos], [changes[d]], bar_width, color=color)
 
-
     plt.xticks(group_centers, [names[d] for d in order], rotation=0)
     ax = plt.gca()
-    plt.ylabel(r"Throughput improvement [\%]", fontsize=8*2)
-    plt.xlabel('Benchmark', fontsize=8*2)
-    ax.tick_params(axis='both', which='major', labelsize=7*2)
-    ax.tick_params(axis='both', which='minor', labelsize=7*2)
+    plt.ylabel(r"Throughput improvement [\%]", fontsize=8 * 2)
+    plt.xlabel("Benchmark", fontsize=8 * 2)
+    ax.tick_params(axis="both", which="major", labelsize=7 * 2)
+    ax.tick_params(axis="both", which="minor", labelsize=7 * 2)
     plt.grid(axis="x", visible=False)
     fig = plt.gcf()
     column_width = 3.3374
@@ -112,5 +107,5 @@ def main():
     plt.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

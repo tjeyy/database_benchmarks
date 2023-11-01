@@ -1,39 +1,35 @@
 #!/usr/bin/env python3.11
 
+import json
+import math
 import os
 import re
-import json
-
-import pandas as pd
-import numpy as np
-import math
-import matplotlib.pyplot as plt
-import seaborn as sns
-import latex
-import math
-
 from collections import defaultdict
-from matplotlib import rc
-from matplotlib.ticker import MaxNLocator, FixedLocator, FuncFormatter
 
+import latex
 import matplotlib as mpl
-
-
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+from matplotlib import rc
+from matplotlib.ticker import FixedLocator, FuncFormatter, MaxNLocator
 from palettable.cartocolors.qualitative import Antique_6, Bold_6, Pastel_6, Prism_6, Safe_6, Vivid_6
+
 
 def format_number(n):
     if n < 1:
         return str(n)
     return str(int(n))
 
-    for x in [1,3,5,10]:
+    for x in [1, 3, 5, 10]:
         if n == x:
             return str(int(n))
     return ""
 
 
 def to_s(lst):
-    return [ x / 10**9 for x in lst]
+    return [x / 10**9 for x in lst]
 
 
 def get_latency_improvement(old_path, new_path):
@@ -49,7 +45,6 @@ def get_latency_improvement(old_path, new_path):
     old_latencies = list()
     new_latencies = list()
 
-
     for old, new in zip(old_data["benchmarks"], new_data["benchmarks"]):
         name = old["name"]
         # Create numpy arrays for old/new successful/unsuccessful runs from benchmark dictionary
@@ -58,7 +53,7 @@ def get_latency_improvement(old_path, new_path):
         old_unsuccessful_durations = np.array([run["duration"] for run in old["unsuccessful_runs"]], dtype=np.float64)
         new_unsuccessful_durations = np.array([run["duration"] for run in new["unsuccessful_runs"]], dtype=np.float64)
         # np.mean() defaults to np.float64 for int input
-        #if "TPCDS" in old_path and "95" in name:
+        # if "TPCDS" in old_path and "95" in name:
         #    print("TPC-DS Q 95", to_s([np.mean(old_successful_durations), np.mean(new_successful_durations)]))
         #    # continue
         old_latencies.append(np.mean(old_successful_durations))
@@ -68,7 +63,12 @@ def get_latency_improvement(old_path, new_path):
 
 
 def get_discovery_time(common_path):
-    time_regexes = [re.compile(r'\d+(?=\ss)'), re.compile(r'\d+(?=\sms)'), re.compile(r'\d+(?=\sµs)'), re.compile(r'\d+(?=\sns)')]
+    time_regexes = [
+        re.compile(r"\d+(?=\ss)"),
+        re.compile(r"\d+(?=\sms)"),
+        re.compile(r"\d+(?=\sµs)"),
+        re.compile(r"\d+(?=\sns)"),
+    ]
     time_divs = list(reversed([1, 10**3, 10**6, 10**9]))
     discovery_time_indicator = "Executed dependency discovery in "
 
@@ -76,7 +76,7 @@ def get_discovery_time(common_path):
         for l in f:
             if not l.startswith(discovery_time_indicator):
                 continue
-            line = l.strip()[len(discovery_time_indicator):]
+            line = l.strip()[len(discovery_time_indicator) :]
             candidate_time = 0
             for regex, div in zip(time_regexes, time_divs):
                 r = regex.search(line)
@@ -92,16 +92,17 @@ def main():
     sns.set()
     sns.set_theme(style="whitegrid")
     # plt.style.use('seaborn-colorblind')
-    #plt.rcParams['text.usetex'] = True
-    #plt.rcParams["font.family"] = "serif"
+    # plt.rcParams['text.usetex'] = True
+    # plt.rcParams["font.family"] = "serif"
 
-    mpl.use('pgf')
+    mpl.use("pgf")
 
-    plt.rcParams.update({
-    "font.family": "serif",  # use serif/main font for text elements
-    "text.usetex": True,     # use inline math for ticks
-    "pgf.rcfonts": False,    # don't setup fonts from rc parameters
-    "pgf.preamble":  r"""\usepackage{iftex}
+    plt.rcParams.update(
+        {
+            "font.family": "serif",  # use serif/main font for text elements
+            "text.usetex": True,  # use inline math for ticks
+            "pgf.rcfonts": False,  # don't setup fonts from rc parameters
+            "pgf.preamble": r"""\usepackage{iftex}
   \ifxetex
     \usepackage[libertine]{newtxmath}
     \usepackage[tt=false]{libertine}
@@ -116,8 +117,9 @@ def main():
        \usepackage[varqu]{zi4}
        \usepackage[libertine]{newtxmath}
     \fi
-  \fi"""
-    })
+  \fi""",
+        }
+    )
 
     commit = "64fed166781996d29745cb99d662346e18ca8d74"
     commit = "b456ab78a170a9bb38958ccebb1293e12ade555b"
@@ -145,12 +147,11 @@ def main():
             latencies_new[benchmark_title] = latency_new
             discovery_times[benchmark_title] = get_discovery_time(f"{common_path}_plugin.log")
 
-
     bar_width = 0.4
     epsilon = 0.015
     margin = 0.00
 
-    group_centers = np.arange(len(benchmarks))    
+    group_centers = np.arange(len(benchmarks))
     offsets = [-0.5, 0.5]
     ax = plt.gca()
 
@@ -168,19 +169,26 @@ def main():
     ax.bar(bar_positions, optimized, bar_width, color="#57a3d5", label="Optimized", linewidth=0)
 
     plt.xticks(group_centers, bens, rotation=0)
-    plt.grid(which='major', axis='x', visible=False)
-    ax.tick_params(axis='both', which='major', labelsize=7*2)
-    ax.tick_params(axis='both', which='minor', labelsize=7*2)
-    plt.ylabel('Runtime [s]', fontsize=8*2)
+    plt.grid(which="major", axis="x", visible=False)
+    ax.tick_params(axis="both", which="major", labelsize=7 * 2)
+    ax.tick_params(axis="both", which="minor", labelsize=7 * 2)
+    plt.ylabel("Runtime [s]", fontsize=8 * 2)
     # plt.xlabel('Benchmark', fontsize=8*2)
 
     handles, labels = plt.gca().get_legend_handles_labels()
-    order = [0,2,1]
+    order = [0, 2, 1]
 
-    plt.legend([handles[idx] for idx in order],[labels[idx] for idx in order], ncols=3, bbox_to_anchor=[0.5, 1.15], loc='upper center', frameon=False)
+    plt.legend(
+        [handles[idx] for idx in order],
+        [labels[idx] for idx in order],
+        ncols=3,
+        bbox_to_anchor=[0.5, 1.15],
+        loc="upper center",
+        frameon=False,
+    )
 
     column_width = 3.3374
-    fig_width = column_width * 2 * (2/3)
+    fig_width = column_width * 2 * (2 / 3)
     fig_height = column_width
     fig = plt.gcf()
     fig.set_size_inches(fig_width, fig_height)
@@ -188,5 +196,6 @@ def main():
     plt.savefig(f"benchmarks_combined_s10.svg", dpi=300, bbox_inches="tight")
     plt.close()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

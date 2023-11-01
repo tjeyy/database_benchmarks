@@ -1,39 +1,35 @@
 #!/usr/bin/env python3.11
 
+import json
+import math
 import os
 import re
-import json
-
-import pandas as pd
-import numpy as np
-import math
-import matplotlib.pyplot as plt
-import seaborn as sns
-import latex
-import math
-
 from collections import defaultdict
-from matplotlib import rc
-from matplotlib.ticker import MaxNLocator, FixedLocator, FuncFormatter
 
+import latex
 import matplotlib as mpl
-
-
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+from matplotlib import rc
+from matplotlib.ticker import FixedLocator, FuncFormatter, MaxNLocator
 from palettable.cartocolors.qualitative import Antique_6, Bold_6, Pastel_6, Prism_6, Safe_6, Vivid_6
+
 
 def format_number(n):
     if n < 1:
         return str(n)
     return str(int(n))
 
-    for x in [1,3,5,10]:
+    for x in [1, 3, 5, 10]:
         if n == x:
             return str(int(n))
     return ""
 
 
 def to_s(lst):
-    return [ x / 10**9 for x in lst]
+    return [x / 10**9 for x in lst]
 
 
 def get_old_new_latencies(old_path, new_path):
@@ -48,7 +44,6 @@ def get_old_new_latencies(old_path, new_path):
 
     old_latencies = list()
     new_latencies = list()
-
 
     for old, new in zip(old_data["benchmarks"], new_data["benchmarks"]):
         name = old["name"]
@@ -66,20 +61,22 @@ def get_old_new_latencies(old_path, new_path):
 
     return old_latencies, new_latencies
 
+
 def main():
     sns.set()
     sns.set_theme(style="whitegrid")
     # plt.style.use('seaborn-colorblind')
-    #plt.rcParams['text.usetex'] = True
-    #plt.rcParams["font.family"] = "serif"
+    # plt.rcParams['text.usetex'] = True
+    # plt.rcParams["font.family"] = "serif"
 
-    mpl.use('pgf')
+    mpl.use("pgf")
 
-    plt.rcParams.update({
-    "font.family": "serif",  # use serif/main font for text elements
-    "text.usetex": True,     # use inline math for ticks
-    "pgf.rcfonts": False,    # don't setup fonts from rc parameters
-    "pgf.preamble":  r"""\usepackage{iftex}
+    plt.rcParams.update(
+        {
+            "font.family": "serif",  # use serif/main font for text elements
+            "text.usetex": True,  # use inline math for ticks
+            "pgf.rcfonts": False,  # don't setup fonts from rc parameters
+            "pgf.preamble": r"""\usepackage{iftex}
   \ifxetex
     \usepackage[libertine]{newtxmath}
     \usepackage[tt=false]{libertine}
@@ -94,8 +91,9 @@ def main():
        \usepackage[varqu]{zi4}
        \usepackage[libertine]{newtxmath}
     \fi
-  \fi"""
-    })
+  \fi""",
+        }
+    )
 
     commit = "64fed166781996d29745cb99d662346e18ca8d74"
     commit = "b456ab78a170a9bb38958ccebb1293e12ade555b"
@@ -108,7 +106,7 @@ def main():
     base_palette = Safe_6.hex_colors
 
     color = base_palette[:1]
-          
+
     for benchmark in benchmarks:
         common_path = f"hyriseBenchmark{benchmark}_{commit}_st"
         if benchmark != "JoinOrder":
@@ -122,22 +120,20 @@ def main():
 
         max_value = to_s([max(max(old_latencies), max(new_latencies))])[0] * 1.05
         pl_data = [0, max_value]
-        pl_data = pd.DataFrame(data={"x": pl_data, "y": pl_data, "d": [1,1]})
+        pl_data = pd.DataFrame(data={"x": pl_data, "y": pl_data, "d": [1, 1]})
 
         sns.scatterplot(data=values, x="old", y="new", palette=color, hue="d", s=80, legend=False)
-        #sns.lineplot(data=pl_data, x="x", y="y", palette=["lightgrey"], hue="d", style="d", sizes=(0.2,0.2), legend=False)
+        # sns.lineplot(data=pl_data, x="x", y="y", palette=["lightgrey"], hue="d", style="d", sizes=(0.2,0.2), legend=False)
 
         ax = plt.gca()
 
-        plt.ylabel('Latency w/ optimizations [s]', fontsize=8*2)
-        plt.xlabel('Base latency [s]', fontsize=8*2)
-        ax.tick_params(axis='both', which='major', labelsize=7*2)
-        ax.tick_params(axis='both', which='minor', labelsize=7*2)
+        plt.ylabel("Latency w/ optimizations [s]", fontsize=8 * 2)
+        plt.xlabel("Base latency [s]", fontsize=8 * 2)
+        ax.tick_params(axis="both", which="major", labelsize=7 * 2)
+        ax.tick_params(axis="both", which="minor", labelsize=7 * 2)
 
-
-        ax.set_yscale('log')
-        ax.set_xscale('log')
-
+        ax.set_yscale("log")
+        ax.set_xscale("log")
 
         significant_improvement = 0
         significant_degradation = 0
@@ -151,18 +147,25 @@ def main():
             if ratio >= 1 + significance_level:
                 significant_degradation = significant_degradation + 1
 
-        print(benchmark, round((1 - sum(new_latencies) / sum(old_latencies)) * 100), "% improvement,", significant_improvement, "better,", significant_degradation, "worse")
+        print(
+            benchmark,
+            round((1 - sum(new_latencies) / sum(old_latencies)) * 100),
+            "% improvement,",
+            significant_improvement,
+            "better,",
+            significant_degradation,
+            "worse",
+        )
 
-        #if benchmark == "TPCDS":
+        # if benchmark == "TPCDS":
         #    max_value = 3.99
-
 
         min_lim = min(ax.get_ylim()[0], ax.get_xlim()[0])
         max_lim = max(ax.get_ylim()[1], ax.get_xlim()[1])
         if benchmark == "StarSchema":
             max_lim = 6
 
-        possible_ticks_below_one = [10**(-exp) for exp in reversed(range(1, 4))]
+        possible_ticks_below_one = [10 ** (-exp) for exp in reversed(range(1, 4))]
         possible_ticks_above_one = [1, 3, 5, 10]
         ticks = list()
         for tick in possible_ticks_below_one:
@@ -171,25 +174,27 @@ def main():
         for tick in possible_ticks_above_one:
             if tick <= max_lim:
                 ticks.append(tick)
-        #ticks += psossible_ticks_above_one
+        # ticks += psossible_ticks_above_one
         print(min_lim, max_lim, ticks)
         ax.set_ylim(min_lim, max_lim)
         ax.set_xlim(min_lim, max_lim)
 
         pl_data = [min_lim, max_lim]
-        pl_data = pd.DataFrame(data={"x": pl_data, "y": pl_data, "d": [1,1]})
+        pl_data = pd.DataFrame(data={"x": pl_data, "y": pl_data, "d": [1, 1]})
 
-        sns.lineplot(data=pl_data, x="x", y="y", palette=["lightgrey"], hue="d", style="d", sizes=(0.2,0.2), legend=False)
+        sns.lineplot(
+            data=pl_data, x="x", y="y", palette=["lightgrey"], hue="d", style="d", sizes=(0.2, 0.2), legend=False
+        )
 
-        #ax.set_ylim(0, max_value)
-        #ax.set_xlim(0, max_value)
-        #ax.xaxis.set_major_locator(MaxNLocator(integer=True))
-        #ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+        # ax.set_ylim(0, max_value)
+        # ax.set_xlim(0, max_value)
+        # ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+        # ax.yaxis.set_major_locator(MaxNLocator(integer=True))
         ax.xaxis.set_major_locator(FixedLocator(ticks))
         ax.yaxis.set_major_locator(FixedLocator(ticks))
         ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
         ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
-        plt.grid(dashes=(3,5))
+        plt.grid(dashes=(3, 5))
 
         fig = plt.gcf()
         r"""
@@ -202,11 +207,11 @@ def main():
         plt.tight_layout(pad=0)
         # ax.set_box_aspect(1)
 
-
         # print(os.path.join(output, f"{benchmark}_{file_indicator}_{config}_{metric}.{extension}"))
         # plt.savefig(f"{benchmark}_log_{commit}.pdf", dpi=300, bbox_inches="tight")
         plt.savefig(f"{benchmark}_log.pdf", dpi=300, bbox_inches="tight")
         plt.close()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

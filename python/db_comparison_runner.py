@@ -143,6 +143,9 @@ dbms_process = None
 if args.dbms == "hana":
     tpch_queries.update(static_tpch_queries.hana_queries)
     job_queries.update(static_job_queries.hana_queries)
+    ssb_queries.update(static_ssb_queries.umbra_queries)
+elif args.dbms == "umbra":
+    ssb_queries.update(static_ssb_queries.umbra_queries)
 
 if args.rewrites:
     tpch_queries.update(static_tpch_queries.queries_o1)
@@ -156,6 +159,9 @@ if args.rewrites:
         tpch_queries.update(static_tpch_queries.hana_queries_o1)
         tpch_queries.update(static_tpch_queries.hana_queries_o3)
         job_queries.update(static_job_queries.hana_queries_o3)
+        ssb_queries.update(static_ssb_queries.umbra_queries_o3)
+    elif args.dbms == "umbra":
+        ssb_queries.update(static_ssb_queries.umbra_queries_o3)
 
 tpch_queries = list(tpch_queries.values())
 tpcds_queries = list(tpcds_queries.values())
@@ -326,7 +332,7 @@ def import_data():
     # """IMPORT FROM CSV FILE '{}' INTO {} WITH FIELD DELIMITED BY ',';"""
 
     data_path = os.path.join(os.getcwd(), "resources/experiment_data")
-    table_files = sorted([f for f in os.listdir(data_path) if f.endswith(".csv")  and not ".umbra." in f])
+    table_files = sorted([f for f in os.listdir(data_path) if f.endswith(".csv") and not ".umbra." in f])
 
     if args.dbms == "monetdb":
         load_command = """COPY INTO "{}" FROM '{}' USING DELIMITERS ',', '\n', '"' NULL AS '';"""
@@ -406,7 +412,7 @@ def import_data():
                     )
                 )
 
-        elif args.dbms == "umbra": #and table_name in tables["JOB"]:
+        elif args.dbms == "umbra":  # and table_name in tables["JOB"]:
             # Umbra seems to have issues as well, so we rewrite the CSVs with '\r' as delimiter (which is an ASCII
             # character that does not occur in any file).
             new_file_path = f"{data_path}/{table_name}.umbra.csv"
@@ -421,7 +427,9 @@ def import_data():
                 )
                 data.to_csv(new_file_path, sep=sep, header=False, index=False)
             # print("""COPY "{}" FROM '{}' WITH DELIMITER '{}';""".format(table_name, new_file_path, sep))
-            cursor.execute("""COPY "{}" FROM '{}' WITH DELIMITER '{}' NULL '';""".format(table_name, new_file_path, sep))
+            cursor.execute(
+                """COPY "{}" FROM '{}' WITH DELIMITER '{}' NULL '';""".format(table_name, new_file_path, sep)
+            )
 
         elif args.dbms != "hana":
             cursor.execute(load_command.format(table_name, table_file_path))
@@ -440,7 +448,7 @@ def import_data():
             #  connection.commit()
 
     cursor.close()
-    if args.dbms == 'umbra':
+    if args.dbms == "umbra":
         connection.commit()
     connection.close()
 
@@ -468,7 +476,6 @@ def loop(thread_id, queries, query_id, start_time, successful_runs, timeout, is_
                 print(e)
                 print(adapt_query(query))
                 raise e
-
 
         cursor.close()
         connection.close()

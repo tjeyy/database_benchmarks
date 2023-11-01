@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 
-import string
 import os
+import string
+
 
 def main():
     tables = {
@@ -62,8 +63,8 @@ def main():
     seps = ["|"]
     unmachted_sep = {sep: False for sep in seps}
 
-    for table_file in sorted([f for f in os.listdir(".") if f.endswith('.csv')]):
-        table_name = table_file[:-len(".csv")]
+    for table_file in sorted([f for f in os.listdir(".") if f.endswith(".csv")]):
+        table_name = table_file[: -len(".csv")]
         print(table_name)
         unmachted_sep = {sep: False for sep in seps}
         with open(f"{table_name}.csv") as f:

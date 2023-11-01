@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
 
+import math
 import os
 import re
-
-import pandas as pd
-import numpy as np
-
-import math
-import matplotlib.pyplot as plt
-import seaborn as sns
-
 from collections import defaultdict
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
 from matplotlib import rc
 from palettable.cartocolors.qualitative import Antique_6, Bold_6, Pastel_6, Prism_6, Safe_6, Vivid_6
 
-import matplotlib as mpl
 
 def to_ms(n):
     return round(n / (10**6), 2)
 
+
 def per(n):
     return round(n * 100, 2)
+
 
 def main():
     regular = {
@@ -56,20 +56,20 @@ def main():
     for query, reg in regular.items():
         print(f"{query}: {to_ms(reg)} ms / {per(rewritten[query] / reg)} / {per(optimized[query] / reg)} ")
 
-
     chosen = ["TPC-DS Q37", "JOB Q22c"]
 
     sns.set()
     sns.set_theme(style="whitegrid")
     plt.rcParams["font.family"] = "serif"
 
-    mpl.use('pgf')
+    mpl.use("pgf")
 
-    plt.rcParams.update({
-        "font.family": "serif",  # use serif/main font for text elements
-        "text.usetex": True,     # use inline math for ticks
-        "pgf.rcfonts": False,    # don't setup fonts from rc parameters
-        "pgf.preamble":  r"""\usepackage{iftex}
+    plt.rcParams.update(
+        {
+            "font.family": "serif",  # use serif/main font for text elements
+            "text.usetex": True,  # use inline math for ticks
+            "pgf.rcfonts": False,  # don't setup fonts from rc parameters
+            "pgf.preamble": r"""\usepackage{iftex}
       \ifxetex
         \usepackage[libertine]{newtxmath}
         \usepackage[tt=false]{libertine}
@@ -84,8 +84,9 @@ def main():
            \usepackage[varqu]{zi4}
            \usepackage[libertine]{newtxmath}
         \fi
-      \fi"""
-    })
+      \fi""",
+        }
+    )
 
     bar_width = 0.2
     margin = 0.01
@@ -93,21 +94,25 @@ def main():
     group_centers = np.arange(len(chosen))
     offsets = [-1, 0, 1]
 
-    for opt, color, offset, name in zip([regular, rewritten, optimized], Safe_6.hex_colors[:3], offsets, ["Baseline", "External rewrite", "Internal optimization"]):
+    for opt, color, offset, name in zip(
+        [regular, rewritten, optimized],
+        Safe_6.hex_colors[:3],
+        offsets,
+        ["Baseline", "External rewrite", "Internal optimization"],
+    ):
         bar_positions = [p + offset * (bar_width + margin) for p in group_centers]
         vals = [opt[b] / 10**6 for b in chosen]
 
         plt.bar(bar_positions, vals, bar_width, color=color, label=name)
 
-
     plt.xticks(group_centers, chosen, rotation=0)
     ax = plt.gca()
-    plt.legend(loc='upper center', fontsize=8*2, ncol=3, bbox_to_anchor=(0.5, 1.25), fancybox=False)
+    plt.legend(loc="upper center", fontsize=8 * 2, ncol=3, bbox_to_anchor=(0.5, 1.25), fancybox=False)
     plt.xlim([-3 * bar_width, 1 + 3 * bar_width])
-    plt.ylabel("Latency [ms]", fontsize=8*2)
-    plt.xlabel('Query', fontsize=8*2)
-    ax.tick_params(axis='both', which='major', labelsize=7*2)
-    ax.tick_params(axis='both', which='minor', labelsize=7*2)
+    plt.ylabel("Latency [ms]", fontsize=8 * 2)
+    plt.xlabel("Query", fontsize=8 * 2)
+    ax.tick_params(axis="both", which="major", labelsize=7 * 2)
+    ax.tick_params(axis="both", which="minor", labelsize=7 * 2)
     plt.grid(axis="x", visible=False)
     fig = plt.gcf()
     column_width = 3.3374
@@ -120,5 +125,5 @@ def main():
     plt.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

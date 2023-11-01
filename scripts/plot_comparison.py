@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
 
+import math
 import os
 import re
-
-import pandas as pd
-import numpy as np
-import seaborn as sns
-
-import math
-import matplotlib.pyplot as plt
-
 from collections import defaultdict
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
 from matplotlib import rc
 from palettable.cartocolors.qualitative import Antique_6, Bold_6, Pastel_6, Prism_6, Safe_6, Vivid_6
 
-import matplotlib as mpl
 
 def grep_throughput_change(old_result_file, new_result_file, clients, runtime):
     if not (os.path.isfile(old_result_file) and os.path.isfile(new_result_file)):
@@ -30,11 +28,12 @@ def grep_throughput_change(old_result_file, new_result_file, clients, runtime):
 
     return new_throughput / old_throughput
 
+
 def main():
     clients = 18
     runtime = 7200
 
-    order = list(reversed(["hyrise-int", "hyrise", "hana",  "umbra", "monetdb", "greenplum"]))
+    order = list(reversed(["hyrise-int", "hyrise", "hana", "umbra", "monetdb", "greenplum"]))
 
     changes = dict()
 
@@ -43,9 +42,14 @@ def main():
         old_path = common_path + ".csv"
         new_path = common_path + "__rewrites.csv"
         changes[dbms] = grep_throughput_change(old_path, new_path, clients, runtime)
-    changes["hyrise-int"] = grep_throughput_change("db_comparison_results/database_comparison__all__hyrise.csv", "db_comparison_results/database_comparison__all__hyrise-int.csv", clients, runtime)
+    changes["hyrise-int"] = grep_throughput_change(
+        "db_comparison_results/database_comparison__all__hyrise.csv",
+        "db_comparison_results/database_comparison__all__hyrise-int.csv",
+        clients,
+        runtime,
+    )
 
-    changes = {k: (v  - 1) * 100 for k, v in changes.items() }
+    changes = {k: (v - 1) * 100 for k, v in changes.items()}
 
     max_len = max([len(db) for db in order])
     for dbms in order:
@@ -57,7 +61,7 @@ def main():
         "monetdb": "MonetDB",
         "umbra": "Umbra",
         "hana": "System X",
-        "greenplum": "Greenplum"
+        "greenplum": "Greenplum",
     }
 
     sns.set()
@@ -66,13 +70,14 @@ def main():
 
     bar_width = 0.4
 
-    mpl.use('pgf')
+    mpl.use("pgf")
 
-    plt.rcParams.update({
-        "font.family": "serif",  # use serif/main font for text elements
-        "text.usetex": True,     # use inline math for ticks
-        "pgf.rcfonts": False,    # don't setup fonts from rc parameters
-        "pgf.preamble":  r"""\usepackage{iftex}
+    plt.rcParams.update(
+        {
+            "font.family": "serif",  # use serif/main font for text elements
+            "text.usetex": True,  # use inline math for ticks
+            "pgf.rcfonts": False,  # don't setup fonts from rc parameters
+            "pgf.preamble": r"""\usepackage{iftex}
       \ifxetex
         \usepackage[libertine]{newtxmath}
         \usepackage[tt=false]{libertine}
@@ -87,8 +92,9 @@ def main():
            \usepackage[varqu]{zi4}
            \usepackage[libertine]{newtxmath}
         \fi
-      \fi"""
-    })
+      \fi""",
+        }
+    )
 
     group_centers = np.arange(len(order))
     db_count = len(order) - 1
@@ -98,13 +104,12 @@ def main():
     for d, color, pos, h in zip(order, colors, group_centers, hatches):
         plt.bar([pos], [changes[d]], bar_width, color=color, hatch=h)
 
-
     plt.xticks(group_centers, [names[d] for d in order], rotation=0)
     ax = plt.gca()
-    plt.ylabel(r"Throughput improvement [\%]", fontsize=8*2)
-    plt.xlabel('System', fontsize=8*2)
-    ax.tick_params(axis='both', which='major', labelsize=7*2)
-    ax.tick_params(axis='both', which='minor', labelsize=7*2)
+    plt.ylabel(r"Throughput improvement [\%]", fontsize=8 * 2)
+    plt.xlabel("System", fontsize=8 * 2)
+    ax.tick_params(axis="both", which="major", labelsize=7 * 2)
+    ax.tick_params(axis="both", which="minor", labelsize=7 * 2)
     plt.grid(axis="x", visible=False)
     fig = plt.gcf()
     column_width = 3.3374
@@ -117,5 +122,5 @@ def main():
     plt.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

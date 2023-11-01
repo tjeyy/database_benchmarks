@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import string
-
+import os
 
 def main():
     tables = {
@@ -59,9 +59,11 @@ def main():
     }
 
     seps = string.printable
+    seps = ["|"]
     unmachted_sep = {sep: False for sep in seps}
 
-    for table_name in sorted(tables["JOB"]):
+    for table_file in sorted([f for f in os.listdir(".") if f.endswith('.csv')]):
+        table_name = table_file[:-len(".csv")]
         print(table_name)
         unmachted_sep = {sep: False for sep in seps}
         with open(f"{table_name}.csv") as f:
@@ -76,6 +78,9 @@ def main():
                     #    print(sep, line)
                 for sep in found_seps:
                     del unmachted_sep[sep]
+                    if len(unmachted_sep) == 0:
+                        break
+
         if ("|") in unmachted_sep:
             print("|", seps.index("|"))
             continue

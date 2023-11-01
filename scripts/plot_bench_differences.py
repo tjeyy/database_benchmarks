@@ -17,8 +17,8 @@ from palettable.cartocolors.qualitative import Antique_6, Bold_6, Pastel_6, Pris
 import matplotlib as mpl
 
 def grep_throughput_change(old_result_file, new_result_file, clients, runtime):
-    if not (os.path.isfile(old_result_file) and os.path.isfile(new_result_file)):
-        return 1
+    #if not (os.path.isfile(old_result_file) and os.path.isfile(new_result_file)):
+    #    return 1
     df_old = pd.read_csv(old_result_file)
     df_new = pd.read_csv(new_result_file)
 
@@ -31,33 +31,30 @@ def grep_throughput_change(old_result_file, new_result_file, clients, runtime):
     return new_throughput / old_throughput
 
 def main():
-    clients = 18
-    runtime = 7200
+    clients = 32
+    runtime = 3600
 
-    order = list(reversed(["hyrise-int", "hyrise", "hana",  "umbra", "monetdb", "greenplum"]))
+    order = ["TPCH", "TPCDS", "SSB", "JOB"]
 
     changes = dict()
 
-    for dbms in order[:-1]:
-        common_path = f"db_comparison_results/database_comparison__all__{dbms}"
+    for benchmark in order:
+        common_path = f"db_comparison_results/database_comparison__{benchmark}__hana"
         old_path = common_path + ".csv"
         new_path = common_path + "__rewrites.csv"
-        changes[dbms] = grep_throughput_change(old_path, new_path, clients, runtime)
-    changes["hyrise-int"] = grep_throughput_change("db_comparison_results/database_comparison__all__hyrise.csv", "db_comparison_results/database_comparison__all__hyrise-int.csv", clients, runtime)
+        changes[benchmark] = grep_throughput_change(old_path, new_path, clients, runtime)
 
     changes = {k: (v  - 1) * 100 for k, v in changes.items() }
 
     max_len = max([len(db) for db in order])
-    for dbms in order:
-        print(f"{dbms.rjust(max_len)}: {round(changes[dbms], 2)}%")
+    for benchmark in order:
+        print(f"{benchmark.rjust(max_len)}: {round(changes[benchmark], 2)}%")
 
     names = {
-        "hyrise-int": "Hyrise\n(internal)",
-        "hyrise": "Hyrise",
-        "monetdb": "MonetDB",
-        "umbra": "Umbra",
-        "hana": "System X",
-        "greenplum": "Greenplum"
+        "TPCH": "TPC-H",
+        "TPCDS": "TPC-DS",
+        "SSB": "SSB",
+        "JOB": "JOB"
     }
 
     sns.set()
@@ -91,18 +88,16 @@ def main():
     })
 
     group_centers = np.arange(len(order))
-    db_count = len(order) - 1
-    hatches = [None] * db_count + ["/"]
-    colors = [c for c in Safe_6.hex_colors[:db_count]] + [Safe_6.hex_colors[db_count - 1]]
+    colors = [c for c in Safe_6.hex_colors[:len(order)]]
 
-    for d, color, pos, h in zip(order, colors, group_centers, hatches):
-        plt.bar([pos], [changes[d]], bar_width, color=color, hatch=h)
+    for d, color, pos in zip(order, colors, group_centers):
+        plt.bar([pos], [changes[d]], bar_width, color=color)
 
 
     plt.xticks(group_centers, [names[d] for d in order], rotation=0)
     ax = plt.gca()
     plt.ylabel(r"Throughput improvement [\%]", fontsize=8*2)
-    plt.xlabel('System', fontsize=8*2)
+    plt.xlabel('Benchmark', fontsize=8*2)
     ax.tick_params(axis='both', which='major', labelsize=7*2)
     ax.tick_params(axis='both', which='minor', labelsize=7*2)
     plt.grid(axis="x", visible=False)
@@ -113,7 +108,7 @@ def main():
     plt.tight_layout(pad=0)
     fig.set_size_inches(fig_width, fig_height)
 
-    plt.savefig(f"figures/systems_comparison.pdf", dpi=300, bbox_inches="tight")
+    plt.savefig(f"figures/benchmark_comparison.pdf", dpi=300, bbox_inches="tight")
     plt.close()
 
 

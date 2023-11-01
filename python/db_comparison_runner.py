@@ -240,6 +240,7 @@ elif args.dbms == "umbra":
             "{}/umbra/bin/server".format(Path.home()),
         ],
         stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
         env=parallel_dir,
     )
     print("Waiting 10s for Umbra to start ... ", end="")
@@ -486,13 +487,8 @@ def loop(thread_id, queries, query_id, start_time, successful_runs, timeout, is_
             items = split_items
         item_start_time = time.time()
         for query in items:
-            try:
-                cursor.execute(adapt_query(query))
-                cursor.fetchall()
-            except Exception as e:
-                print(e)
-                print(adapt_query(query))
-                raise e
+            cursor.execute(adapt_query(query))
+            cursor.fetchall()
             item_end_time = time.time()
 
         if (time.time() - start_time < timeout) or len(successful_runs) == 0:

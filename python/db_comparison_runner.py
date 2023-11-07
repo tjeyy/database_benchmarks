@@ -1,25 +1,21 @@
 #!/usr/bin/python3
-# Thanks to Markus Dreseler, who initially built this script, and Martin Boissier, Daniel Lindner and Daniel Ritter, who extended it.
+# Thanks to Markus Dreseler, who initially built this script, and Martin Boissier, who extended it.
 
 import argparse
 import atexit
-import glob
 import json
 import os
 import random
-import re
 import statistics
 import struct
 import subprocess
 import sys
 import threading
 import time
-from datetime import datetime
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
-from helpers import static_job_queries, static_ssb_queries, static_tpcds_queries, static_tpch_queries
+from queries import static_job_queries, static_ssb_queries, static_tpcds_queries, static_tpch_queries
 
 # For a fair comparison, we use the same queries as the Umbra demo does.
 tpch_queries = static_tpch_queries.queries
@@ -264,8 +260,7 @@ def get_cursor():
         while connection is None:
             try:
                 connection = pymonetdb.connect("", connect_timeout=600, autocommit=True)
-            except:
-                e = sys.exc_info()[0]
+            except Exception as e:
                 print(e)
                 time.sleep(1)
                 raise e
@@ -322,17 +317,8 @@ def parse_csv_meta(meta):
 
 
 def import_data():
-    # hyrise
-    # """COPY "{}" FROM '{}';"""
-    # greenplum
-    # """COPY "{}" FROM '{}' WITH DELIMITER ',';"""
-    # monetdb
-    # """COPY INTO "{}" FROM '{}' USING DELIMITERS ',' NULL AS '';"""
-    # hana
-    # """IMPORT FROM CSV FILE '{}' INTO {} WITH FIELD DELIMITED BY ',';"""
-
     data_path = os.path.join(os.getcwd(), "resources/experiment_data")
-    table_files = sorted([f for f in os.listdir(data_path) if f.endswith(".csv") and not ".umbra." in f])
+    table_files = sorted([f for f in os.listdir(data_path) if f.endswith(".csv") and ".umbra." not in f])
 
     if args.dbms == "monetdb":
         load_command = """COPY INTO "{}" FROM '{}' USING DELIMITERS ',', '\n', '"' NULL AS '';"""
@@ -349,24 +335,26 @@ def import_data():
     if args.dbms not in ["hyrise", "hyrise-int"]:
         for benchmark in ["tpch", "job", "ssb", "tpcds"]:
             with open(f"resources/schema_{benchmark}.sql") as f:
-                for l in f:
-                    line = l.strip()
-                    if not l:
+                for line in f:
+                    stripped_line = line.strip()
+                    if not stripped_line:
                         continue
                     if args.dbms == "hana":
                         cursor.execute(line.replace("text", "nvarchar(1024)"))
                     else:
-                        cursor.execute(line)
+                        cursor.execute(stripped_line)
 
     if args.dbms == "hana":
         cursor.execute(
-            f"alter system alter configuration ('indexserver.ini','SYSTEM') set ('import_export','enable_csv_import_path_filter') = 'false' with reconfigure;"
+            "alter system alter configuration ('indexserver.ini','SYSTEM') set "
+            "('import_export','enable_csv_import_path_filter') = 'false' with reconfigure;"
         )
 
     for t_id, table_file in enumerate(table_files):
         table_name = table_file[: -len(".csv")]
         table_file_path = f"{data_path}/{table_file}"
-        print(f" - ({t_id + 1}/{len(table_files)}) Import {table_name} from {table_file_path}")
+        print(f" - ({t_id + 1}/{len(table_files)}) Import {table_name} from {table_file_path}", end=" ")
+        start = time.time()
 
         if args.dbms == "monetdb" and table_name in tables["JOB"]:
             # MonetDB does not like some IMDB CSV files, so we encode them in their binary format.
@@ -413,11 +401,10 @@ def import_data():
                 )
 
         elif args.dbms == "umbra":  # and table_name in tables["JOB"]:
-            # Umbra seems to have issues as well, so we rewrite the CSVs with '\r' as delimiter (which is an ASCII
-            # character that does not occur in any file).
+            # Umbra seems to have issues as well, so we rewrite the CSVs with '|' or '\r' as delimiter (which is an
+            # ASCII character that does not occur in any file).
             new_file_path = f"{data_path}/{table_name}.umbra.csv"
             sep = "|" if table_name not in ["movie_info", "person_info"] else "\r"
-            # sep = "\r"
             if not os.path.isfile(new_file_path):
                 with open(table_file_path + ".json") as f:
                     meta = json.load(f)
@@ -426,7 +413,6 @@ def import_data():
                     table_file_path, header=None, names=column_names, dtype=column_types, keep_default_na=False
                 )
                 data.to_csv(new_file_path, sep=sep, header=False, index=False)
-            # print("""COPY "{}" FROM '{}' WITH DELIMITER '{}';""".format(table_name, new_file_path, sep))
             cursor.execute(
                 """COPY "{}" FROM '{}' WITH DELIMITER '{}' NULL '';""".format(table_name, new_file_path, sep)
             )
@@ -435,17 +421,14 @@ def import_data():
             cursor.execute(load_command.format(table_name, table_file_path))
 
         else:
-            # print("Importing table {}... with stmt {}".format(table_name, load_command.format(table_file_path, table_name)))
-            start = time.time()
             try:
                 cursor.execute(load_command.format(table_file_path, table_name))
                 cursor.execute(f"MERGE DELTA OF {table_name};")
             except Exception as e:
-                print("Failed to import table {}... with exception {}".format(table_name, e))
+                print("\nFailed to import table {}... with exception {}".format(table_name, e))
                 pass
-            end = time.time()
-            print("Imported data into table {} in {} sec.".format(table_name, end - start))
-            #  connection.commit()
+        end = time.time()
+        print(f"({round(end - start, 1)} s)")
 
     cursor.close()
     if args.dbms == "umbra":

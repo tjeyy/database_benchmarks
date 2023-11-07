@@ -30,7 +30,7 @@ def grep_throughput_change(old_result_file, new_result_file, clients, runtime):
 
 
 def main():
-    clients = 18
+    clients = 32
     runtime = 7200
 
     order = list(reversed(["hyrise-int", "hyrise", "hana", "umbra", "monetdb", "greenplum"]))

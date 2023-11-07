@@ -32,6 +32,8 @@ def grep_throughput_change(old_result_file, new_result_file, clients, runtime):
         round((1 - (df_new["RUNTIME_MS"].mean() / 1000) / (df_old["RUNTIME_MS"].mean() / 1000)) * 100, 2), "%", sep=""
     )
 
+    print(df_old["RUNTIME_MS"].mean() / 1000, df_new["RUNTIME_MS"].mean() / 1000)
+
     old_throughput = runtime / (df_old["RUNTIME_MS"].mean() / 1000)
     new_throughput = runtime / (df_new["RUNTIME_MS"].mean() / 1000)
 

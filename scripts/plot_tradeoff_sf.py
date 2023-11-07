@@ -1,20 +1,25 @@
 #!/usr/bin/env python3.11
 
 import json
-import math
 import os
 import re
+import argparse as ap
 from collections import defaultdict
 
-import latex
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from matplotlib import rc
-from matplotlib.ticker import FixedLocator, FuncFormatter, MaxNLocator
-from palettable.cartocolors.qualitative import Antique_6, Bold_6, Pastel_6, Prism_6, Safe_6, Vivid_6
+from palettable.cartocolors.qualitative import Safe_6
+
+
+def parse_args():
+    parser = ap.ArgumentParser()
+    parser.add_argument("commit", type=str)
+    parser.add_argument("--data", "-d", type=str, default="./hyrise/cmake-build-release/benchmark_plugin_results")
+    parser.add_argument("--output", "-o", type=str, default="./figures")
+    return parser.parse_args()
 
 
 def format_number(n):
@@ -29,7 +34,8 @@ def format_number(n):
 
 
 def to_s(v):
-    val_to_s = lambda x: x / 10**9
+    def val_to_s(x):
+        return x / 10**9
     if type(v) != list:
         return val_to_s(v)
     return [val_to_s(i) for i in v]
@@ -49,16 +55,9 @@ def get_latencies(old_path, new_path):
     new_latencies = list()
 
     for old, new in zip(old_data["benchmarks"], new_data["benchmarks"]):
-        name = old["name"]
         # Create numpy arrays for old/new successful/unsuccessful runs from benchmark dictionary
         old_successful_durations = np.array([run["duration"] for run in old["successful_runs"]], dtype=np.float64)
         new_successful_durations = np.array([run["duration"] for run in new["successful_runs"]], dtype=np.float64)
-        old_unsuccessful_durations = np.array([run["duration"] for run in old["unsuccessful_runs"]], dtype=np.float64)
-        new_unsuccessful_durations = np.array([run["duration"] for run in new["unsuccessful_runs"]], dtype=np.float64)
-        # np.mean() defaults to np.float64 for int input
-        # if "TPCDS" in old_path and "95" in name:
-        #    print("TPC-DS Q 95", to_s([np.mean(old_successful_durations), np.mean(new_successful_durations)]))
-        #    # continue
         old_latencies.append(np.mean(old_successful_durations))
         new_latencies.append(np.mean(new_successful_durations))
 
@@ -76,10 +75,9 @@ def get_discovery_time(common_path):
     discovery_time_indicator = "Executed dependency discovery in "
 
     with open(common_path) as f:
-        for l in f:
-            if not l.startswith(discovery_time_indicator):
+        for line in f:
+            if not line.startswith(discovery_time_indicator):
                 continue
-            line = l.strip()[len(discovery_time_indicator) :]
             candidate_time = 0
             for regex, div in zip(time_regexes, time_divs):
                 r = regex.search(line)
@@ -91,11 +89,7 @@ def get_discovery_time(common_path):
             return candidate_time
 
 
-def main():
-    commit = "64fed166781996d29745cb99d662346e18ca8d74"
-    commit = "b456ab78a170a9bb38958ccebb1293e12ade555b"
-    commit = "9eb09b4feceb6eeb1c2bf8229f75ef7f6f8d001a"
-
+def main(commit, data_dir, output_dir):
     benchmarks = {"TPCH": "TPC-H", "TPCDS": "TPC-DS", "StarSchema": "SSB"}
     all_scale_factors = range(1, 101)
 
@@ -110,13 +104,13 @@ def main():
     for scale_factor in all_scale_factors:
         sf_indicator = "" if scale_factor == 10 else f"_s{scale_factor}"
         sf_indicator = f"_s{scale_factor}"
-        if not os.path.isfile(f"hyriseBenchmarkTPCH_{commit}_st{sf_indicator}.log"):
+        if not os.path.isfile(os.path.join(data_dir, f"hyriseBenchmarkTPCH_{commit}_st{sf_indicator}.log")):
             continue
 
         scale_factors.append(scale_factor)
 
         for benchmark, benchmark_title in benchmarks.items():
-            common_path = f"hyriseBenchmark{benchmark}_{commit}_st{sf_indicator}"
+            common_path = os.path.join(data_dir, f"hyriseBenchmark{benchmark}_{commit}_st{sf_indicator}")
             old_path = common_path + ".json"
             new_path = common_path + "_plugin.json"
 
@@ -138,10 +132,6 @@ def main():
     ):
         sns.set()
         sns.set_theme(style="whitegrid")
-        # plt.style.use('seaborn-colorblind')
-        # plt.rcParams['text.usetex'] = True
-        # plt.rcParams["font.family"] = "serif"
-
         mpl.use("pgf")
 
         plt.rcParams.update(
@@ -223,18 +213,9 @@ def main():
         plt.ylabel(y_label, fontsize=8 * 2)
         plt.xlabel("Scale factor", fontsize=8 * 2)
         plt.legend(fontsize=6 * 2, fancybox=False, framealpha=1.0)
-        # plt.legend(fancybox=False)
         ax.tick_params(axis="both", which="major", labelsize=7 * 2)
         ax.tick_params(axis="both", which="minor", labelsize=7 * 2)
 
-        # ax.set_yscale('log')
-        # ax.set_xscale('log')
-
-        # if benchmark == "TPCDS":
-        #    max_value = 3.99
-
-        min_lim = min(ax.get_ylim()[0], ax.get_xlim()[0])
-        max_lim = max(ax.get_ylim()[1], ax.get_xlim()[1])
         plt.ylim((plt.ylim()[0], 110))
         fig = plt.gcf()
 
@@ -243,13 +224,13 @@ def main():
         fig_height = column_width * 0.475 * 2
         fig.set_size_inches(fig_width, fig_height)
         plt.tight_layout(pad=0)
-        # ax.set_box_aspect(1)
 
-        # print(os.path.join(output, f"{benchmark}_{file_indicator}_{config}_{metric}.{extension}"))
-        # plt.savefig(f"benchmarks_combined_sf_{commit}_{measurement_type}.pdf", dpi=300, bbox_inches="tight")
-        plt.savefig(f"benchmarks_combined_sf_{measurement_type}.pdf", dpi=300, bbox_inches="tight")
+        plt.savefig(
+            os.path.join(output_dir, f"benchmarks_combined_sf_{measurement_type}.pdf"), dpi=300, bbox_inches="tight"
+        )
         plt.close()
 
 
 if __name__ == "__main__":
-    main()
+    args = parse_args()
+    main(args.commit, args.data, args.output)

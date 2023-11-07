@@ -1,8 +1,5 @@
 #!/usr/bin/env python3.11
 
-import json
-import math
-import os
 import re
 from collections import defaultdict
 
@@ -10,15 +7,9 @@ import latex
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import seaborn as sns
-from matplotlib import rc
-from matplotlib.ticker import FixedLocator, FuncFormatter, MaxNLocator
-from palettable.cartocolors.qualitative import Antique_6, Bold_6, Pastel_6, Prism_6, Safe_6, Vivid_6
-
-# Checking OD nation.n_nationkey |-> nation.n_name [rejected in 8 µs 347 ns]
-# Checking UCC orders.o_orderkey [skipped (already known) in 2 µs 165 ns]
-# Checking UCC part.p_partkey [confirmed in 125 ms 500 µs]
+from matplotlib.ticker import FuncFormatter
+from palettable.cartocolors.qualitative import Safe_6
 
 
 def format_number(n):
@@ -33,7 +24,9 @@ def format_number(n):
 
 
 def to_s(v):
-    val_to_s = lambda x: x / 10**9
+    def val_to_s(x):
+        return x / 10**9
+
     if type(v) != list:
         return val_to_s(v)
     return [val_to_s(i) for i in v]

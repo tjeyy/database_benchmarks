@@ -2,25 +2,22 @@
 
 import argparse as ap
 import json
-import math
 import os
-import re
-from collections import defaultdict
 
-import latex
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from matplotlib import rc
-from matplotlib.ticker import FixedLocator, FuncFormatter, MaxNLocator
+from matplotlib.ticker import FixedLocator, FuncFormatter
 from palettable.cartocolors.qualitative import Safe_6
 
 
 def parse_args():
     parser = ap.ArgumentParser()
     parser.add_argument("commit", type=str)
+    parser.add_argument("--data", "-d", type=str, default="./hyrise/cmake-build-release/benchmark_plugin_results")
+    parser.add_argument("--output", "-o", type=str, default="./figures")
     return parser.parse_args()
 
 
@@ -53,12 +50,9 @@ def get_old_new_latencies(old_path, new_path):
     new_latencies = list()
 
     for old, new in zip(old_data["benchmarks"], new_data["benchmarks"]):
-        name = old["name"]
         # Create numpy arrays for old/new successful/unsuccessful runs from benchmark dictionary
         old_successful_durations = np.array([run["duration"] for run in old["successful_runs"]], dtype=np.float64)
         new_successful_durations = np.array([run["duration"] for run in new["successful_runs"]], dtype=np.float64)
-        old_unsuccessful_durations = np.array([run["duration"] for run in old["unsuccessful_runs"]], dtype=np.float64)
-        new_unsuccessful_durations = np.array([run["duration"] for run in new["unsuccessful_runs"]], dtype=np.float64)
         # np.mean() defaults to np.float64 for int input
         old_latencies.append(np.mean(old_successful_durations))
         new_latencies.append(np.mean(new_successful_durations))
@@ -75,7 +69,7 @@ def get_trend(old, new):
     return "same"
 
 
-def main(commit):
+def main(commit, data_dir, output_dir):
     sns.set()
     sns.set_theme(style="whitegrid")
 
@@ -112,8 +106,8 @@ def main(commit):
         common_path = f"hyriseBenchmark{benchmark}_{commit}_st"
         if benchmark != "JoinOrder":
             common_path = common_path + "_s10"
-        old_path = common_path + "_all_off.json"
-        new_path = common_path + "_plugin.json"
+        old_path = os.path.join(data_dir, common_path + "_all_off.json")
+        new_path = os.path.join(data_dir, common_path + "_plugin.json")
 
         old_latencies, new_latencies = get_old_new_latencies(old_path, new_path)
         trend = [get_trend(old, new) for old, new in zip(old_latencies, new_latencies)]
@@ -170,9 +164,10 @@ def main(commit):
         fig.set_size_inches(fig_width, fig_width)
         plt.tight_layout(pad=0)
 
-        plt.savefig(f"{benchmark}_log.pdf", dpi=300, bbox_inches="tight")
+        plt.savefig(os.path.join(output_dir, f"{benchmark}_log.pdf"), dpi=300, bbox_inches="tight")
         plt.close()
 
 
 if __name__ == "__main__":
-    main(parse_args().commit)
+    args = parse_args()
+    main(args.commit, args.data, args.output)

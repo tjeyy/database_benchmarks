@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 
-import math
+import argparse as ap
 import os
-import re
-from collections import defaultdict
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import seaborn as sns
-from matplotlib import rc
-from palettable.cartocolors.qualitative import Antique_6, Bold_6, Pastel_6, Prism_6, Safe_6, Vivid_6
+from palettable.cartocolors.qualitative import Safe_6
+
+
+def parse_args():
+    parser = ap.ArgumentParser()
+    parser.add_argument("--output", "-o", type=str, default="./figures")
+    return parser.parse_args()
 
 
 def to_ms(n):
@@ -22,7 +24,7 @@ def per(n):
     return round(n * 100, 2)
 
 
-def main():
+def main(output_dir):
     regular = {
         "TPC-DS Q26": 209395576.670000,
         "TPC-DS Q37": 552702500.750000,
@@ -121,9 +123,9 @@ def main():
     fig.set_size_inches(fig_width, fig_height)
     plt.tight_layout(pad=0)
 
-    plt.savefig(f"figures/motivational_example.pdf", dpi=300, bbox_inches="tight")
+    plt.savefig(os.path.join(output_dir, "motivational_example.pdf"), dpi=300, bbox_inches="tight")
     plt.close()
 
 
 if __name__ == "__main__":
-    main()
+    main(parse_args().output)

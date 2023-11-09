@@ -23,22 +23,9 @@ def parse_args():
 
 def format_number(n):
     if n < 1 and n > 0:
-        return str(n)
-    # return str(int(n))
-
-    # for x in [1, 3, 5, 10]:
-    #    if n == x:
-    #        return str(int(n))
+        # return str(n)
+        return ""
     return f"{int(n):,.0f}".replace(",", r"\thinspace")
-
-
-def to_s(v):
-    def val_to_s(x):
-        return x / 10**9
-
-    if type(v) != list:
-        return val_to_s(v)
-    return [val_to_s(i) for i in v]
 
 
 def get_discovery_times(common_path):
@@ -123,124 +110,53 @@ def main(commit, data_dir, output_dir):
         discovery_times_old[benchmark_title] = get_discovery_times(old_path)
         discovery_times_new[benchmark_title] = get_discovery_times(new_path)
 
-    def get_color(status, impl):
-        if status == "skipped":
-            return Safe_6.hex_colors[4]
-        # valid naive = 0
-        # valid meta = 1
-        # invalid naiv = 2
-        # invalid meta = 3
-        base = 2 if impl == "optimized" else 0
-        offset = 0 if status == "valid" else 1
-        return Safe_6.hex_colors[base + offset]
-
-    bar_width = 0.2
-    margin = 0.01
+    bar_width = 0.3
+    margin = 0.02
 
     group_centers = np.arange(len(benchmarks))
-    offsets = [-0.5, 0.5]
-    offsets = [-0.5, 0.5]
+    offsets = [-1, 1]
 
-    sums = []
-
-    for impl, disc_times, offset in zip(
-        [r"na\"{i}ve", "optimized"], [discovery_times_old, discovery_times_new], offsets
+    for impl, disc_times, offset, color in zip(
+        [r"na\"{i}ve", "optimized"], [discovery_times_old, discovery_times_new], offsets, Safe_6.hex_colors[:2]
     ):
 
-        # print(disc_times)
-
-        bar_positions_a = [p + 3 * offset * (bar_width + margin) for p in group_centers]
-        bar_positions_b = [p + offset * (bar_width + margin) for p in group_centers]
-        if impl != r"na\"{i}ve":
-            bar_positions_a, bar_positions_b = [bar_positions_b, bar_positions_a]
-        bar_positions_s = [(x + y) / 2 for x, y in zip(bar_positions_a, bar_positions_b)]
-
-        # vals = [max(sum(data[b]["invalid"][impl]) / 10**6, min_val) for b in bens]
-        t_invalid = [sum(disc_times[b]["invalid"]) / 10**6 for b in bens]
-        # t_skip = [sum(disc_times[b]["skipped"]) / 10**9 for b in benchmarks.values()]
-        t_valid = [(sum(disc_times[b]["valid"]) + sum(disc_times[b]["skipped"])) / 10**6 for b in bens]
+        bar_positions = [
+            p + offset * (0.5 * bar_width + margin) for p in group_centers
+        ]
         t_sum = [
             (sum(disc_times[b]["valid"]) + sum(disc_times[b]["invalid"]) + sum(disc_times[b]["skipped"])) / 10**6
             for b in bens
         ]
 
-        # t_skip = [t_invalid[i] + t_skip[i] for i in range(len(benchmarks))]
-        # t_valid = [t_invalid[i] + t_valid[i] for i in range(len(bens))]
-        # print(t_invalid)
-        # print(t_valid)
-        print([len(disc_times[b]["invalid"]) for b in bens])
-        print([len(disc_times[b]["valid"]) for b in bens])
-        print([len(disc_times[b]["skipped"]) for b in bens])
         ax = plt.gca()
-        ax.bar(bar_positions_s, t_sum, bar_width, color="lightgrey")
-        ax.bar(bar_positions_a, t_valid, bar_width, color=get_color("valid", impl), label=f"Valid {impl}")
-        # ax.bar(bar_positions, t_skip, bar_width, color=get_color("skipped", impl), label=f"Skipped")
-        ax.bar(bar_positions_b, t_invalid, bar_width, color=get_color("invalid", impl), label=f"Invalid {impl}")
+        ax.bar(bar_positions, t_sum, bar_width, color=color, label=f"{impl[0].upper()}{impl[1:]}")
 
-        sums.append((t_sum, bar_positions_s))
-
-        for values, positions in [(t_invalid, bar_positions_b), (t_valid, bar_positions_a)]:
-            for v, x in zip(values, positions):
-                y = max(v, 0.1)
-                # if v < 0.1:
-                #    #print(v)
-                label = str(round(v, 1))
-                label = label if label != "0.0" else r"$\ast$"
-                # print(label)
-                ax.text(x, y * 1.1, label, ha="center", va="bottom")
-
-    max_s = max([max(s) for s, _ in sums])
-
-    for t_sum, bar_positions_s in sums:
-        for v, x in zip(t_sum, bar_positions_s):
-            y = v
-
-            label = r"$\Sigma " + str(round(v, 2)) + "$"
-            # print(label)
-            ax.text(x, max_s * 3, label, ha="center", va="top")
-
-    min_lim = ax.get_ylim()[0]
-    max_lim = ax.get_ylim()[1]
-
-    possible_ticks_below_one = [10 ** (-exp) for exp in reversed(range(1, 2))]
-    possible_ticks_above_one = [1, 3, 5, 10]
-    ticks = list()
-    for tick in possible_ticks_below_one:
-        if tick >= min_lim:
-            ticks.append(tick)
-    for tick in possible_ticks_above_one:
-        if tick <= max_lim:
-            ticks.append(tick)
-    # ticks += psossible_ticks_above_one
+        for y, x in zip(t_sum, bar_positions):
+            label = str(round(y))
+            ax.text(x, y * 1.2, label, ha="center", va="bottom", size=7 * 2)
 
     ax.set_yscale("symlog", linthresh=1)
-    min_lim = ax.get_ylim()[0]
-    max_lim = ax.get_ylim()[1]
-    # ax.set_ylim(0.005, max_lim * 1.5)
-    ax.set_ylim(0, max_lim * 3)
-    # ax.yaxis.set_major_locator(FixedLocator(ticks))
+    min_lim, max_lim = ax.get_ylim()
+    ax.set_ylim(0, max_lim * 2)
     ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
 
     plt.xticks(group_centers, bens, rotation=0)
     y_label = "Validation runtime [ms]"
     plt.ylabel(y_label, fontsize=8 * 2)
     plt.xlabel("Benchmark", fontsize=8 * 2)
-    # plt.legend(fontsize=7*2, fancybox=False, )
-    plt.legend(loc="upper center", fontsize=7 * 2, ncol=2, bbox_to_anchor=(0.5, 1.3), fancybox=False, framealpha=1.0)
+    plt.legend(loc="best", fontsize=7 * 2, ncol=2, fancybox=False, framealpha=1.0)
     plt.grid(axis="x", visible=False)
-    # plt.legend(fancybox=False)
     ax.tick_params(axis="both", which="major", labelsize=7 * 2)
     ax.tick_params(axis="both", which="minor", labelsize=7 * 2)
     fig = plt.gcf()
 
     column_width = 3.3374
     fig_width = column_width * 2
-    fig_height = column_width * 0.475 * 2.5
+    fig_height = column_width * 0.475 * 2
     fig.set_size_inches(fig_width, fig_height)
     plt.tight_layout(pad=0)
-    # ax.set_box_aspect(1)
 
-    plt.savefig(os.path.join(output_dir, "validation_improvement.pdf"), dpi=300, bbox_inches="tight")
+    plt.savefig(os.path.join(output_dir, "validation_improvement_.pdf"), dpi=300, bbox_inches="tight")
     plt.close()
 
 

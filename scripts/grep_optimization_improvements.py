@@ -4,12 +4,20 @@
 import argparse as ap
 import json
 import os
+import re
 
 import numpy as np
 
 
 def to_s(n):
     return f"\\s{{{round(n / 10**9, 1)}}}"
+
+
+def to_ms(n):
+    ms = n / 10**6
+    if ms < 1:
+        return r"\ms{<1}"
+    return f"\\ms{{{round(ms)}}}"
 
 
 def perc(old, new):
@@ -47,22 +55,52 @@ def get_old_new_latency(old_path, new_path):
     return sum(old_latencies), sum(new_latencies)
 
 
-def get_discovery_time(file_name):
+def get_discovery_stats(file_name):
     prefix = "Executed dependency discovery in "
     prefix_len = len(prefix)
+    candidate_count = None
+    valid_count = None
+    candidate_regex = re.compile(r"Validated (?P<candidate>\d+) candidates \((?P<valid>\d+) valid")
     with open(file_name) as f:
         for line in f:
             if prefix in line:
-                return line.strip()[prefix_len:]
+                assert candidate_count is not None and valid_count is not None
+                return [candidate_count, valid_count, line.strip()[prefix_len:]]
+            match = candidate_regex.search(line)
+            if match:
+                candidate_count = match.group("candidate")
+                valid_count = match.group("valid")
     raise AttributeError(f"Could not find discovery time in {file_name}")
+
+
+def parse_duration(duration):
+    time_regexes = [
+        re.compile(r"\d+(?=\ss)"),
+        re.compile(r"\d+(?=\sms)"),
+        re.compile(r"\d+(?=\sµs)"),
+        re.compile(r"\d+(?=\sns)"),
+    ]
+    time_divs = list(reversed([1, 10**3, 10**6, 10**9]))
+
+    candidate_time = 0
+    for regex, div in zip(time_regexes, time_divs):
+        r = regex.search(duration)
+        if not r:
+            continue
+        t = int(r.group(0))
+        candidate_time += t * div
+
+    return candidate_time
 
 
 def main(commit, data_dir):
     benchmarks = ["TPCH", "TPCDS", "StarSchema", "JoinOrder"]
+    configs = ["dgr", "jts", "jtp", "combined"]
     print("ALL OFF VS PLUGIN")
     for benchmark in benchmarks:
         print(benchmark)
-        for opt in ["dgr", "jts", "jtp", "combined"]:
+        results = list()
+        for opt in configs:
             common_path = os.path.join(data_dir, f"hyriseBenchmark{benchmark}_{commit}_st")
             if benchmark != "JoinOrder":
                 common_path += "_s10"
@@ -72,16 +110,23 @@ def main(commit, data_dir):
             log_file = common_path + f"_plugin{opt_extension}.log"
             base_latency, opt_latency = get_old_new_latency(base_file, opt_file)
 
-            print(
-                opt,
-                to_s(base_latency),
-                to_s(opt_latency - base_latency),
-                perc(base_latency, opt_latency),
-                get_discovery_time(log_file),
-                sep=" & ",
+            stats = get_discovery_stats(log_file)
+
+            results.append(
+                [opt, to_s(base_latency), to_s(opt_latency - base_latency), perc(base_latency, opt_latency)]
+                + stats[:1]
+                + [to_ms(parse_duration(stats[2])), stats[-1]]
             )
 
-    print("\n\nSCHEMA VS PLUGIN")
+        for i in range(len(results[0])):
+            max_len = max(len(str(r[i])) for r in results)
+            for r in results:
+                r[i] = str(r[i]).rjust(max_len)
+        for r in results:
+            print(" & ".join(r))
+        print()
+
+    print("\nSCHEMA VS PLUGIN")
     for benchmark in benchmarks:
         print(benchmark)
         common_path = os.path.join(data_dir, f"hyriseBenchmark{benchmark}_{commit}_st")
@@ -96,7 +141,7 @@ def main(commit, data_dir):
             to_s(base_latency),
             to_s(opt_latency - base_latency),
             perc(base_latency, opt_latency),
-            get_discovery_time(log_file),
+            get_discovery_stats(log_file),
             sep=" & ",
         )
 

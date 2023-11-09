@@ -1,9 +1,9 @@
 #!/usr/bin/env python3.11
 
+import argparse as ap
 import json
 import os
 import re
-import argparse as ap
 from collections import defaultdict
 
 import matplotlib as mpl
@@ -36,6 +36,7 @@ def format_number(n):
 def to_s(v):
     def val_to_s(x):
         return x / 10**9
+
     if type(v) != list:
         return val_to_s(v)
     return [val_to_s(i) for i in v]

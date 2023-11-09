@@ -98,7 +98,8 @@ def main(commit, data_dir, output_dir):
 
         print("   ", benchmark_candidates, "candidates overall")
 
-        unique_keys = sorted(set(plot_data["type"]))
+        order = ["OD", "IND", "UCC", "FD"]
+        unique_keys = sorted(set(plot_data["type"]), key=lambda x: order.index(x.split(" ")[0]))
 
         ax = sns.boxplot(
             data=plot_data,
@@ -115,8 +116,8 @@ def main(commit, data_dir, output_dir):
 
         ax = plt.gca()
         ax.set_yscale("symlog")
-        y_max = max(max(plot_data["time"]), 10)
-        ax.set_ylim(0, y_max * 1.5)
+        y_max = max(max(plot_data["time"]) * 1.5, 10)
+        ax.set_ylim(0, y_max)
 
         plt.xlabel("Candidate type ($\\#$)", fontsize=8 * 2)
         plt.ylabel("Validation time [ms]", fontsize=8 * 2)

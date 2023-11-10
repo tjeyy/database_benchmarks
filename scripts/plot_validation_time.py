@@ -21,6 +21,8 @@ def parse_args():
 
 
 def format_number(n):
+    if n > 0 and n < 1:
+        return str(n)
     return f"{int(n):,.0f}".replace(",", r"\thinspace")
 
 
@@ -115,8 +117,9 @@ def main(commit, data_dir, output_dir):
         )
 
         ax = plt.gca()
-        ax.set_yscale("symlog")
         y_max = max(max(plot_data["time"]) * 1.5, 10)
+        y_max = max(plot_data["time"]) * 1.5
+        ax.set_yscale("symlog", linthresh=0.1)
         ax.set_ylim(0, y_max)
 
         plt.xlabel("Candidate type ($\\#$)", fontsize=8 * 2)

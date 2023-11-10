@@ -57,15 +57,27 @@ def get_old_new_latency(old_path, new_path):
 
 def get_discovery_stats(file_name):
     prefix = "Executed dependency discovery in "
-    prefix_len = len(prefix)
+    time_re = re.compile(r"(?<= in ).+")
     candidate_count = None
     valid_count = None
+    generation_time = None
+    validation_time = None
     candidate_regex = re.compile(r"Validated (?P<candidate>\d+) candidates \((?P<valid>\d+) valid")
     with open(file_name) as f:
         for line in f:
+            if "Generated " in line or "Validated " in line:
+                match = time_re.search(line)
+                assert match is not None
+                if "Generated " in line:
+                    generation_time = match.group()
+                else:
+                    validation_time = match.group()
+
             if prefix in line:
-                assert candidate_count is not None and valid_count is not None
-                return [candidate_count, valid_count, line.strip()[prefix_len:]]
+                result = [candidate_count, valid_count, generation_time, validation_time]
+                assert all([x is not None for x in result])
+                return result
+
             match = candidate_regex.search(line)
             if match:
                 candidate_count = match.group("candidate")
@@ -114,8 +126,9 @@ def main(commit, data_dir):
 
             results.append(
                 [opt, to_s(base_latency), to_s(opt_latency - base_latency), perc(base_latency, opt_latency)]
-                + stats[:1]
-                + [to_ms(parse_duration(stats[2])), stats[-1]]
+                + stats[:2]
+                + [to_ms(parse_duration(stats[2]) + parse_duration(stats[3]))]
+                + stats[2:]
             )
 
         for i in range(len(results[0])):

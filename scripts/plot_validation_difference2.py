@@ -23,8 +23,7 @@ def parse_args():
 
 def format_number(n):
     if n < 1 and n > 0:
-        # return str(n)
-        return ""
+        return str(n)
     return f"{int(n):,.0f}".replace(",", r"\thinspace")
 
 
@@ -120,9 +119,7 @@ def main(commit, data_dir, output_dir):
         [r"na\"{i}ve", "optimized"], [discovery_times_old, discovery_times_new], offsets, Safe_6.hex_colors[:2]
     ):
 
-        bar_positions = [
-            p + offset * (0.5 * bar_width + margin) for p in group_centers
-        ]
+        bar_positions = [p + offset * (0.5 * bar_width + margin) for p in group_centers]
         t_sum = [
             (sum(disc_times[b]["valid"]) + sum(disc_times[b]["invalid"]) + sum(disc_times[b]["skipped"])) / 10**6
             for b in bens

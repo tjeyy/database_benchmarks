@@ -116,6 +116,7 @@ parser.add_argument("--time", "-t", type=int, default=300)
 parser.add_argument("--port", "-p", type=int, default=5432)
 parser.add_argument("--clients", type=int, default=1)
 parser.add_argument("--cores", type=int, default=1)
+parser.add_argument("--memory_node", "-m", type=int, default=2)
 parser.add_argument("--benchmark", "-b", type=str, default="all", choices=["TPCH", "TPCDS", "JOB", "SSB", "all"])
 parser.add_argument("--hyrise_server_path", type=str, default="hyrise/cmake-build-release")
 parser.add_argument("--skip_warmup", action="store_true")
@@ -190,7 +191,7 @@ if args.dbms == "monetdb":
         "-C",
         f"+0-+{args.cores - 1}",
         "-m",
-        "2",
+        str(args.memory_node),
         "{}/monetdb_bin/bin/mserver5".format(Path.home()),
         "--dbpath={}/monetdb_farm".format(Path.home()),
         "--set",
@@ -216,7 +217,7 @@ elif args.dbms in ["hyrise", "hyrise-int"]:
             "-C",
             "+0-+{}".format(args.cores - 1),
             "-m",
-            "2",
+            str(args.memory_node),
             "{}/hyriseServer".format(hyrise_server_path),
             "-p",
             str(args.port),
@@ -238,7 +239,7 @@ elif args.dbms == "umbra":
             "-C",
             "+0-+{}".format(args.cores - 1),
             "-m",
-            "2",
+            str(args.memory_node),
             "{}/umbra/bin/server".format(Path.home()),
         ],
         stdout=subprocess.DEVNULL,

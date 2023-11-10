@@ -51,21 +51,22 @@ def get_discovery_time(common_path):
         re.compile(r"\d+(?=\sns)"),
     ]
     time_divs = list(reversed([1, 10**3, 10**6, 10**9]))
-    discovery_time_indicator = "Executed dependency discovery in "
+    generation_time_indicator = "Generated "
+    validation_time_indicator = "Validated "
+    discovery_time = 0
 
     with open(common_path) as f:
         for line in f:
-            if not line.startswith(discovery_time_indicator):
+            if not (line.startswith(generation_time_indicator) or line.startswith(validation_time_indicator)):
                 continue
-            candidate_time = 0
             for regex, div in zip(time_regexes, time_divs):
                 r = regex.search(line)
                 if not r:
                     continue
                 t = int(r.group(0))
-                candidate_time += t * div
+                discovery_time += t * div
 
-            return candidate_time
+    return discovery_time
 
 
 def main(commit, data_dir, output_dir):

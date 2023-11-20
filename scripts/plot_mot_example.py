@@ -109,12 +109,11 @@ def main(output_dir):
 
     plt.xticks(group_centers, chosen, rotation=0)
     ax = plt.gca()
-    plt.legend(loc="upper center", fontsize=8 * 2, ncol=3, bbox_to_anchor=(0.5, 1.25), fancybox=False)
+    plt.legend(loc="upper center", fontsize=7 * 2, ncol=3, bbox_to_anchor=(0.5, 1.25), fancybox=False)
     plt.xlim([-3 * bar_width, 1 + 3 * bar_width])
     plt.ylabel("Latency [ms]", fontsize=8 * 2)
     plt.xlabel("Query", fontsize=8 * 2)
-    ax.tick_params(axis="both", which="major", labelsize=7 * 2)
-    ax.tick_params(axis="both", which="minor", labelsize=7 * 2)
+    ax.tick_params(axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, color="lightgrey")
     plt.grid(axis="x", visible=False)
     fig = plt.gcf()
     column_width = 3.3374

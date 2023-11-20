@@ -45,10 +45,10 @@ def get_latency_improvement(old_path, new_path):
 
 def get_discovery_time(common_path):
     time_regexes = [
-        re.compile(r"\d+(?=\ss)"),
-        re.compile(r"\d+(?=\sms)"),
-        re.compile(r"\d+(?=\sµs)"),
-        re.compile(r"\d+(?=\sns)"),
+        re.compile(r"\d+(?=\ss\s)"),
+        re.compile(r"\d+(?=\sms\s)"),
+        re.compile(r"\d+(?=\sµs\s)"),
+        re.compile(r"\d+(?=\sns\s)"),
     ]
     time_divs = list(reversed([1, 10**3, 10**6, 10**9]))
     generation_time_indicator = "Generated "

@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from matplotlib.ticker import FuncFormatter
 from palettable.cartocolors.qualitative import Safe_6
 
 
@@ -19,18 +20,12 @@ def parse_args():
     parser.add_argument("commit", type=str)
     parser.add_argument("--data", "-d", type=str, default="./hyrise/cmake-build-release/benchmark_plugin_results")
     parser.add_argument("--output", "-o", type=str, default="./figures")
+    parser.add_argument("--scale", "-s", type=str, default="linear", choices=["linear", "log", "symlog"])
     return parser.parse_args()
 
 
 def format_number(n):
-    if n < 1:
-        return str(n)
-    return str(int(n))
-
-    for x in [1, 3, 5, 10]:
-        if n == x:
-            return str(int(n))
-    return ""
+    return f"{int(n):,.0f}".replace(",", r"\thinspace") if n % 1 == 0 else str(n)
 
 
 def to_s(v):
@@ -67,30 +62,31 @@ def get_latencies(old_path, new_path):
 
 def get_discovery_time(common_path):
     time_regexes = [
-        re.compile(r"\d+(?=\ss)"),
-        re.compile(r"\d+(?=\sms)"),
-        re.compile(r"\d+(?=\sµs)"),
-        re.compile(r"\d+(?=\sns)"),
+        re.compile(r"\d+(?=\ss\s)"),
+        re.compile(r"\d+(?=\sms\s)"),
+        re.compile(r"\d+(?=\sµs\s)"),
+        re.compile(r"\d+(?=\sns\s)"),
     ]
     time_divs = list(reversed([1, 10**3, 10**6, 10**9]))
-    discovery_time_indicator = "Executed dependency discovery in "
+    generation_time_indicator = "Generated "
+    validation_time_indicator = "Validated "
+    discovery_time = 0
 
     with open(common_path) as f:
         for line in f:
-            if not line.startswith(discovery_time_indicator):
+            if not (line.startswith(generation_time_indicator) or line.startswith(validation_time_indicator)):
                 continue
-            candidate_time = 0
+
             for regex, div in zip(time_regexes, time_divs):
                 r = regex.search(line)
                 if not r:
                     continue
-                t = int(r.group(0))
-                candidate_time += t * div
+                discovery_time += int(r.group(0)) * div
 
-            return candidate_time
+    return discovery_time
 
 
-def main(commit, data_dir, output_dir):
+def main(commit, data_dir, output_dir, scale):
     benchmarks = {"TPCH": "TPC-H", "TPCDS": "TPC-DS", "StarSchema": "SSB"}
     all_scale_factors = range(1, 101)
 
@@ -103,16 +99,15 @@ def main(commit, data_dir, output_dir):
     discovery_times_relative = defaultdict(list)
 
     for scale_factor in all_scale_factors:
-        sf_indicator = "" if scale_factor == 10 else f"_s{scale_factor}"
         sf_indicator = f"_s{scale_factor}"
-        if not os.path.isfile(os.path.join(data_dir, f"hyriseBenchmarkTPCH_{commit}_st{sf_indicator}.log")):
+        if not os.path.isfile(os.path.join(data_dir, f"hyriseBenchmarkTPCH_{commit}_st{sf_indicator}_all_off.log")):
             continue
 
         scale_factors.append(scale_factor)
 
         for benchmark, benchmark_title in benchmarks.items():
             common_path = os.path.join(data_dir, f"hyriseBenchmark{benchmark}_{commit}_st{sf_indicator}")
-            old_path = common_path + ".json"
+            old_path = common_path + "_all_off.json"
             new_path = common_path + "_plugin.json"
 
             old_latency, new_latency = get_latencies(old_path, new_path)
@@ -124,7 +119,38 @@ def main(commit, data_dir, output_dir):
             latency_improvements_relative[benchmark_title].append((old_latency - new_latency) * 100 / old_latency)
             discovery_times_relative[benchmark_title].append(discovery_time * 100 / old_latency)
 
-    print(scale_factors)
+    result_table = list()
+    result_table.append(["", ""] + [str(sf) for sf in scale_factors])
+    result_table.append(["-", "-"] + ["-" for _ in scale_factors])
+
+    for benchmark_title in benchmarks.values():
+        result_table.append(
+            [benchmark_title, "Latency"] + [str(round(lat, 2)) + " s" for lat in latency_improvements[benchmark_title]]
+        )
+        result_table.append(
+            [benchmark_title, "Validation"]
+            + [str(round(lat * 1000)) + " ms" for lat in discovery_times[benchmark_title]]
+        )
+
+    for i in range(len(result_table[0])):
+        max_len = max([len(res[i]) for res in result_table])
+        for j in range(len(result_table)):
+            info = result_table[j][i]
+            if j == 0:
+                info = info.center(max_len)
+            elif j == 1:
+                info = info * max_len
+            elif i == 1:
+                info = info.ljust(max_len)
+            else:
+                info = info.rjust(max_len)
+            result_table[j][i] = info
+
+    for i in range(len(result_table)):
+        column_sep = " | " if i != 1 else "-+-"
+        merge_sep = " " if i != 1 else "-"
+        prompt = column_sep.join([merge_sep.join(result_table[i][:2])] + result_table[i][2:])
+        print(prompt)
 
     for measurement_type, lat_improvements, disc_times in zip(
         ["abs", "rel"],
@@ -210,14 +236,19 @@ def main(commit, data_dir, output_dir):
 
         ax = plt.gca()
 
+        ax.set_yscale(scale)
+        if measurement_type == "rel":
+            plt.ylim((plt.ylim()[0], plt.ylim()[1] * 2))
+        ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
+
         y_label = "Runtime [s]" if measurement_type == "abs" else "Share of Runtime [%]"
         plt.ylabel(y_label, fontsize=8 * 2)
         plt.xlabel("Scale factor", fontsize=8 * 2)
-        plt.legend(fontsize=6 * 2, fancybox=False, framealpha=1.0)
-        ax.tick_params(axis="both", which="major", labelsize=7 * 2)
-        ax.tick_params(axis="both", which="minor", labelsize=7 * 2)
+        plt.legend(fontsize=6 * 2, fancybox=False, framealpha=1.0, ncols=2)
+        ax.tick_params(
+            axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, bottom=True, color="lightgrey"
+        )
 
-        plt.ylim((plt.ylim()[0], 110))
         fig = plt.gcf()
 
         column_width = 3.3374
@@ -227,11 +258,13 @@ def main(commit, data_dir, output_dir):
         plt.tight_layout(pad=0)
 
         plt.savefig(
-            os.path.join(output_dir, f"benchmarks_combined_sf_{measurement_type}.pdf"), dpi=300, bbox_inches="tight"
+            os.path.join(output_dir, f"benchmarks_combined_sf_{measurement_type}_{scale}.pdf"),
+            dpi=300,
+            bbox_inches="tight",
         )
         plt.close()
 
 
 if __name__ == "__main__":
     args = parse_args()
-    main(args.commit, args.data, args.output)
+    main(args.commit, args.data, args.output, args.scale)

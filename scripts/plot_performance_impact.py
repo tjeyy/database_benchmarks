@@ -18,18 +18,12 @@ def parse_args():
     parser.add_argument("commit", type=str)
     parser.add_argument("--data", "-d", type=str, default="./hyrise/cmake-build-release/benchmark_plugin_results")
     parser.add_argument("--output", "-o", type=str, default="./figures")
+    parser.add_argument("--scale", "-s", type=str, default="log", choices=["linear", "log", "symlog"])
     return parser.parse_args()
 
 
 def format_number(n):
-    if n < 1:
-        return str(n)
-    return str(int(n))
-
-    for x in [1, 3, 5, 10]:
-        if n == x:
-            return str(int(n))
-    return ""
+    return str(int(n)) if n % 1 == 0 else str(n)
 
 
 def to_s(lst):
@@ -69,7 +63,7 @@ def get_trend(old, new):
     return "same"
 
 
-def main(commit, data_dir, output_dir):
+def main(commit, data_dir, output_dir, scale):
     sns.set()
     sns.set_theme(style="whitegrid")
 
@@ -114,16 +108,17 @@ def main(commit, data_dir, output_dir):
         values = pd.DataFrame(data={"old": to_s(old_latencies), "new": to_s(new_latencies), "trend": trend})
         colors = {"worse": base_palette[1], "same": "grey", "better": base_palette[3]}
 
+        plt.axline(xy1=(0, 0), xy2=(1, 1), color="lightgrey")
         sns.scatterplot(data=values, x="old", y="new", palette=colors, hue="trend", s=80, legend=False)
 
         ax = plt.gca()
-        plt.ylabel("Latency w/ optimizations [s]", fontsize=8 * 2)
-        plt.xlabel("Base latency [s]", fontsize=8 * 2)
-        ax.tick_params(axis="both", which="major", labelsize=7 * 2)
-        ax.tick_params(axis="both", which="minor", labelsize=7 * 2)
 
-        ax.set_yscale("log")
-        ax.set_xscale("log")
+        if scale != "symlog":
+            ax.set_yscale(scale)
+            ax.set_xscale(scale)
+        else:
+            ax.set_yscale("symlog", linthresh=0.1)
+            ax.set_xscale("symlog", linthresh=0.1)
 
         print(
             benchmark,
@@ -137,37 +132,64 @@ def main(commit, data_dir, output_dir):
 
         min_lim = min(ax.get_ylim()[0], ax.get_xlim()[0])
         max_lim = max(ax.get_ylim()[1], ax.get_xlim()[1])
+        if scale == "symlog":
+            max_lim *= 1.3
+        print(ax.get_ylim()[1], ax.get_xlim()[1])
+        if scale != "log":
+            min_lim = 0
 
         possible_ticks_below_one = [10 ** (-exp) for exp in reversed(range(1, 4))]
-        possible_ticks_above_one = [1, 3, 5, 10]
+        possible_minor_ticks_below_one = [x / 100 for x in range(1, 10)] + [x / 10 for x in range(1, 10)]
+        possible_ticks_above_one = [1, 10]
+        possible_minor_ticks_above_one = list(range(2, 10))
+        if scale == "symlog":
+            possible_ticks_below_one = [0, 0.1]
+        elif scale == "linear":
+            possible_ticks_below_one = [0]
+            possible_ticks_above_one = list(range(1, 11))
+            possible_minor_ticks_below_one = []
+            possible_minor_ticks_above_one = []
         ticks = list()
-        for tick in possible_ticks_below_one:
-            if tick >= min_lim:
+        minor_ticks = list()
+        for tick in possible_ticks_below_one + possible_ticks_above_one:
+            if tick >= min_lim and tick <= max_lim:
                 ticks.append(tick)
-        for tick in possible_ticks_above_one:
-            if tick <= max_lim:
-                ticks.append(tick)
+
+        for tick in possible_minor_ticks_below_one + possible_minor_ticks_above_one:
+            if tick >= min_lim and tick <= max_lim:
+                minor_ticks.append(tick)
+
         ax.set_ylim(min_lim, max_lim)
         ax.set_xlim(min_lim, max_lim)
-
-        sns.lineplot(x=[min_lim, max_lim], y=[min_lim, max_lim], color="lightgrey", sizes=(0.2, 0.2), legend=False)
 
         ax.xaxis.set_major_locator(FixedLocator(ticks))
         ax.yaxis.set_major_locator(FixedLocator(ticks))
         ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
         ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
-        plt.grid(dashes=(3, 5))
+        ax.xaxis.set_minor_locator(FixedLocator(minor_ticks))
+        ax.yaxis.set_minor_locator(FixedLocator(minor_ticks))
+        plt.ylabel("Latency w/ optimizations [s]", fontsize=8 * 2)
+        plt.xlabel("Base latency [s]", fontsize=8 * 2)
+        ax.tick_params(
+            axis="both", which="major", labelsize=7 * 2, width=1, length=6, bottom=True, left=True, color="lightgrey"
+        )
+        ax.tick_params(
+            axis="both", which="minor", labelsize=7 * 2, width=0.5, length=4, bottom=True, left=True, color="lightgrey"
+        )
+        plt.grid(which="minor", axis="both", visible=True, linewidth=0.5, linestyle=":")
+        plt.grid(which="major", axis="both", visible=True)
 
         fig = plt.gcf()
         column_width = 3.3374
         fig_width = column_width * 0.475 * 2
         fig.set_size_inches(fig_width, fig_width)
+        ax.set_aspect(1)
         plt.tight_layout(pad=0)
 
-        plt.savefig(os.path.join(output_dir, f"{benchmark}_log.pdf"), dpi=300, bbox_inches="tight")
+        plt.savefig(os.path.join(output_dir, f"{benchmark}_{scale}.pdf"), dpi=300, bbox_inches="tight")
         plt.close()
 
 
 if __name__ == "__main__":
     args = parse_args()
-    main(args.commit, args.data, args.output)
+    main(args.commit, args.data, args.output, args.scale)

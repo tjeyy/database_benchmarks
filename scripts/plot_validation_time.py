@@ -9,7 +9,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-from matplotlib.ticker import FuncFormatter
+from matplotlib.ticker import FixedLocator, FuncFormatter
 
 
 def parse_args():
@@ -17,16 +17,15 @@ def parse_args():
     parser.add_argument("commit", type=str)
     parser.add_argument("--data", "-d", type=str, default="./hyrise/cmake-build-release/benchmark_plugin_results")
     parser.add_argument("--output", "-o", type=str, default="./figures")
+    parser.add_argument("--scale", "-s", type=str, default="log", choices=["linear", "log", "symlog"])
     return parser.parse_args()
 
 
 def format_number(n):
-    if n > 0 and n < 1:
-        return str(n)
-    return f"{int(n):,.0f}".replace(",", r"\thinspace")
+    return f"{int(n):,.0f}".replace(",", r"\thinspace") if n % 1 == 0 else str(n)
 
 
-def main(commit, data_dir, output_dir):
+def main(commit, data_dir, output_dir, scale):
     sns.set()
     sns.set_theme(style="whitegrid")
 
@@ -96,12 +95,12 @@ def main(commit, data_dir, output_dir):
             candidate_count = len(validation_times)
             benchmark_candidates += candidate_count
             print("   ", candidate_type, np.mean(validation_times), np.median(validation_times))
-            plot_data["type"] += [f"{candidate_type} ({candidate_count})"] * candidate_count
+            plot_data["type"] += [f"{candidate_type}\\thinspace({candidate_count})"] * candidate_count
 
         print("   ", benchmark_candidates, "candidates overall")
 
         order = ["OD", "IND", "UCC", "FD"]
-        unique_keys = sorted(set(plot_data["type"]), key=lambda x: order.index(x.split(" ")[0]))
+        unique_keys = sorted(set(plot_data["type"]), key=lambda x: order.index(x.split("\\")[0]))
 
         ax = sns.boxplot(
             data=plot_data,
@@ -117,16 +116,35 @@ def main(commit, data_dir, output_dir):
         )
 
         ax = plt.gca()
-        y_max = max(max(plot_data["time"]) * 1.5, 10)
         y_max = max(plot_data["time"]) * 1.5
-        ax.set_yscale("symlog", linthresh=0.1)
-        ax.set_ylim(0, y_max)
 
-        plt.xlabel("Candidate type ($\\#$)", fontsize=8 * 2)
+        if scale == "symlog":
+            ax.set_yscale("symlog", linthresh=0.1)
+        else:
+            ax.set_yscale(scale)
+        y_min = 0 if scale != "log" else ax.get_ylim()[0]
+        ax.set_ylim(y_min, y_max)
+
+        possible_minor_ticks = []
+        if scale != "linear":
+            factors = [1 / 100, 1 / 10, 1, 10, 100]
+            if scale == "log":
+                factors = [1 / 10000, 1 / 1000] + factors
+            for factor in factors:
+                possible_minor_ticks += [n * factor for n in range(1, 10)]
+
+        minor_ticks = list()
+        for tick in possible_minor_ticks:
+            if tick >= y_min and tick <= y_max:
+                minor_ticks.append(tick)
+
+        plt.xlabel(r"Candidate type\thinspace($\#$)", fontsize=8 * 2)
         plt.ylabel("Validation time [ms]", fontsize=8 * 2)
-        ax.tick_params(axis="both", which="major", labelsize=6 * 2)
-        ax.tick_params(axis="both", which="minor", labelsize=6 * 2)
+        ax.tick_params(axis="y", which="major", labelsize=7 * 2, width=1, length=6, left=True, color="lightgrey")
+        ax.tick_params(axis="y", which="minor", labelsize=7 * 2, width=0.5, length=4, left=True, color="lightgrey")
+        ax.tick_params(axis="x", which="major", labelsize=6 * 2)
         ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
+        ax.yaxis.set_minor_locator(FixedLocator(minor_ticks))
 
         fig = plt.gcf()
         column_width = 3.3374
@@ -134,10 +152,10 @@ def main(commit, data_dir, output_dir):
         fig.set_size_inches(fig_width, fig_width)
 
         plt.tight_layout(pad=0)
-        plt.savefig(os.path.join(output_dir, f"{benchmark}_validation.pdf"), dpi=300, bbox_inches="tight")
+        plt.savefig(os.path.join(output_dir, f"{benchmark}_validation_{scale}.pdf"), dpi=300, bbox_inches="tight")
         plt.close()
 
 
 if __name__ == "__main__":
     args = parse_args()
-    main(args.commit, args.data, args.output)
+    main(args.commit, args.data, args.output, args.scale)

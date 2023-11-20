@@ -22,10 +22,7 @@ def parse_args():
 
 
 def format_number(n):
-    if n < 1 and n > 0:
-        return str(n)
-
-    return f"{int(n):,.0f}".replace(",", r"\thinspace")
+    return f"{int(n):,.0f}".replace(",", r"\thinspace") if n % 1 == 0 else str(n)
 
 
 def to_s(v):

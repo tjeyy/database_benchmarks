@@ -9,7 +9,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-from matplotlib.ticker import FuncFormatter
+from matplotlib.ticker import FixedLocator, FuncFormatter
 from palettable.cartocolors.qualitative import Safe_6
 
 
@@ -18,13 +18,12 @@ def parse_args():
     parser.add_argument("commit", type=str)
     parser.add_argument("--data", "-d", type=str, default="./hyrise/cmake-build-release/benchmark_plugin_results")
     parser.add_argument("--output", "-o", type=str, default="./figures")
+    parser.add_argument("--scale", "-s", type=str, default="log", choices=["linear", "log", "symlog"])
     return parser.parse_args()
 
 
 def format_number(n):
-    if n < 1 and n > 0:
-        return str(n)
-    return f"{int(n):,.0f}".replace(",", r"\thinspace")
+    return f"{int(n):,.0f}".replace(",", r"\thinspace") if n % 1 == 0 else str(n)
 
 
 def get_discovery_times(common_path):
@@ -64,7 +63,7 @@ def get_discovery_times(common_path):
     return candidate_times
 
 
-def main(commit, data_dir, output_dir):
+def main(commit, data_dir, output_dir, scale):
     benchmarks = {"TPCH": "TPC-H", "TPCDS": "TPC-DS", "StarSchema": "SSB", "JoinOrder": "JOB"}
     bens = ["TPC-H", "TPC-DS", "SSB", "JOB"]
 
@@ -102,9 +101,8 @@ def main(commit, data_dir, output_dir):
 
     for benchmark, benchmark_title in benchmarks.items():
         sf_indicator = "" if benchmark_title == "JOB" else "_s10"
-        common_path = os.path.join(data_dir, f"hyriseBenchmark{benchmark}_{commit}_st{sf_indicator}_plugin")
-        old_path = os.path.join(data_dir, f"naive_validation_{benchmark_title.lower().replace('-', '')}.log")
-        new_path = common_path + ".log"
+        old_path = os.path.join(data_dir, f"hyriseBenchmark{benchmark}_st{sf_indicator}_plugin_naive.log")
+        new_path = os.path.join(data_dir, f"hyriseBenchmark{benchmark}_{commit}_st{sf_indicator}_plugin.log")
 
         discovery_times_old[benchmark_title] = get_discovery_times(old_path)
         discovery_times_new[benchmark_title] = get_discovery_times(new_path)
@@ -125,17 +123,58 @@ def main(commit, data_dir, output_dir):
             for b in bens
         ]
 
+        print(impl.upper())
+        res = [bens.copy(), [str(round(x, 2)) for x in t_sum]]
+        for i in range(len(bens)):
+            max_len = max([len(r[i]) for r in res])
+            for r in res:
+                r[i] = r[i].rjust(max_len)
+        for r in res:
+            print("  ".join(r))
+        print()
+
         ax = plt.gca()
         ax.bar(bar_positions, t_sum, bar_width, color=color, label=f"{impl[0].upper()}{impl[1:]}")
 
         for y, x in zip(t_sum, bar_positions):
-            label = str(round(y))
-            ax.text(x, y * 1.2, label, ha="center", va="bottom", size=7 * 2)
+            label = str(round(y, 1))
+            y = y * 1.2 if scale != "linear" else y + 100
+            ax.text(x, y, label, ha="center", va="bottom", size=7 * 2)
 
-    ax.set_yscale("symlog", linthresh=1)
-    min_lim, max_lim = ax.get_ylim()
-    ax.set_ylim(0, max_lim * 2)
-    ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
+    print("SPEEDUP")
+    for benchmark in bens:
+        discovery_time_old = (
+            sum(discovery_times_old[benchmark]["valid"])
+            + sum(discovery_times_old[benchmark]["invalid"])
+            + sum(discovery_times_old[benchmark]["skipped"])
+        )
+        discovery_time_new = (
+            sum(discovery_times_new[benchmark]["valid"])
+            + sum(discovery_times_new[benchmark]["invalid"])
+            + sum(discovery_times_new[benchmark]["skipped"])
+        )
+        print(f"{benchmark.rjust(max([len(b) for b in bens]))}: {discovery_time_old / discovery_time_new}")
+
+    if scale == "symlog":
+        ax.set_yscale("symlog", linthresh=1)
+    else:
+        ax.set_yscale(scale)
+    max_lim = ax.get_ylim()[1]
+    max_lim = max_lim * 2.5 if scale != "linear" else max_lim * 1.05
+    min_lim = 0 if scale != "log" else 1
+    ax.set_ylim(min_lim, max_lim)
+
+    possible_minor_ticks = []
+    if scale != "linear":
+        factors = [1, 10, 100, 1000]
+        if scale == "symlog":
+            factors = [1 / 10] + factors
+        for factor in factors:
+            possible_minor_ticks += [n * factor for n in range(1, 10)]
+    minor_ticks = list()
+    for tick in possible_minor_ticks:
+        if tick >= min_lim and tick <= max_lim:
+            minor_ticks.append(tick)
 
     plt.xticks(group_centers, bens, rotation=0)
     y_label = "Validation runtime [ms]"
@@ -143,9 +182,12 @@ def main(commit, data_dir, output_dir):
     plt.xlabel("Benchmark", fontsize=8 * 2)
     plt.legend(loc="best", fontsize=7 * 2, ncol=2, fancybox=False, framealpha=1.0)
     plt.grid(axis="x", visible=False)
-    ax.tick_params(axis="both", which="major", labelsize=7 * 2)
-    ax.tick_params(axis="both", which="minor", labelsize=7 * 2)
     fig = plt.gcf()
+
+    ax.tick_params(axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, color="lightgrey")
+    ax.tick_params(axis="y", which="minor", width=0.5, length=4, left=True, color="lightgrey")
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
+    ax.yaxis.set_minor_locator(FixedLocator(minor_ticks))
 
     column_width = 3.3374
     fig_width = column_width * 2
@@ -153,10 +195,10 @@ def main(commit, data_dir, output_dir):
     fig.set_size_inches(fig_width, fig_height)
     plt.tight_layout(pad=0)
 
-    plt.savefig(os.path.join(output_dir, "validation_improvement_.pdf"), dpi=300, bbox_inches="tight")
+    plt.savefig(os.path.join(output_dir, f"validation_improvement_{scale}.pdf"), dpi=300, bbox_inches="tight")
     plt.close()
 
 
 if __name__ == "__main__":
     args = parse_args()
-    main(args.commit, args.data, args.output)
+    main(args.commit, args.data, args.output, args.scale)

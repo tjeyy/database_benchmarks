@@ -116,8 +116,8 @@ def main(data_dir, output_dir):
     ax = plt.gca()
     plt.ylabel(r"Throughput improvement [\%]", fontsize=8 * 2)
     plt.xlabel("System", fontsize=8 * 2)
-    ax.tick_params(axis="both", which="major", labelsize=7 * 2)
-    ax.tick_params(axis="both", which="minor", labelsize=7 * 2)
+    ax.tick_params(axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, color="lightgrey")
+
     plt.grid(axis="x", visible=False)
     fig = plt.gcf()
     column_width = 3.3374

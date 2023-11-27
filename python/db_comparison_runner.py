@@ -6,6 +6,8 @@ import atexit
 import json
 import os
 import random
+import shutil
+import socket
 import statistics
 import struct
 import subprocess
@@ -197,7 +199,7 @@ if args.dbms == "monetdb":
         "--set",
         "gdk_nr_threads={}".format(args.cores),
     ]
-    print(" ".join(cmd))
+
     if args.clients > 62:
         cmd.extend(["--set", f"max_clients={args.clients + 2}"])
     if args.clients < 33:
@@ -252,7 +254,50 @@ elif args.dbms == "umbra":
 elif args.dbms == "greenplum":
     import psycopg2
 
-    raise NotImplementedError()
+    hostname = socket.gethostname()
+    host_file = os.path.join(os.getcwd(), "resources", "greenplum_hostfile.cfg")
+    config_file = os.path.join(os.getcwd(), "resources", "greenplum_config.cfg")
+
+    with open(host_file, "w") as f:
+        f.write(hostname)
+
+    gp_data_dir = os.path.join(Path.home(), "gp_data")
+    with open(config_file, "w") as f:
+        f.write("SEG_PREFIX=gpseg")
+        f.write(f"PORT_BASE={args.port + 1}")
+        f.write(f"declare -a DATA_DIRECTORY=({gp_data_dir})")
+        f.write(f"COORDINATOR_HOSTNAME={hostname}")
+        f.write(f"COORDINATOR_DIRECTORY={gp_data_dir}")
+        f.write(f"COORDINATOR_PORT={args.port}")
+        f.write("TRUSTED_SHELL=ssh")
+        f.write("ENCODING=UNICODE")
+        f.write("DATABASE_NAME=dbbench")
+        f.write(f"MACHINE_LIST_FILE={host_file}")
+
+    if os.path.isdir(gp_data_dir):
+        shutil.rmtree(gp_data_dir)
+    os.makedirs(gp_data_dir)
+
+    gp_home = os.path.join(Path.home(), "greenplum")
+    dbms_process = subprocess.Popen(
+        [
+            "numactl",
+            "-C",
+            "+0-+{}".format(args.cores - 1),
+            "-m",
+            str(args.memory_node),
+            os.path.join(gp_home, "bin", "gpinitsystem"),
+            "-B",
+            "1",
+            "-c",
+            host_file,
+            "-m",
+            str(args.clients),
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        env={"GPHOME", gp_home},
+    )
 
 
 def get_cursor():
@@ -271,7 +316,8 @@ def get_cursor():
     elif args.dbms == "umbra":
         connection = psycopg2.connect(host="/tmp", user="postgres")
     elif args.dbms == "greenplum":
-        raise NotImplementedError()
+        connection = psycopg2.connect(f"host=localhost port={args.port} dbname=dbbench")
+
     elif args.dbms == "hana":
         from hdbcli import dbapi
 
@@ -325,8 +371,10 @@ def import_data():
         load_command = """COPY INTO "{}" FROM '{}' USING DELIMITERS ',', '\n', '"' NULL AS '';"""
     elif args.dbms in ["hyrise", "hyrise-int"]:
         load_command = """COPY "{}" FROM '{}';"""
-    elif args.dbms in ["umbra", "greenplum"]:
+    elif args.dbms == "umbra":
         load_command = """COPY "{}" FROM '{}' WITH DELIMITER ',' NULL '';"""
+    elif args.dbms == "greenplum":
+        load_command = """COPY "{}" FROM '{}' WITH (FORMAT CSV, DELIMITER ',', NULL '', QUOTE '"');"""
     elif args.dbms == "hana":
         load_command = """IMPORT FROM CSV FILE '{}' INTO {} WITH FIELD DELIMITED BY ',';"""
 

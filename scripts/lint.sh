@@ -1,6 +1,6 @@
 #!/bin/bash
 
-output=$(flake8 --max-line-length 120 --exclude python/heplers/static_tpch_queries.py python)
+output=$(flake8 --max-line-length 120 --exclude python/queries python scripts)
 if [ -n "$output" ]; then
 	echo "$output"
 	exitcode=1

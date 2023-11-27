@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.11
 
-import math
+import argparse as ap
 import os
 import re
 from collections import defaultdict
@@ -8,18 +8,26 @@ from collections import defaultdict
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import seaborn as sns
-from matplotlib import rc
-from palettable.cartocolors.qualitative import Antique_6, Bold_6, Pastel_6, Prism_6, Safe_6, Vivid_6
+from matplotlib.ticker import FixedLocator, FuncFormatter
 
 
-def main():
+def parse_args():
+    parser = ap.ArgumentParser()
+    parser.add_argument("commit", type=str)
+    parser.add_argument("--data", "-d", type=str, default="./hyrise/cmake-build-release/benchmark_plugin_results")
+    parser.add_argument("--output", "-o", type=str, default="./figures")
+    parser.add_argument("--scale", "-s", type=str, default="log", choices=["linear", "log", "symlog"])
+    return parser.parse_args()
+
+
+def format_number(n):
+    return f"{int(n):,.0f}".replace(",", r"\thinspace") if n % 1 == 0 else str(n)
+
+
+def main(commit, data_dir, output_dir, scale):
     sns.set()
     sns.set_theme(style="whitegrid")
-    # plt.style.use('seaborn-colorblind')
-    # plt.rcParams['text.usetex'] = True
-    # plt.rcParams["font.family"] = "serif"
 
     mpl.use("pgf")
 
@@ -47,10 +55,6 @@ def main():
         }
     )
 
-    commit = "64fed166781996d29745cb99d662346e18ca8d74"
-    commit = "b456ab78a170a9bb38958ccebb1293e12ade555b"
-    commit = "9eb09b4feceb6eeb1c2bf8229f75ef7f6f8d001a"
-
     benchmarks = ["TPCH", "TPCDS", "JoinOrder", "StarSchema"]
     type_regex = re.compile(r"(?<=Checking )\w+(?= )")
     time_regexes = [
@@ -60,7 +64,6 @@ def main():
         re.compile(r"\d+(?=\sns)"),
     ]
     time_divs = list(reversed([1, 10**3, 10**6, 10**9]))
-    base_palette = Safe_6.hex_colors
 
     for benchmark in benchmarks:
         sf_indicator = "" if benchmark == "JoinOrder" else "_s10"
@@ -69,11 +72,11 @@ def main():
 
         candidate_times = defaultdict(list)
 
-        with open(common_path) as f:
-            for l in f:
-                if not l.startswith("Checking"):
+        with open(os.path.join(data_dir, common_path)) as f:
+            for line in f:
+                if not line.startswith("Checking"):
                     continue
-                line = l.strip()
+                line = line.strip()
                 candidate_type = type_regex.search(line).group()
                 candidate_time = 0
                 for regex, div in zip(time_regexes, time_divs):
@@ -91,20 +94,13 @@ def main():
             plot_data["time"] += validation_times
             candidate_count = len(validation_times)
             benchmark_candidates += candidate_count
-            print("   ", candidate_type, sorted(validation_times))
-            plot_data["type"] += [f"{candidate_type} ({candidate_count})"] * candidate_count
+            print("   ", candidate_type, np.mean(validation_times), np.median(validation_times))
+            plot_data["type"] += [f"{candidate_type}\\thinspace({candidate_count})"] * candidate_count
 
-        print("   ", benchmark_candidates)
+        print("   ", benchmark_candidates, "candidates overall")
 
-        unique_keys = sorted(set(plot_data["type"]))
-        palette = defaultdict()
-        for k in unique_keys:
-            color_index = 0
-            for c_id, dependency_type in enumerate(["FD", "IND", "OD", "UCC"]):
-                if k.startswith(dependency_type):
-                    color_index = c_id
-                    break
-            palette[k] = base_palette[c_id]
+        order = ["OD", "IND", "UCC", "FD"]
+        unique_keys = sorted(set(plot_data["type"]), key=lambda x: order.index(x.split("\\")[0]))
 
         ax = sns.boxplot(
             data=plot_data,
@@ -118,38 +114,48 @@ def main():
             medianprops={"c": "k"},
             capprops={"c": "k"},
         )
-        # iterate over boxes
-        # for i,box in enumerate(ax.artists):
-        #     box.set_edgecolor('black')
-        #     box.set_facecolor('white')
-
-        #     # iterate over whiskers and median lines
-        #     for j in range(6*i,6*(i+1)):
-        #          ax.lines[j].set_color('black')
-        # plt.setp(ax.artists, edgecolor = 'k', facecolor='w')
-        # plt.setp(ax.lines, color='k')
 
         ax = plt.gca()
-        ax.set_yscale("symlog")
-        ax.set_ylim(0, max(plot_data["time"]) * 1.5)
+        y_max = max(plot_data["time"]) * 1.5
 
-        plt.xlabel("Candidate type ($\\#$)", fontsize=8 * 2)
+        if scale == "symlog":
+            ax.set_yscale("symlog", linthresh=0.1)
+        else:
+            ax.set_yscale(scale)
+        y_min = 0 if scale != "log" else ax.get_ylim()[0]
+        ax.set_ylim(y_min, y_max)
+
+        possible_minor_ticks = []
+        if scale != "linear":
+            factors = [1 / 100, 1 / 10, 1, 10, 100]
+            if scale == "log":
+                factors = [1 / 10000, 1 / 1000] + factors
+            for factor in factors:
+                possible_minor_ticks += [n * factor for n in range(1, 10)]
+
+        minor_ticks = list()
+        for tick in possible_minor_ticks:
+            if tick >= y_min and tick <= y_max:
+                minor_ticks.append(tick)
+
+        plt.xlabel(r"Candidate type\thinspace($\#$)", fontsize=8 * 2)
         plt.ylabel("Validation time [ms]", fontsize=8 * 2)
-        ax.tick_params(axis="both", which="major", labelsize=6 * 2)
-        ax.tick_params(axis="both", which="minor", labelsize=6 * 2)
+        ax.tick_params(axis="y", which="major", labelsize=7 * 2, width=1, length=6, left=True, color="lightgrey")
+        ax.tick_params(axis="y", which="minor", labelsize=7 * 2, width=0.5, length=4, left=True, color="lightgrey")
+        ax.tick_params(axis="x", which="major", labelsize=6 * 2)
+        ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
+        ax.yaxis.set_minor_locator(FixedLocator(minor_ticks))
 
         fig = plt.gcf()
-        # fig.set_size_inches(18.5, 10.5)
-        min_size = min(fig.get_size_inches())
         column_width = 3.3374
         fig_width = column_width * 0.475 * 2
         fig.set_size_inches(fig_width, fig_width)
 
         plt.tight_layout(pad=0)
-        # print(os.path.join(output, f"{benchmark}_{file_indicator}_{config}_{metric}.{extension}"))
-        plt.savefig(f"{benchmark}_validation_{commit}.pdf", dpi=300, bbox_inches="tight")
+        plt.savefig(os.path.join(output_dir, f"{benchmark}_validation_{scale}.pdf"), dpi=300, bbox_inches="tight")
         plt.close()
 
 
 if __name__ == "__main__":
-    main()
+    args = parse_args()
+    main(args.commit, args.data, args.output, args.scale)

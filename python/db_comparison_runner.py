@@ -1,25 +1,23 @@
 #!/usr/bin/python3
-# Thanks to Markus Dreseler, who initially built this script, and Martin Boissier, Daniel Lindner and Daniel Ritter, who extended it.
+# Thanks to Markus Dreseler, who initially built this script, and Martin Boissier, who extended it.
 
 import argparse
 import atexit
-import glob
 import json
 import os
 import random
-import re
+import shutil
+import socket
 import statistics
 import struct
 import subprocess
 import sys
 import threading
 import time
-from datetime import datetime
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
-from helpers import static_job_queries, static_ssb_queries, static_tpcds_queries, static_tpch_queries
+from queries import static_job_queries, static_ssb_queries, static_tpcds_queries, static_tpch_queries
 
 # For a fair comparison, we use the same queries as the Umbra demo does.
 tpch_queries = static_tpch_queries.queries
@@ -120,6 +118,7 @@ parser.add_argument("--time", "-t", type=int, default=300)
 parser.add_argument("--port", "-p", type=int, default=5432)
 parser.add_argument("--clients", type=int, default=1)
 parser.add_argument("--cores", type=int, default=1)
+parser.add_argument("--memory_node", "-m", type=int, default=2)
 parser.add_argument("--benchmark", "-b", type=str, default="all", choices=["TPCH", "TPCDS", "JOB", "SSB", "all"])
 parser.add_argument("--hyrise_server_path", type=str, default="hyrise/cmake-build-release")
 parser.add_argument("--skip_warmup", action="store_true")
@@ -194,13 +193,13 @@ if args.dbms == "monetdb":
         "-C",
         f"+0-+{args.cores - 1}",
         "-m",
-        "2",
+        str(args.memory_node),
         "{}/monetdb_bin/bin/mserver5".format(Path.home()),
         "--dbpath={}/monetdb_farm".format(Path.home()),
         "--set",
         "gdk_nr_threads={}".format(args.cores),
     ]
-    print(" ".join(cmd))
+
     if args.clients > 62:
         cmd.extend(["--set", f"max_clients={args.clients + 2}"])
     if args.clients < 33:
@@ -220,7 +219,7 @@ elif args.dbms in ["hyrise", "hyrise-int"]:
             "-C",
             "+0-+{}".format(args.cores - 1),
             "-m",
-            "2",
+            str(args.memory_node),
             "{}/hyriseServer".format(hyrise_server_path),
             "-p",
             str(args.port),
@@ -242,7 +241,7 @@ elif args.dbms == "umbra":
             "-C",
             "+0-+{}".format(args.cores - 1),
             "-m",
-            "2",
+            str(args.memory_node),
             "{}/umbra/bin/server".format(Path.home()),
         ],
         stdout=subprocess.DEVNULL,
@@ -255,7 +254,50 @@ elif args.dbms == "umbra":
 elif args.dbms == "greenplum":
     import psycopg2
 
-    raise NotImplementedError()
+    hostname = socket.gethostname()
+    host_file = os.path.join(os.getcwd(), "resources", "greenplum_hostfile.cfg")
+    config_file = os.path.join(os.getcwd(), "resources", "greenplum_config.cfg")
+
+    with open(host_file, "w") as f:
+        f.write(hostname)
+
+    gp_data_dir = os.path.join(Path.home(), "gp_data")
+    with open(config_file, "w") as f:
+        f.write("SEG_PREFIX=gpseg")
+        f.write(f"PORT_BASE={args.port + 1}")
+        f.write(f"declare -a DATA_DIRECTORY=({gp_data_dir})")
+        f.write(f"COORDINATOR_HOSTNAME={hostname}")
+        f.write(f"COORDINATOR_DIRECTORY={gp_data_dir}")
+        f.write(f"COORDINATOR_PORT={args.port}")
+        f.write("TRUSTED_SHELL=ssh")
+        f.write("ENCODING=UNICODE")
+        f.write("DATABASE_NAME=dbbench")
+        f.write(f"MACHINE_LIST_FILE={host_file}")
+
+    if os.path.isdir(gp_data_dir):
+        shutil.rmtree(gp_data_dir)
+    os.makedirs(gp_data_dir)
+
+    gp_home = os.path.join(Path.home(), "greenplum")
+    dbms_process = subprocess.Popen(
+        [
+            "numactl",
+            "-C",
+            "+0-+{}".format(args.cores - 1),
+            "-m",
+            str(args.memory_node),
+            os.path.join(gp_home, "bin", "gpinitsystem"),
+            "-B",
+            "1",
+            "-c",
+            host_file,
+            "-m",
+            str(args.clients),
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        env={"GPHOME", gp_home},
+    )
 
 
 def get_cursor():
@@ -264,8 +306,7 @@ def get_cursor():
         while connection is None:
             try:
                 connection = pymonetdb.connect("", connect_timeout=600, autocommit=True)
-            except:
-                e = sys.exc_info()[0]
+            except Exception as e:
                 print(e)
                 time.sleep(1)
                 raise e
@@ -275,7 +316,8 @@ def get_cursor():
     elif args.dbms == "umbra":
         connection = psycopg2.connect(host="/tmp", user="postgres")
     elif args.dbms == "greenplum":
-        raise NotImplementedError()
+        connection = psycopg2.connect(f"host=localhost port={args.port} dbname=dbbench")
+
     elif args.dbms == "hana":
         from hdbcli import dbapi
 
@@ -322,24 +364,17 @@ def parse_csv_meta(meta):
 
 
 def import_data():
-    # hyrise
-    # """COPY "{}" FROM '{}';"""
-    # greenplum
-    # """COPY "{}" FROM '{}' WITH DELIMITER ',';"""
-    # monetdb
-    # """COPY INTO "{}" FROM '{}' USING DELIMITERS ',' NULL AS '';"""
-    # hana
-    # """IMPORT FROM CSV FILE '{}' INTO {} WITH FIELD DELIMITED BY ',';"""
-
     data_path = os.path.join(os.getcwd(), "resources/experiment_data")
-    table_files = sorted([f for f in os.listdir(data_path) if f.endswith(".csv") and not ".umbra." in f])
+    table_files = sorted([f for f in os.listdir(data_path) if f.endswith(".csv") and ".umbra." not in f])
 
     if args.dbms == "monetdb":
         load_command = """COPY INTO "{}" FROM '{}' USING DELIMITERS ',', '\n', '"' NULL AS '';"""
     elif args.dbms in ["hyrise", "hyrise-int"]:
         load_command = """COPY "{}" FROM '{}';"""
-    elif args.dbms in ["umbra", "greenplum"]:
+    elif args.dbms == "umbra":
         load_command = """COPY "{}" FROM '{}' WITH DELIMITER ',' NULL '';"""
+    elif args.dbms == "greenplum":
+        load_command = """COPY "{}" FROM '{}' WITH (FORMAT CSV, DELIMITER ',', NULL '', QUOTE '"');"""
     elif args.dbms == "hana":
         load_command = """IMPORT FROM CSV FILE '{}' INTO {} WITH FIELD DELIMITED BY ',';"""
 
@@ -349,24 +384,26 @@ def import_data():
     if args.dbms not in ["hyrise", "hyrise-int"]:
         for benchmark in ["tpch", "job", "ssb", "tpcds"]:
             with open(f"resources/schema_{benchmark}.sql") as f:
-                for l in f:
-                    line = l.strip()
-                    if not l:
+                for line in f:
+                    stripped_line = line.strip()
+                    if not stripped_line:
                         continue
                     if args.dbms == "hana":
                         cursor.execute(line.replace("text", "nvarchar(1024)"))
                     else:
-                        cursor.execute(line)
+                        cursor.execute(stripped_line)
 
     if args.dbms == "hana":
         cursor.execute(
-            f"alter system alter configuration ('indexserver.ini','SYSTEM') set ('import_export','enable_csv_import_path_filter') = 'false' with reconfigure;"
+            "alter system alter configuration ('indexserver.ini','SYSTEM') set "
+            "('import_export','enable_csv_import_path_filter') = 'false' with reconfigure;"
         )
 
     for t_id, table_file in enumerate(table_files):
         table_name = table_file[: -len(".csv")]
         table_file_path = f"{data_path}/{table_file}"
-        print(f" - ({t_id + 1}/{len(table_files)}) Import {table_name} from {table_file_path}")
+        print(f" - ({t_id + 1}/{len(table_files)}) Import {table_name} from {table_file_path}", end=" ")
+        start = time.time()
 
         if args.dbms == "monetdb" and table_name in tables["JOB"]:
             # MonetDB does not like some IMDB CSV files, so we encode them in their binary format.
@@ -413,11 +450,10 @@ def import_data():
                 )
 
         elif args.dbms == "umbra":  # and table_name in tables["JOB"]:
-            # Umbra seems to have issues as well, so we rewrite the CSVs with '\r' as delimiter (which is an ASCII
-            # character that does not occur in any file).
+            # Umbra seems to have issues as well, so we rewrite the CSVs with '|' or '\r' as delimiter (which is an
+            # ASCII character that does not occur in any file).
             new_file_path = f"{data_path}/{table_name}.umbra.csv"
             sep = "|" if table_name not in ["movie_info", "person_info"] else "\r"
-            # sep = "\r"
             if not os.path.isfile(new_file_path):
                 with open(table_file_path + ".json") as f:
                     meta = json.load(f)
@@ -426,7 +462,6 @@ def import_data():
                     table_file_path, header=None, names=column_names, dtype=column_types, keep_default_na=False
                 )
                 data.to_csv(new_file_path, sep=sep, header=False, index=False)
-            # print("""COPY "{}" FROM '{}' WITH DELIMITER '{}';""".format(table_name, new_file_path, sep))
             cursor.execute(
                 """COPY "{}" FROM '{}' WITH DELIMITER '{}' NULL '';""".format(table_name, new_file_path, sep)
             )
@@ -435,17 +470,14 @@ def import_data():
             cursor.execute(load_command.format(table_name, table_file_path))
 
         else:
-            # print("Importing table {}... with stmt {}".format(table_name, load_command.format(table_file_path, table_name)))
-            start = time.time()
             try:
                 cursor.execute(load_command.format(table_file_path, table_name))
                 cursor.execute(f"MERGE DELTA OF {table_name};")
             except Exception as e:
-                print("Failed to import table {}... with exception {}".format(table_name, e))
+                print("\nFailed to import table {}... with exception {}".format(table_name, e))
                 pass
-            end = time.time()
-            print("Imported data into table {} in {} sec.".format(table_name, end - start))
-            #  connection.commit()
+        end = time.time()
+        print(f"({round(end - start, 1)} s)")
 
     cursor.close()
     if args.dbms == "umbra":

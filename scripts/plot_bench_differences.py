@@ -1,22 +1,24 @@
 #!/usr/bin/env python3
 
-import math
+import argparse as ap
 import os
-import re
-from collections import defaultdict
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from matplotlib import rc
-from palettable.cartocolors.qualitative import Antique_6, Bold_6, Pastel_6, Prism_6, Safe_6, Vivid_6
+from palettable.cartocolors.qualitative import Safe_6
+
+
+def parse_args():
+    parser = ap.ArgumentParser()
+    parser.add_argument("--data", "-d", type=str, default="./db_comparison_results")
+    parser.add_argument("--output", "-o", type=str, default="./figures")
+    return parser.parse_args()
 
 
 def grep_throughput_change(old_result_file, new_result_file, clients, runtime):
-    # if not (os.path.isfile(old_result_file) and os.path.isfile(new_result_file)):
-    #    return 1
     df_old = pd.read_csv(old_result_file)
     df_new = pd.read_csv(new_result_file)
 
@@ -29,18 +31,16 @@ def grep_throughput_change(old_result_file, new_result_file, clients, runtime):
     return new_throughput / old_throughput
 
 
-def main():
+def main(data_dir, output_dir):
     clients = 32
-    runtime = 3600
-
+    runtime = 7200
     order = ["TPCH", "TPCDS", "SSB", "JOB"]
-
     changes = dict()
 
     for benchmark in order:
-        common_path = f"db_comparison_results/database_comparison__{benchmark}__hana"
-        old_path = common_path + ".csv"
-        new_path = common_path + "__rewrites.csv"
+        common_path = f"database_comparison__{benchmark}__hana"
+        old_path = os.path.join(data_dir, common_path + ".csv")
+        new_path = os.path.join(data_dir, common_path + "__rewrites.csv")
         changes[benchmark] = grep_throughput_change(old_path, new_path, clients, runtime)
 
     changes = {k: (v - 1) * 100 for k, v in changes.items()}
@@ -84,7 +84,8 @@ def main():
     )
 
     group_centers = np.arange(len(order))
-    colors = [c for c in Safe_6.hex_colors[: len(order)]]
+    benchmark_count = len(order)
+    colors = Safe_6.hex_colors[:benchmark_count]
 
     for d, color, pos in zip(order, colors, group_centers):
         plt.bar([pos], [changes[d]], bar_width, color=color)
@@ -103,9 +104,10 @@ def main():
     plt.tight_layout(pad=0)
     fig.set_size_inches(fig_width, fig_height)
 
-    plt.savefig(f"figures/benchmark_comparison.pdf", dpi=300, bbox_inches="tight")
+    plt.savefig(os.path.join(output_dir, "benchmark_comparison.pdf"), dpi=300, bbox_inches="tight")
     plt.close()
 
 
 if __name__ == "__main__":
-    main()
+    args = parse_args()
+    main(args.data, args.output)

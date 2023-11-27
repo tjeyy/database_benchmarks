@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 
-import math
+import argparse as ap
 import os
-import re
-from collections import defaultdict
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import seaborn as sns
-from matplotlib import rc
-from palettable.cartocolors.qualitative import Antique_6, Bold_6, Pastel_6, Prism_6, Safe_6, Vivid_6
+from palettable.cartocolors.qualitative import Safe_6
+
+
+def parse_args():
+    parser = ap.ArgumentParser()
+    parser.add_argument("--output", "-o", type=str, default="./figures")
+    return parser.parse_args()
 
 
 def to_ms(n):
@@ -22,7 +24,7 @@ def per(n):
     return round(n * 100, 2)
 
 
-def main():
+def main(output_dir):
     regular = {
         "TPC-DS Q26": 209395576.670000,
         "TPC-DS Q37": 552702500.750000,
@@ -107,12 +109,11 @@ def main():
 
     plt.xticks(group_centers, chosen, rotation=0)
     ax = plt.gca()
-    plt.legend(loc="upper center", fontsize=8 * 2, ncol=3, bbox_to_anchor=(0.5, 1.25), fancybox=False)
+    plt.legend(loc="upper center", fontsize=7 * 2, ncol=3, bbox_to_anchor=(0.5, 1.25), fancybox=False)
     plt.xlim([-3 * bar_width, 1 + 3 * bar_width])
     plt.ylabel("Latency [ms]", fontsize=8 * 2)
     plt.xlabel("Query", fontsize=8 * 2)
-    ax.tick_params(axis="both", which="major", labelsize=7 * 2)
-    ax.tick_params(axis="both", which="minor", labelsize=7 * 2)
+    ax.tick_params(axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, color="lightgrey")
     plt.grid(axis="x", visible=False)
     fig = plt.gcf()
     column_width = 3.3374
@@ -121,9 +122,9 @@ def main():
     fig.set_size_inches(fig_width, fig_height)
     plt.tight_layout(pad=0)
 
-    plt.savefig(f"figures/motivational_example.pdf", dpi=300, bbox_inches="tight")
+    plt.savefig(os.path.join(output_dir, "motivational_example.pdf"), dpi=300, bbox_inches="tight")
     plt.close()
 
 
 if __name__ == "__main__":
-    main()
+    main(parse_args().output)

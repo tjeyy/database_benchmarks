@@ -1,21 +1,26 @@
 #!/usr/bin/env python3
 
-import math
+import argparse as ap
 import os
-import re
-from collections import defaultdict
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from matplotlib import rc
-from palettable.cartocolors.qualitative import Antique_6, Bold_6, Pastel_6, Prism_6, Safe_6, Vivid_6
+from palettable.cartocolors.qualitative import Safe_6
+
+
+def parse_args():
+    parser = ap.ArgumentParser()
+    parser.add_argument("--data", "-d", type=str, default="./db_comparison_results")
+    parser.add_argument("--output", "-o", type=str, default="./figures")
+    return parser.parse_args()
 
 
 def grep_throughput_change(old_result_file, new_result_file, clients, runtime):
     if not (os.path.isfile(old_result_file) and os.path.isfile(new_result_file)):
+        print("-")
         return 1
     df_old = pd.read_csv(old_result_file)
     df_new = pd.read_csv(new_result_file)
@@ -23,34 +28,37 @@ def grep_throughput_change(old_result_file, new_result_file, clients, runtime):
     df_old = df_old[df_old.CLIENTS == clients]
     df_new = df_new[df_new.CLIENTS == clients]
 
+    print(
+        round((1 - (df_new["RUNTIME_MS"].mean() / 1000) / (df_old["RUNTIME_MS"].mean() / 1000)) * 100, 2), "%", sep=""
+    )
+
+    print(df_old["RUNTIME_MS"].mean() / 1000, df_new["RUNTIME_MS"].mean() / 1000)
+
     old_throughput = runtime / (df_old["RUNTIME_MS"].mean() / 1000)
     new_throughput = runtime / (df_new["RUNTIME_MS"].mean() / 1000)
 
     return new_throughput / old_throughput
 
 
-def main():
-    clients = 18
+def main(data_dir, output_dir):
+    clients = 32
     runtime = 7200
-
     order = list(reversed(["hyrise-int", "hyrise", "hana", "umbra", "monetdb", "greenplum"]))
-
     changes = dict()
 
-    for dbms in order[:-1]:
-        common_path = f"db_comparison_results/database_comparison__all__{dbms}"
-        old_path = common_path + ".csv"
-        new_path = common_path + "__rewrites.csv"
+    print("LATENCY")
+    for dbms in order:
+        print(dbms, end=": ")
+        common_path = f"database_comparison__all__{dbms}"
+        old_path = os.path.join(data_dir, common_path + ".csv")
+        new_path = os.path.join(data_dir, common_path + "__rewrites.csv")
+        if dbms == "hyrise-int":
+            new_path = old_path
+            old_path = os.path.join(data_dir, common_path[: -len("-int")] + ".csv")
         changes[dbms] = grep_throughput_change(old_path, new_path, clients, runtime)
-    changes["hyrise-int"] = grep_throughput_change(
-        "db_comparison_results/database_comparison__all__hyrise.csv",
-        "db_comparison_results/database_comparison__all__hyrise-int.csv",
-        clients,
-        runtime,
-    )
-
     changes = {k: (v - 1) * 100 for k, v in changes.items()}
 
+    print("THROUGHPUT")
     max_len = max([len(db) for db in order])
     for dbms in order:
         print(f"{dbms.rjust(max_len)}: {round(changes[dbms], 2)}%")
@@ -106,21 +114,22 @@ def main():
 
     plt.xticks(group_centers, [names[d] for d in order], rotation=0)
     ax = plt.gca()
-    plt.ylabel(r"Throughput improvement [\%]", fontsize=8 * 2)
+    plt.ylabel("Throughput\nimprovement [\\%]", fontsize=8 * 2)
     plt.xlabel("System", fontsize=8 * 2)
-    ax.tick_params(axis="both", which="major", labelsize=7 * 2)
-    ax.tick_params(axis="both", which="minor", labelsize=7 * 2)
+    ax.tick_params(axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, color="lightgrey")
+
     plt.grid(axis="x", visible=False)
     fig = plt.gcf()
     column_width = 3.3374
     fig_width = column_width * 2
     fig_height = column_width * 0.475 * 2
-    plt.tight_layout(pad=0)
     fig.set_size_inches(fig_width, fig_height)
+    plt.tight_layout(pad=0)
 
-    plt.savefig(f"figures/systems_comparison.pdf", dpi=300, bbox_inches="tight")
+    plt.savefig(os.path.join(output_dir, "systems_comparison.pdf"), dpi=300, bbox_inches="tight")
     plt.close()
 
 
 if __name__ == "__main__":
-    main()
+    args = parse_args()
+    main(args.data, args.output)

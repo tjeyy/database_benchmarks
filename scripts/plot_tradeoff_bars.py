@@ -1,35 +1,22 @@
 #!/usr/bin/env python3.11
 
+import argparse as ap
 import json
-import math
 import os
 import re
-from collections import defaultdict
 
-import latex
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import seaborn as sns
-from matplotlib import rc
-from matplotlib.ticker import FixedLocator, FuncFormatter, MaxNLocator
-from palettable.cartocolors.qualitative import Antique_6, Bold_6, Pastel_6, Prism_6, Safe_6, Vivid_6
 
 
-def format_number(n):
-    if n < 1:
-        return str(n)
-    return str(int(n))
-
-    for x in [1, 3, 5, 10]:
-        if n == x:
-            return str(int(n))
-    return ""
-
-
-def to_s(lst):
-    return [x / 10**9 for x in lst]
+def parse_args():
+    parser = ap.ArgumentParser()
+    parser.add_argument("commit", type=str)
+    parser.add_argument("--data", "-d", type=str, default="./hyrise/cmake-build-release/benchmark_plugin_results")
+    parser.add_argument("--output", "-o", type=str, default="./figures")
+    return parser.parse_args()
 
 
 def get_latency_improvement(old_path, new_path):
@@ -46,16 +33,10 @@ def get_latency_improvement(old_path, new_path):
     new_latencies = list()
 
     for old, new in zip(old_data["benchmarks"], new_data["benchmarks"]):
-        name = old["name"]
         # Create numpy arrays for old/new successful/unsuccessful runs from benchmark dictionary
         old_successful_durations = np.array([run["duration"] for run in old["successful_runs"]], dtype=np.float64)
         new_successful_durations = np.array([run["duration"] for run in new["successful_runs"]], dtype=np.float64)
-        old_unsuccessful_durations = np.array([run["duration"] for run in old["unsuccessful_runs"]], dtype=np.float64)
-        new_unsuccessful_durations = np.array([run["duration"] for run in new["unsuccessful_runs"]], dtype=np.float64)
         # np.mean() defaults to np.float64 for int input
-        # if "TPCDS" in old_path and "95" in name:
-        #    print("TPC-DS Q 95", to_s([np.mean(old_successful_durations), np.mean(new_successful_durations)]))
-        #    # continue
         old_latencies.append(np.mean(old_successful_durations))
         new_latencies.append(np.mean(new_successful_durations))
 
@@ -64,36 +45,33 @@ def get_latency_improvement(old_path, new_path):
 
 def get_discovery_time(common_path):
     time_regexes = [
-        re.compile(r"\d+(?=\ss)"),
-        re.compile(r"\d+(?=\sms)"),
-        re.compile(r"\d+(?=\sµs)"),
-        re.compile(r"\d+(?=\sns)"),
+        re.compile(r"\d+(?=\ss\s)"),
+        re.compile(r"\d+(?=\sms\s)"),
+        re.compile(r"\d+(?=\sµs\s)"),
+        re.compile(r"\d+(?=\sns\s)"),
     ]
     time_divs = list(reversed([1, 10**3, 10**6, 10**9]))
-    discovery_time_indicator = "Executed dependency discovery in "
+    generation_time_indicator = "Generated "
+    validation_time_indicator = "Validated "
+    discovery_time = 0
 
     with open(common_path) as f:
-        for l in f:
-            if not l.startswith(discovery_time_indicator):
+        for line in f:
+            if not (line.startswith(generation_time_indicator) or line.startswith(validation_time_indicator)):
                 continue
-            line = l.strip()[len(discovery_time_indicator) :]
-            candidate_time = 0
             for regex, div in zip(time_regexes, time_divs):
                 r = regex.search(line)
                 if not r:
                     continue
                 t = int(r.group(0))
-                candidate_time += t * div
+                discovery_time += t * div
 
-            return candidate_time
+    return discovery_time
 
 
-def main():
+def main(commit, data_dir, output_dir):
     sns.set()
     sns.set_theme(style="whitegrid")
-    # plt.style.use('seaborn-colorblind')
-    # plt.rcParams['text.usetex'] = True
-    # plt.rcParams["font.family"] = "serif"
 
     mpl.use("pgf")
 
@@ -121,14 +99,7 @@ def main():
         }
     )
 
-    commit = "64fed166781996d29745cb99d662346e18ca8d74"
-    commit = "b456ab78a170a9bb38958ccebb1293e12ade555b"
-    commit = "9eb09b4feceb6eeb1c2bf8229f75ef7f6f8d001a"
-
     benchmarks = {"TPCH": "TPC-H", "TPCDS": "TPC-DS", "StarSchema": "SSB", "JoinOrder": "JOB"}
-    all_scale_factors = range(1, 101)
-
-    base_palette = Safe_6.hex_colors
 
     latencies_old = dict()
     latencies_new = dict()
@@ -139,8 +110,8 @@ def main():
             sf_indicator = "" if benchmark_title == "JOB" else f"_s{scale_factor}"
             common_path = f"hyriseBenchmark{benchmark}_{commit}_st{sf_indicator}"
 
-            old_path = common_path + ".json"
-            new_path = common_path + "_plugin.json"
+            old_path = os.path.join(data_dir, common_path + "_all_off.json")
+            new_path = os.path.join(data_dir, common_path + "_plugin.json")
 
             latency_old, latency_new = get_latency_improvement(old_path, new_path)
             latencies_old[benchmark_title] = latency_old
@@ -148,7 +119,6 @@ def main():
             discovery_times[benchmark_title] = get_discovery_time(f"{common_path}_plugin.log")
 
     bar_width = 0.4
-    epsilon = 0.015
     margin = 0.00
 
     group_centers = np.arange(len(benchmarks))
@@ -193,9 +163,11 @@ def main():
     fig = plt.gcf()
     fig.set_size_inches(fig_width, fig_height)
     plt.tight_layout(pad=0)
-    plt.savefig(f"benchmarks_combined_s10.svg", dpi=300, bbox_inches="tight")
+    plt.savefig(os.path.join(output_dir, "benchmarks_combined_s10.svg"), dpi=300, bbox_inches="tight")
+    plt.savefig(os.path.join(output_dir, "benchmarks_combined_s10.pdf"), dpi=300, bbox_inches="tight")
     plt.close()
 
 
 if __name__ == "__main__":
-    main()
+    args = parse_args()
+    main(args.commit, args.data, args.output)

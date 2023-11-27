@@ -271,7 +271,7 @@ def get_cursor():
                 raise e
         connection.settimeout(600)
     elif args.dbms in ["hyrise", "hyrise-int"]:
-        connection = psycopg2.connect("host=localhost port={}".format(args.port), autocommit=True)
+        connection = psycopg2.connect("host=localhost port={}".format(args.port))
     elif args.dbms == "umbra":
         connection = psycopg2.connect(host="/tmp", user="postgres")
     elif args.dbms == "greenplum":

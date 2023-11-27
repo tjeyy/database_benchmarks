@@ -41,9 +41,10 @@ def get_discovery_times(common_path):
         re.compile(r"\d+(?=\sµs)"),
         re.compile(r"\d+(?=\sns)"),
     ]
-    candidate_regex = re.compile(r"(?<=Checking )\w+(?= )")
+    candidate_regex = re.compile(r"(?<=Checking )(?P<candidate_name>.+) \[(?P<status>.+) in")
     time_divs = list(reversed([1, 10**3, 10**6, 10**9]))
 
+    time_per_candidate = dict()
     candidate_times = defaultdict(list)
 
     with open(common_path) as f:
@@ -51,6 +52,8 @@ def get_discovery_times(common_path):
             match = candidate_regex.search(line.strip())
             if not match:
                 continue
+
+            print(match)
 
             candidate_time = 0
             for regex, div in zip(time_regexes, time_divs):
@@ -68,7 +71,7 @@ def get_discovery_times(common_path):
                 status = "skipped"
 
             candidate_times[status].append(candidate_time)
-    return candidate_times
+    return candidate_times, time_per_candidate
 
 
 def main(commit, data_dir, output_dir):

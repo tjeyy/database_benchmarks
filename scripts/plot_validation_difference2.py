@@ -33,10 +33,11 @@ def get_discovery_times(common_path):
         re.compile(r"\d+(?=\sµs)"),
         re.compile(r"\d+(?=\sns)"),
     ]
-    candidate_regex = re.compile(r"(?<=Checking )\w+(?= )")
+    candidate_regex = re.compile(r"(?<=Checking )(?P<candidate>[^\[]+) \[.+ in ")
     time_divs = list(reversed([1, 10**3, 10**6, 10**9]))
 
     candidate_times = defaultdict(list)
+    time_per_candidate = dict()
 
     with open(common_path) as f:
         for line in f:
@@ -60,7 +61,10 @@ def get_discovery_times(common_path):
                 status = "skipped"
 
             candidate_times[status].append(candidate_time)
-    return candidate_times
+            ts_start = match.end()
+            time_per_candidate[match.group("candidate")] = (status, candidate_time, line.strip()[ts_start:-1])
+
+    return candidate_times, time_per_candidate
 
 
 def main(commit, data_dir, output_dir, scale):
@@ -69,6 +73,9 @@ def main(commit, data_dir, output_dir, scale):
 
     discovery_times_old = dict()
     discovery_times_new = dict()
+
+    candidate_times_old = dict()
+    candidate_times_new = dict()
 
     sns.set()
     sns.set_theme(style="whitegrid")
@@ -104,8 +111,8 @@ def main(commit, data_dir, output_dir, scale):
         old_path = os.path.join(data_dir, f"hyriseBenchmark{benchmark}_st{sf_indicator}_plugin_naive.log")
         new_path = os.path.join(data_dir, f"hyriseBenchmark{benchmark}_{commit}_st{sf_indicator}_plugin.log")
 
-        discovery_times_old[benchmark_title] = get_discovery_times(old_path)
-        discovery_times_new[benchmark_title] = get_discovery_times(new_path)
+        discovery_times_old[benchmark_title], candidate_times_old[benchmark_title] = get_discovery_times(old_path)
+        discovery_times_new[benchmark_title], candidate_times_new[benchmark_title] = get_discovery_times(new_path)
 
     bar_width = 0.3
     margin = 0.02
@@ -154,6 +161,20 @@ def main(commit, data_dir, output_dir, scale):
             + sum(discovery_times_new[benchmark]["skipped"])
         )
         print(f"{benchmark.rjust(max([len(b) for b in bens]))}: {discovery_time_old / discovery_time_new}")
+
+    for benchmark in bens:
+        print(f"\nCOMPARISON {benchmark}")
+        for candidate in sorted(candidate_times_old[benchmark].keys()):
+            status_old, time_old, time_readable_old = candidate_times_old[benchmark][candidate]
+            status_new, time_new, time_readable_new = candidate_times_new[benchmark][candidate]
+            print(
+                candidate,
+                status_old,
+                status_new,
+                f"{round(time_new * 100 / time_old, 2)}%",
+                time_readable_old,
+                time_readable_new,
+            )
 
     if scale == "symlog":
         ax.set_yscale("symlog", linthresh=1)

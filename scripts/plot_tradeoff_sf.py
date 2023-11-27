@@ -5,13 +5,14 @@ import json
 import os
 import re
 from collections import defaultdict
+from math import ceil
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from matplotlib.ticker import FuncFormatter
+from matplotlib.ticker import FixedLocator, FuncFormatter
 from palettable.cartocolors.qualitative import Safe_6
 
 
@@ -24,7 +25,9 @@ def parse_args():
     return parser.parse_args()
 
 
-def format_number(n):
+def format_number(n, penalty_factor):
+    if n < 0:
+        n = n / abs(penalty_factor)
     return f"{int(n):,.0f}".replace(",", r"\thinspace") if n % 1 == 0 else str(n)
 
 
@@ -89,6 +92,7 @@ def get_discovery_time(common_path):
 def main(commit, data_dir, output_dir, scale):
     benchmarks = {"TPCH": "TPC-H", "TPCDS": "TPC-DS", "StarSchema": "SSB"}
     all_scale_factors = range(1, 101)
+    discovery_visualization_factor = -1
 
     base_palette = Safe_6.hex_colors
 
@@ -191,7 +195,7 @@ def main(commit, data_dir, output_dir, scale):
         indicator_benchmark = list()
 
         for benchmark, latency_improvement in lat_improvements.items():
-            discovery_time = disc_times[benchmark]
+            discovery_time = [t * discovery_visualization_factor for t in disc_times[benchmark]]
             assert len(discovery_time) == len(latency_improvement) and len(discovery_time) == len(scale_factors)
 
             x_axis_sf += scale_factors * 2
@@ -199,8 +203,8 @@ def main(commit, data_dir, output_dir, scale):
             y_axis_time += latency_improvement
             y_axis_time += discovery_time
 
-            indicator_measurement += ["Latency Improvement"] * len(latency_improvement)
-            indicator_measurement += ["Discovery Time"] * len(discovery_time)
+            indicator_measurement += ["Latency improvement"] * len(latency_improvement)
+            indicator_measurement += ["Discovery overhead"] * len(discovery_time)
 
             indicator_benchmark += [benchmark] * len(scale_factors) * 2
 
@@ -219,7 +223,7 @@ def main(commit, data_dir, output_dir, scale):
             }
         )
 
-        dashes = {"Discovery Time": (3, 3), "Latency Improvement": ""}
+        dashes = {"Discovery overhead": (3, 3), "Latency improvement": ""}
         markers = ["^", "X", "s", "D", ".", "o"]
 
         sns.lineplot(
@@ -236,12 +240,20 @@ def main(commit, data_dir, output_dir, scale):
 
         ax = plt.gca()
 
-        ax.set_yscale(scale)
+        if scale == "symlog":
+            ax.set_yscale("symlog", linthresh=1)
+        else:
+            ax.set_yscale(scale)
+        min_lim, max_lim = plt.ylim()
         if measurement_type == "rel":
-            plt.ylim((plt.ylim()[0], plt.ylim()[1] * 2))
-        ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
+            plt.ylim((min_lim, max_lim * 2))
+        elif scale == "linear":
+            plt.ylim((min_lim, max_lim * 1.1))
+        minimal_tick = [0.1 * discovery_visualization_factor] if abs(discovery_visualization_factor) != 1 else []
+        ax.yaxis.set_major_locator(FixedLocator(minimal_tick + list(range(0, ceil(plt.ylim()[1]), 25))))
+        ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x, discovery_visualization_factor)))
 
-        y_label = "Runtime [s]" if measurement_type == "abs" else "Share of Runtime [%]"
+        y_label = "Execution benefit [s]" if measurement_type == "abs" else "Share of Execution benefit [%]"
         plt.ylabel(y_label, fontsize=8 * 2)
         plt.xlabel("Scale factor", fontsize=8 * 2)
         plt.legend(fontsize=6 * 2, fancybox=False, framealpha=1.0, ncols=2)
@@ -250,7 +262,6 @@ def main(commit, data_dir, output_dir, scale):
         )
 
         fig = plt.gcf()
-
         column_width = 3.3374
         fig_width = column_width * 2
         fig_height = column_width * 0.475 * 2
@@ -263,6 +274,66 @@ def main(commit, data_dir, output_dir, scale):
             bbox_inches="tight",
         )
         plt.close()
+
+        for measurement in values.Measurement.unique():
+            pl_data = values[values.Measurement == measurement].copy()
+            if measurement == "Discovery overhead":
+                pl_data.y = pl_data.y * 1000 / discovery_visualization_factor
+            sns.lineplot(
+                data=pl_data,
+                x="x",
+                y="y",
+                style="Benchmark",
+                markers=markers[:3],
+                markersize=8,
+                hue="Benchmark",
+                dashes=False,
+                palette=base_palette[: len(benchmarks)],
+            )
+
+            ax = plt.gca()
+            if scale == "symlog":
+                thresh = 1 if measurement == "Latency improvement" else 0.01
+                ax.set_yscale("symlog", linthresh=thresh)
+            else:
+                ax.set_yscale(scale)
+            max_lim = plt.ylim()[1]
+            if scale != "log":
+                plt.ylim((0, max_lim))
+            ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x, 1)))
+            ax.xaxis.set_major_locator(FixedLocator([1] + list(range(20, 101, 20))))
+
+            y_label = measurement
+            time_unit = " [s]" if measurement == "Latency improvement" else " [ms]"
+            y_label += time_unit if measurement_type == "abs" else " [%]"
+            plt.ylabel(y_label, fontsize=8 * 2)
+            plt.xlabel("Scale factor", fontsize=8 * 2)
+            plt.legend(fontsize=7 * 2, fancybox=False, framealpha=1.0)
+            ax.tick_params(
+                axis="both",
+                which="major",
+                labelsize=7 * 2,
+                width=1,
+                length=6,
+                left=True,
+                bottom=True,
+                color="lightgrey",
+            )
+
+            fig = plt.gcf()
+            column_width = 3.3374
+            fig_width = column_width * 0.475 * 2
+            fig_height = column_width * 0.475 * 2
+            fig.set_size_inches(fig_width, fig_height)
+            plt.tight_layout(pad=0)
+
+            measurement_name = measurement.replace(" ", "_").lower()
+            plt.savefig(
+                os.path.join(output_dir, f"benchmarks_combined_sf_{measurement_type}_{measurement_name}_{scale}.pdf"),
+                dpi=300,
+                bbox_inches="tight",
+            )
+            plt.close()
 
 
 if __name__ == "__main__":

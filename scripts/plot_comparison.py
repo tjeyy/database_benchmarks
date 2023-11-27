@@ -114,7 +114,7 @@ def main(data_dir, output_dir):
 
     plt.xticks(group_centers, [names[d] for d in order], rotation=0)
     ax = plt.gca()
-    plt.ylabel(r"Throughput improvement [\%]", fontsize=8 * 2)
+    plt.ylabel("Throughput\nimprovement [\\%]", fontsize=8 * 2)
     plt.xlabel("System", fontsize=8 * 2)
     ax.tick_params(axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, color="lightgrey")
 
@@ -123,8 +123,8 @@ def main(data_dir, output_dir):
     column_width = 3.3374
     fig_width = column_width * 2
     fig_height = column_width * 0.475 * 2
-    plt.tight_layout(pad=0)
     fig.set_size_inches(fig_width, fig_height)
+    plt.tight_layout(pad=0)
 
     plt.savefig(os.path.join(output_dir, "systems_comparison.pdf"), dpi=300, bbox_inches="tight")
     plt.close()

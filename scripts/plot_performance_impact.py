@@ -134,7 +134,6 @@ def main(commit, data_dir, output_dir, scale):
         max_lim = max(ax.get_ylim()[1], ax.get_xlim()[1])
         if scale == "symlog":
             max_lim *= 1.3
-        print(ax.get_ylim()[1], ax.get_xlim()[1])
         if scale != "log":
             min_lim = 0
 
@@ -176,7 +175,7 @@ def main(commit, data_dir, output_dir, scale):
         ax.tick_params(
             axis="both", which="minor", labelsize=7 * 2, width=0.5, length=4, bottom=True, left=True, color="lightgrey"
         )
-        plt.grid(which="minor", axis="both", visible=True, linewidth=0.5, linestyle=":")
+        plt.grid(which="minor", axis="both", visible=True, linewidth=0.5, alpha=0.5)
         plt.grid(which="major", axis="both", visible=True)
 
         fig = plt.gcf()

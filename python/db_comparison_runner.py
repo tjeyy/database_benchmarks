@@ -124,6 +124,7 @@ parser.add_argument("--hyrise_server_path", type=str, default="hyrise/cmake-buil
 parser.add_argument("--skip_warmup", action="store_true")
 parser.add_argument("--skip_data_loading", action="store_true")
 parser.add_argument("--rewrites", action="store_true")
+parser.add_argument("--rows", action="store_true")
 args = parser.parse_args()
 
 if args.dbms in ["hyrise", "hyrise-int"]:
@@ -253,52 +254,70 @@ elif args.dbms == "umbra":
     print("done.")
 elif args.dbms == "greenplum":
     import psycopg2
-
+    """
     hostname = socket.gethostname()
     host_file = os.path.join(os.getcwd(), "resources", "greenplum_hostfile.cfg")
     config_file = os.path.join(os.getcwd(), "resources", "greenplum_config.cfg")
 
     with open(host_file, "w") as f:
-        f.write(hostname)
+        f.write(f"{hostname}\n")
 
     gp_data_dir = os.path.join(Path.home(), "gp_data")
     with open(config_file, "w") as f:
-        f.write("SEG_PREFIX=gpseg")
-        f.write(f"PORT_BASE={args.port + 1}")
-        f.write(f"declare -a DATA_DIRECTORY=({gp_data_dir})")
-        f.write(f"COORDINATOR_HOSTNAME={hostname}")
-        f.write(f"COORDINATOR_DIRECTORY={gp_data_dir}")
-        f.write(f"COORDINATOR_PORT={args.port}")
-        f.write("TRUSTED_SHELL=ssh")
-        f.write("ENCODING=UNICODE")
-        f.write("DATABASE_NAME=dbbench")
-        f.write(f"MACHINE_LIST_FILE={host_file}")
-
-    if os.path.isdir(gp_data_dir):
-        shutil.rmtree(gp_data_dir)
-    os.makedirs(gp_data_dir)
+        f.write("SEG_PREFIX=gpseg\n")
+        f.write(f"PORT_BASE={args.port + 1}\n")
+        f.write(f"declare -a DATA_DIRECTORY=({gp_data_dir})\n")
+        f.write(f"COORDINATOR_HOSTNAME={hostname}\n")
+        f.write(f"COORDINATOR_DIRECTORY={gp_data_dir}\n")
+        f.write(f"COORDINATOR_PORT={args.port}\n")
+        f.write("TRUSTED_SHELL=ssh\n")
+        f.write("ENCODING=UNICODE\n")
+        f.write("DATABASE_NAME=dbbench\n")
+        f.write(f"MACHINE_LIST_FILE={host_file}\n")
 
     gp_home = os.path.join(Path.home(), "greenplum")
+    # subprocess.Popen([os.path.join(gp_home, "bin", "gpstop"), "-a", "-d", os.path.join(gp_data_dir, "gpseg-1")], env={"GPHOME": gp_home}).wait()
+
+    #if os.path.isdir(gp_data_dir):
+    #    shutil.rmtree(gp_data_dir)
+    os.makedirs(gp_data_dir, exist_ok=True)
+
+    # gp_home = os.path.join(Path.home(), "greenplum")
+
+    # subprocess.Popen([os.path.join(gp_home, "bin", "gpstop"), "-d", os.path.join(gp_data_dir, "gpseg-1")
+
+    cmd = [
+             "numactl",
+             "-C",
+             "+0-+{}".format(args.cores - 1),
+             "-m",
+             str(args.memory_node),
+             os.path.join(gp_home, "bin", "gpinitsystem"),
+             "-B",
+             "1",
+             "-c",
+             config_file,
+             "-m",
+             str(args.clients),
+             "-a", "-l", os.path.join(Path.home(), "gpAdminLogs")
+    ]
+
+    print("GPHOME=", gp_home, " ", " ".join(cmd), sep="")
+
     dbms_process = subprocess.Popen(
-        [
-            "numactl",
-            "-C",
-            "+0-+{}".format(args.cores - 1),
-            "-m",
-            str(args.memory_node),
-            os.path.join(gp_home, "bin", "gpinitsystem"),
-            "-B",
-            "1",
-            "-c",
-            host_file,
-            "-m",
-            str(args.clients),
-        ],
+        " ".join(cmd),
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        env={"GPHOME", gp_home},
+        env={"GPHOME": gp_home}, shell=True
     )
+    time.sleep(5)
 
+    while True:
+        line = dbms_process.stdout.readline()
+        print(line.decode(), end="")
+        if b"has been configured to allow all hosts" in line:
+            break
+    """
 
 def get_cursor():
     if args.dbms == "monetdb":
@@ -316,7 +335,7 @@ def get_cursor():
     elif args.dbms == "umbra":
         connection = psycopg2.connect(host="/tmp", user="postgres")
     elif args.dbms == "greenplum":
-        connection = psycopg2.connect(f"host=localhost port={args.port} dbname=dbbench")
+        connection = psycopg2.connect(host="nemea", port=args.port, dbname="dbbench", user="bench", password="password")
 
     elif args.dbms == "hana":
         from hdbcli import dbapi
@@ -382,12 +401,18 @@ def import_data():
     print("- Loading data ...")
 
     if args.dbms not in ["hyrise", "hyrise-int"]:
+        for table_file in table_files:
+            table_name = table_file[: -len(".csv")]
+            cursor.execute(f'DROP TABLE IF EXISTS "{table_name}";')
         for benchmark in ["tpch", "job", "ssb", "tpcds"]:
             with open(f"resources/schema_{benchmark}.sql") as f:
                 for line in f:
                     stripped_line = line.strip()
                     if not stripped_line:
                         continue
+                    if args.dbms == "greenplum" and not args.rows:
+                        stripped_line = stripped_line[:-1] if stripped_line.endswith(";") else stripped_line;
+                        stripped_line += "WITH (appendoptimized=true, orientation=column);"
                     if args.dbms == "hana":
                         cursor.execute(line.replace("text", "nvarchar(1024)"))
                     else:
@@ -480,7 +505,7 @@ def import_data():
         print(f"({round(end - start, 1)} s)")
 
     cursor.close()
-    if args.dbms == "umbra":
+    if args.dbms in ["umbra", "greenplum"]:
         connection.commit()
     connection.close()
 
@@ -644,9 +669,10 @@ for query_id in benchmark_queries:
 
     runtimes[query_name] = successful_runs
 
+row_suffix = "-rows" if args.rows else ""
 rewrite_suffix = "__rewrites" if args.rewrites else ""
-result_csv_filename = "db_comparison_results/database_comparison__{}__{}{}.csv".format(
-    args.benchmark, args.dbms, rewrite_suffix
+result_csv_filename = "db_comparison_results/database_comparison__{}__{}{}{}.csv".format(
+    args.benchmark, args.dbms, row_suffix, rewrite_suffix
 )
 result_csv_exists = Path(result_csv_filename).exists()
 with open(result_csv_filename, "a" if result_csv_exists else "w") as result_csv:

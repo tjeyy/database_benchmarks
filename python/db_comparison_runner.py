@@ -106,12 +106,6 @@ tables = {
     "SSB": ["customer", "date", "lineorder", "part", "supplier"],
 }
 
-"""
-shared table names
-TPC-H SSB {'supplier', 'customer', 'part'}
-TPC-DS SSB {'customer'}
-"""
-
 parser = argparse.ArgumentParser()
 parser.add_argument("dbms", type=str, choices=["monetdb", "hyrise", "greenplum", "umbra", "hana", "hyrise-int"])
 parser.add_argument("--time", "-t", type=int, default=300)
@@ -130,9 +124,6 @@ args = parser.parse_args()
 if args.dbms in ["hyrise", "hyrise-int"]:
     hyrise_server_path = Path(args.hyrise_server_path).expanduser().resolve()
     assert (hyrise_server_path / "hyriseServer").exists(), "Please pass valid --hyrise_server_path"
-
-# monetdb_scale_factor_string = str(args.scale_factor).replace(".", "_")
-# duckdb_scale_factor_string = int(args.scale_factor) if args.scale_factor >= 1.0 else args.scale_factor
 
 assert (
     args.clients == 1 or args.time >= 300
@@ -254,70 +245,10 @@ elif args.dbms == "umbra":
     print("done.")
 elif args.dbms == "greenplum":
     import psycopg2
-    """
-    hostname = socket.gethostname()
-    host_file = os.path.join(os.getcwd(), "resources", "greenplum_hostfile.cfg")
-    config_file = os.path.join(os.getcwd(), "resources", "greenplum_config.cfg")
 
-    with open(host_file, "w") as f:
-        f.write(f"{hostname}\n")
+    print("Make sure to start Greenplum before by running ./scripts/greenplum_init.sh")
+    time.sleep(1)
 
-    gp_data_dir = os.path.join(Path.home(), "gp_data")
-    with open(config_file, "w") as f:
-        f.write("SEG_PREFIX=gpseg\n")
-        f.write(f"PORT_BASE={args.port + 1}\n")
-        f.write(f"declare -a DATA_DIRECTORY=({gp_data_dir})\n")
-        f.write(f"COORDINATOR_HOSTNAME={hostname}\n")
-        f.write(f"COORDINATOR_DIRECTORY={gp_data_dir}\n")
-        f.write(f"COORDINATOR_PORT={args.port}\n")
-        f.write("TRUSTED_SHELL=ssh\n")
-        f.write("ENCODING=UNICODE\n")
-        f.write("DATABASE_NAME=dbbench\n")
-        f.write(f"MACHINE_LIST_FILE={host_file}\n")
-
-    gp_home = os.path.join(Path.home(), "greenplum")
-    # subprocess.Popen([os.path.join(gp_home, "bin", "gpstop"), "-a", "-d", os.path.join(gp_data_dir, "gpseg-1")], env={"GPHOME": gp_home}).wait()
-
-    #if os.path.isdir(gp_data_dir):
-    #    shutil.rmtree(gp_data_dir)
-    os.makedirs(gp_data_dir, exist_ok=True)
-
-    # gp_home = os.path.join(Path.home(), "greenplum")
-
-    # subprocess.Popen([os.path.join(gp_home, "bin", "gpstop"), "-d", os.path.join(gp_data_dir, "gpseg-1")
-
-    cmd = [
-             "numactl",
-             "-C",
-             "+0-+{}".format(args.cores - 1),
-             "-m",
-             str(args.memory_node),
-             os.path.join(gp_home, "bin", "gpinitsystem"),
-             "-B",
-             "1",
-             "-c",
-             config_file,
-             "-m",
-             str(args.clients),
-             "-a", "-l", os.path.join(Path.home(), "gpAdminLogs")
-    ]
-
-    print("GPHOME=", gp_home, " ", " ".join(cmd), sep="")
-
-    dbms_process = subprocess.Popen(
-        " ".join(cmd),
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        env={"GPHOME": gp_home}, shell=True
-    )
-    time.sleep(5)
-
-    while True:
-        line = dbms_process.stdout.readline()
-        print(line.decode(), end="")
-        if b"has been configured to allow all hosts" in line:
-            break
-    """
 
 def get_cursor():
     if args.dbms == "monetdb":
@@ -411,7 +342,7 @@ def import_data():
                     if not stripped_line:
                         continue
                     if args.dbms == "greenplum" and not args.rows:
-                        stripped_line = stripped_line[:-1] if stripped_line.endswith(";") else stripped_line;
+                        stripped_line = stripped_line[:-1] if stripped_line.endswith(";") else stripped_line
                         stripped_line += "WITH (appendoptimized=true, orientation=column);"
                     if args.dbms == "hana":
                         cursor.execute(line.replace("text", "nvarchar(1024)"))
@@ -474,7 +405,7 @@ def import_data():
                     )
                 )
 
-        elif args.dbms == "umbra":  # and table_name in tables["JOB"]:
+        elif args.dbms == "umbra":
             # Umbra seems to have issues as well, so we rewrite the CSVs with '|' or '\r' as delimiter (which is an
             # ASCII character that does not occur in any file).
             new_file_path = f"{data_path}/{table_name}.umbra.csv"

@@ -156,7 +156,12 @@ def main(commit, data_dir):
 
         stats = get_discovery_stats(log_file, count_skipped=False)
         discovery_time = to_ms(parse_duration(stats[2]) + parse_duration(stats[3]))
-        result = [to_s(base_latency), to_s(opt_latency - base_latency), perc(base_latency, opt_latency)] + stats[:2]  + [discovery_time] + stats[2:]
+        result = (
+            [to_s(base_latency), to_s(opt_latency - base_latency), perc(base_latency, opt_latency)]
+            + stats[:2]
+            + [discovery_time]
+            + stats[2:]
+        )
 
         print(" & ".join(result))
 

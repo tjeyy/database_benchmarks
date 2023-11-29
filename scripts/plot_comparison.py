@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from palettable.cartocolors.qualitative import Safe_6
+from palettable.cartocolors.qualitative import Safe_10
 
 
 def parse_args():
@@ -43,7 +43,7 @@ def grep_throughput_change(old_result_file, new_result_file, clients, runtime):
 def main(data_dir, output_dir):
     clients = 32
     runtime = 7200
-    order = list(reversed(["hyrise-int", "hyrise", "hana", "umbra", "monetdb", "greenplum"]))
+    order = list(reversed(["hyrise-int", "hyrise", "umbra", "hana", "monetdb", "greenplum"]))
     changes = dict()
 
     print("LATENCY")
@@ -68,8 +68,9 @@ def main(data_dir, output_dir):
         "hyrise": "Hyrise",
         "monetdb": "MonetDB",
         "umbra": "Umbra",
-        "hana": "System X",
+        "hana": "HANA",
         "greenplum": "Greenplum",
+        "greenplum-rows": "Greenplum\n(row)",
     }
 
     sns.set()
@@ -107,7 +108,7 @@ def main(data_dir, output_dir):
     group_centers = np.arange(len(order))
     db_count = len(order) - 1
     hatches = [None] * db_count + ["/"]
-    colors = [c for c in Safe_6.hex_colors[:db_count]] + [Safe_6.hex_colors[db_count - 1]]
+    colors = [c for c in Safe_10.hex_colors[:db_count]] + [Safe_10.hex_colors[db_count - 1]]
 
     for d, color, pos, h in zip(order, colors, group_centers, hatches):
         plt.bar([pos], [changes[d]], bar_width, color=color, hatch=h)

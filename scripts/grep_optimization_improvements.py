@@ -55,16 +55,19 @@ def get_old_new_latency(old_path, new_path):
     return sum(old_latencies), sum(new_latencies)
 
 
-def get_discovery_stats(file_name):
+def get_discovery_stats(file_name, count_skipped=True):
     prefix = "Executed dependency discovery in "
     time_re = re.compile(r"(?<= in ).+")
     candidate_count = None
     valid_count = None
     generation_time = None
     validation_time = None
+    confirmed_count = 0
     candidate_regex = re.compile(r"Validated (?P<candidate>\d+) candidates \((?P<valid>\d+) valid")
     with open(file_name) as f:
         for line in f:
+            if "confirmed" in line:
+                confirmed_count += 1
             if "Generated " in line or "Validated " in line:
                 match = time_re.search(line)
                 assert match is not None
@@ -74,6 +77,7 @@ def get_discovery_stats(file_name):
                     validation_time = match.group()
 
             if prefix in line:
+                valid_count = valid_count if count_skipped else str(confirmed_count)
                 result = [candidate_count, valid_count, generation_time, validation_time]
                 assert all([x is not None for x in result])
                 return result
@@ -146,17 +150,15 @@ def main(commit, data_dir):
         if benchmark != "JoinOrder":
             common_path += "_s10"
         base_file = common_path + "_schema.json"
-        opt_file = common_path + "_schema_plugin.json"
+        opt_file = common_path + "_plugin.json"
         log_file = common_path + "_schema_plugin.log"
         base_latency, opt_latency = get_old_new_latency(base_file, opt_file)
 
-        print(
-            to_s(base_latency),
-            to_s(opt_latency - base_latency),
-            perc(base_latency, opt_latency),
-            get_discovery_stats(log_file),
-            sep=" & ",
-        )
+        stats = get_discovery_stats(log_file, count_skipped=False)
+        discovery_time = to_ms(parse_duration(stats[2]) + parse_duration(stats[3]))
+        result = [to_s(base_latency), to_s(opt_latency - base_latency), perc(base_latency, opt_latency)] + stats[:2]  + [discovery_time] + stats[2:]
+
+        print(" & ".join(result))
 
 
 if __name__ == "__main__":

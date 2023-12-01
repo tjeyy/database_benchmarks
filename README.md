@@ -12,8 +12,9 @@ git submodule update --init --recurive
 cd hyrise
 ./install_dependencies.sh
 mkdir cmake-build-release && cd cmake-build-release
-# You can configure the compiler via `-DCMAKE_C_COMPILER=<c_compiler> -DCMAKE_CXX_COMPILER=<cxx_compiler>`.
-# We used LLVM-14, i.e., `-DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14`.
+# You can configure the compiler via
+# `-DCMAKE_C_COMPILER=<c_compiler> -DCMAKE_CXX_COMPILER=<cxx_compiler>`. We used LLVM-14, i.e.,
+# `-DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14`.
 cmake -DCMAKE_BUILD_TYPE=Release ..
 make hyriseBenchmarkTPCH hyriseBenchmarkTPCDS  hyriseBenchmarkStarSchema hyriseBenchmarkJoinOrder \
      hyriseServer hyriseDependencyDiscoveryPlugin -j $(nproc)
@@ -26,8 +27,9 @@ FORCE_CLEAN=false ../scripts/benchmark_single_optimizations.sh HEAD
 # 2. Combined optimizations for different scale factors. Running this will take multiple days.
 FORCE_CLEAN=false ../scripts/benchmark_compare_plugin_sf.sh HEAD
 # 3. Throughput for Hyrise using no optimizations, external rewrites, and the internal optimizer.
-# Expected to take ca. 8h. We expect this to be bound to one NUMA node and the scripts should be limited
-# using numactl. In our experiments, we used 32 clients and 56 logical cores on one NUMA node.
+#    Expected to take ca. 8h. We expect this to be bound to one NUMA node and the scripts should
+#    be limited using numactl. In our experiments, we used 32 clients and 56 logical cores on one
+#    NUMA node.
 cd ../..
 ./scripts/db_comparison_runner.py hyrise --clients <clients> --cores <cores> -m <node_id>
 ./scripts/db_comparison_runner.py hyrise --rewrites --clients <clients> --cores <cores> -m <node_id>

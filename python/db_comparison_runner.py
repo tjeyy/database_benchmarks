@@ -108,7 +108,7 @@ tables = {
 
 parser = argparse.ArgumentParser()
 parser.add_argument("dbms", type=str, choices=["monetdb", "hyrise", "greenplum", "umbra", "hana", "hyrise-int"])
-parser.add_argument("--time", "-t", type=int, default=300)
+parser.add_argument("--time", "-t", type=int, default=7200)
 parser.add_argument("--port", "-p", type=int, default=5432)
 parser.add_argument("--clients", type=int, default=1)
 parser.add_argument("--cores", type=int, default=1)

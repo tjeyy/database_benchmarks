@@ -9,7 +9,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-from matplotlib.ticker import FuncFormatter
+from matplotlib.ticker import FixedLocator, FuncFormatter
 from palettable.cartocolors.qualitative import Safe_6
 
 
@@ -18,20 +18,12 @@ def parse_args():
     parser.add_argument("commit", type=str)
     parser.add_argument("--data", "-d", type=str, default="./hyrise/cmake-build-release/benchmark_plugin_results")
     parser.add_argument("--output", "-o", type=str, default="./figures")
+    parser.add_argument("--scale", "-s", type=str, default="log", choices=["linear", "log", "symlog"])
     return parser.parse_args()
 
 
 def format_number(n):
     return f"{int(n):,.0f}".replace(",", r"\thinspace") if n % 1 == 0 else str(n)
-
-
-def to_s(v):
-    def val_to_s(x):
-        return x / 10**9
-
-    if type(v) != list:
-        return val_to_s(v)
-    return [val_to_s(i) for i in v]
 
 
 def get_discovery_times(common_path):
@@ -41,19 +33,17 @@ def get_discovery_times(common_path):
         re.compile(r"\d+(?=\sµs)"),
         re.compile(r"\d+(?=\sns)"),
     ]
-    candidate_regex = re.compile(r"(?<=Checking )(?P<candidate_name>.+) \[(?P<status>.+) in")
+    candidate_regex = re.compile(r"(?<=Checking )(?P<candidate>[^\[]+) \[.+ in ")
     time_divs = list(reversed([1, 10**3, 10**6, 10**9]))
 
-    time_per_candidate = dict()
     candidate_times = defaultdict(list)
+    time_per_candidate = dict()
 
     with open(common_path) as f:
         for line in f:
             match = candidate_regex.search(line.strip())
             if not match:
                 continue
-
-            print(match)
 
             candidate_time = 0
             for regex, div in zip(time_regexes, time_divs):
@@ -71,15 +61,21 @@ def get_discovery_times(common_path):
                 status = "skipped"
 
             candidate_times[status].append(candidate_time)
+            ts_start = match.end()
+            time_per_candidate[match.group("candidate")] = (status, candidate_time, line.strip()[ts_start:-1])
+
     return candidate_times, time_per_candidate
 
 
-def main(commit, data_dir, output_dir):
+def main(commit, data_dir, output_dir, scale):
     benchmarks = {"TPCH": "TPC-H", "TPCDS": "TPC-DS", "StarSchema": "SSB", "JoinOrder": "JOB"}
     bens = ["TPC-H", "TPC-DS", "SSB", "JOB"]
 
     discovery_times_old = dict()
     discovery_times_new = dict()
+
+    candidate_times_old = dict()
+    candidate_times_new = dict()
 
     sns.set()
     sns.set_theme(style="whitegrid")
@@ -112,117 +108,118 @@ def main(commit, data_dir, output_dir):
 
     for benchmark, benchmark_title in benchmarks.items():
         sf_indicator = "" if benchmark_title == "JOB" else "_s10"
-        common_path = os.path.join(data_dir, f"hyriseBenchmark{benchmark}_{commit}_st{sf_indicator}_plugin")
-        old_path = os.path.join(data_dir, f"naive_validation_{benchmark_title.lower().replace('-', '')}.log")
-        new_path = common_path + ".log"
+        old_path = os.path.join(data_dir, f"hyriseBenchmark{benchmark}_st{sf_indicator}_plugin_naive.log")
+        new_path = os.path.join(data_dir, f"hyriseBenchmark{benchmark}_{commit}_st{sf_indicator}_plugin.log")
 
-        discovery_times_old[benchmark_title] = get_discovery_times(old_path)
-        discovery_times_new[benchmark_title] = get_discovery_times(new_path)
+        discovery_times_old[benchmark_title], candidate_times_old[benchmark_title] = get_discovery_times(old_path)
+        discovery_times_new[benchmark_title], candidate_times_new[benchmark_title] = get_discovery_times(new_path)
 
-    def get_color(status, impl):
-        if status == "skipped":
-            return Safe_6.hex_colors[4]
-        # valid naive = 0
-        # valid meta = 1
-        # invalid naiv = 2
-        # invalid meta = 3
-        base = 2 if impl == "optimized" else 0
-        offset = 0 if status == "valid" else 1
-        return Safe_6.hex_colors[base + offset]
-
-    bar_width = 0.2
-    margin = 0.01
+    bar_width = 0.3
+    margin = 0.02
 
     group_centers = np.arange(len(benchmarks))
-    offsets = [-0.5, 0.5]
-    offsets = [-0.5, 0.5]
+    offsets = [-1, 1]
 
-    sums = []
-
-    for impl, disc_times, offset in zip(
-        [r"na\"{i}ve", "optimized"], [discovery_times_old, discovery_times_new], offsets
+    for impl, disc_times, offset, color in zip(
+        [r"na\"{i}ve", "optimized"], [discovery_times_old, discovery_times_new], offsets, Safe_6.hex_colors[:2]
     ):
-        bar_positions_a = [p + 3 * offset * (bar_width + margin) for p in group_centers]
-        bar_positions_b = [p + offset * (bar_width + margin) for p in group_centers]
-        if impl != r"na\"{i}ve":
-            bar_positions_a, bar_positions_b = [bar_positions_b, bar_positions_a]
-        bar_positions_s = [(x + y) / 2 for x, y in zip(bar_positions_a, bar_positions_b)]
 
-        t_invalid = [sum(disc_times[b]["invalid"]) / 10**6 for b in bens]
-        t_valid = [(sum(disc_times[b]["valid"]) + sum(disc_times[b]["skipped"])) / 10**6 for b in bens]
+        bar_positions = [p + offset * (0.5 * bar_width + margin) for p in group_centers]
         t_sum = [
             (sum(disc_times[b]["valid"]) + sum(disc_times[b]["invalid"]) + sum(disc_times[b]["skipped"])) / 10**6
             for b in bens
         ]
+
+        print(impl.upper())
+        res = [bens.copy(), [str(round(x, 2)) for x in t_sum]]
+        for i in range(len(bens)):
+            max_len = max([len(r[i]) for r in res])
+            for r in res:
+                r[i] = r[i].rjust(max_len)
+        for r in res:
+            print("  ".join(r))
+        print()
+
         ax = plt.gca()
-        ax.bar(bar_positions_s, t_sum, bar_width, color="lightgrey")
-        ax.bar(bar_positions_a, t_valid, bar_width, color=get_color("valid", impl), label=f"Valid {impl}")
-        # ax.bar(bar_positions, t_skip, bar_width, color=get_color("skipped", impl), label=f"Skipped")
-        ax.bar(bar_positions_b, t_invalid, bar_width, color=get_color("invalid", impl), label=f"Invalid {impl}")
+        ax.bar(bar_positions, t_sum, bar_width, color=color, label=f"{impl[0].upper()}{impl[1:]}")
 
-        sums.append((t_sum, bar_positions_s))
+        for y, x in zip(t_sum, bar_positions):
+            label = str(round(y, 1))
+            y = y * 1.2 if scale != "linear" else y + 100
+            ax.text(x, y, label, ha="center", va="bottom", size=7 * 2)
 
-        for values, positions in [(t_invalid, bar_positions_b), (t_valid, bar_positions_a)]:
-            for v, x in zip(values, positions):
-                y = max(v, 0.1)
-                label = str(round(v, 1))
-                label = label if label != "0.0" else r"$\ast$"
-                ax.text(x, y * 1.1, label, ha="center", va="bottom")
+    print("SPEEDUP")
+    for benchmark in bens:
+        discovery_time_old = (
+            sum(discovery_times_old[benchmark]["valid"])
+            + sum(discovery_times_old[benchmark]["invalid"])
+            + sum(discovery_times_old[benchmark]["skipped"])
+        )
+        discovery_time_new = (
+            sum(discovery_times_new[benchmark]["valid"])
+            + sum(discovery_times_new[benchmark]["invalid"])
+            + sum(discovery_times_new[benchmark]["skipped"])
+        )
+        print(f"{benchmark.rjust(max([len(b) for b in bens]))}: {discovery_time_old / discovery_time_new}")
 
-    max_s = max([max(s) for s, _ in sums])
+    for benchmark in bens:
+        print(f"\nCOMPARISON {benchmark}")
+        for candidate in sorted(candidate_times_old[benchmark].keys()):
+            status_old, time_old, time_readable_old = candidate_times_old[benchmark][candidate]
+            status_new, time_new, time_readable_new = candidate_times_new[benchmark][candidate]
+            print(
+                candidate,
+                status_old,
+                status_new,
+                f"{round(time_new * 100 / time_old, 2)}%",
+                time_readable_old,
+                time_readable_new,
+            )
 
-    for t_sum, bar_positions_s in sums:
-        for v, x in zip(t_sum, bar_positions_s):
-            y = v
-
-            label = r"$\Sigma " + str(round(v, 2)) + "$"
-            ax.text(x, max_s * 3, label, ha="center", va="top")
-
-    min_lim = ax.get_ylim()[0]
+    if scale == "symlog":
+        ax.set_yscale("symlog", linthresh=1)
+    else:
+        ax.set_yscale(scale)
     max_lim = ax.get_ylim()[1]
+    max_lim = max_lim * 2.5 if scale != "linear" else max_lim * 1.05
+    min_lim = 0 if scale != "log" else 1
+    ax.set_ylim(min_lim, max_lim)
 
-    possible_ticks_below_one = [10 ** (-exp) for exp in reversed(range(1, 2))]
-    possible_ticks_above_one = [1, 3, 5, 10]
-    ticks = list()
-    for tick in possible_ticks_below_one:
-        if tick >= min_lim:
-            ticks.append(tick)
-    for tick in possible_ticks_above_one:
-        if tick <= max_lim:
-            ticks.append(tick)
-    # ticks += psossible_ticks_above_one
-
-    ax.set_yscale("symlog", linthresh=1)
-    min_lim = ax.get_ylim()[0]
-    max_lim = ax.get_ylim()[1]
-    # ax.set_ylim(0.005, max_lim * 1.5)
-    ax.set_ylim(0, max_lim * 3)
-    # ax.yaxis.set_major_locator(FixedLocator(ticks))
-    ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
+    possible_minor_ticks = []
+    if scale != "linear":
+        factors = [1, 10, 100, 1000]
+        if scale == "symlog":
+            factors = [1 / 10] + factors
+        for factor in factors:
+            possible_minor_ticks += [n * factor for n in range(1, 10)]
+    minor_ticks = list()
+    for tick in possible_minor_ticks:
+        if tick >= min_lim and tick <= max_lim:
+            minor_ticks.append(tick)
 
     plt.xticks(group_centers, bens, rotation=0)
     y_label = "Validation runtime [ms]"
     plt.ylabel(y_label, fontsize=8 * 2)
     plt.xlabel("Benchmark", fontsize=8 * 2)
-    # plt.legend(fontsize=7*2, fancybox=False, )
-    plt.legend(loc="upper center", fontsize=7 * 2, ncol=2, bbox_to_anchor=(0.5, 1.3), fancybox=False, framealpha=1.0)
+    plt.legend(loc="best", fontsize=7 * 2, ncol=2, fancybox=False, framealpha=1.0)
     plt.grid(axis="x", visible=False)
-    # plt.legend(fancybox=False)
-    ax.tick_params(axis="both", which="major", labelsize=7 * 2)
-    ax.tick_params(axis="both", which="minor", labelsize=7 * 2)
     fig = plt.gcf()
+
+    ax.tick_params(axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, color="lightgrey")
+    ax.tick_params(axis="y", which="minor", width=0.5, length=4, left=True, color="lightgrey")
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
+    ax.yaxis.set_minor_locator(FixedLocator(minor_ticks))
 
     column_width = 3.3374
     fig_width = column_width * 2
-    fig_height = column_width * 0.475 * 2.5
+    fig_height = column_width * 0.475 * 2
     fig.set_size_inches(fig_width, fig_height)
     plt.tight_layout(pad=0)
-    # ax.set_box_aspect(1)
 
-    plt.savefig(os.path.join(output_dir, "validation_improvement.pdf"), dpi=300, bbox_inches="tight")
+    plt.savefig(os.path.join(output_dir, f"validation_improvement_{scale}.pdf"), dpi=300, bbox_inches="tight")
     plt.close()
 
 
 if __name__ == "__main__":
     args = parse_args()
-    main(args.commit, args.data, args.output)
+    main(args.commit, args.data, args.output, args.scale)

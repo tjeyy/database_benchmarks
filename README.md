@@ -55,6 +55,8 @@ SCHEMA_CONSTRAINTS=0 VALIDATION_LOOPS=100 ./cmake-build-release/hyriseBenchmarkJ
     -p ./cmake-build-release/lib/libHyriseDependencyDiscoveryPlugin.[so|dylib] \
     > cmake-build-release/benchmark_plugin_results/hyriseBenchmarkJoinOrder_st_plugin_naive.log
 
+git checkout main
+
 # Create plots.
 cd ..
 mkdir figures

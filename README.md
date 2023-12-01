@@ -22,7 +22,7 @@ make hyriseBenchmarkTPCH hyriseBenchmarkTPCDS  hyriseBenchmarkStarSchema hyriseB
 # Execute experiments. You can limit execution to a NUMA node by calling
 # `numactl -N <node ID> -m <node_id> <command>`. Alternatively, call
 # `numactl -N <node ID> -m <node_id> bash` once (and substitute bash by whatever shell you use).
-# 1. Different optimizations, with and without schema constraints. This will take some hpurs.
+# 1. Different optimizations, with and without schema constraints. This will take some hours.
 FORCE_CLEAN=false ../scripts/benchmark_single_optimizations.sh HEAD
 # 2. Combined optimizations for different scale factors. Running this will take multiple days.
 FORCE_CLEAN=false ../scripts/benchmark_compare_plugin_sf.sh HEAD

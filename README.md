@@ -71,6 +71,13 @@ mkdir figures
 ## Repository Structure
 
 The `hyrise` submodule imports the adapted version of Hyrise for dependency-based query optimization.
+- The presented query rewrites are implemented as optimizer rules, found in `hyrise/src/lib/optimizer/strategy`. The relevant implementations are:
+  - O-1: `dependent_group_by_reduction_rule.[c|h]pp`
+  - O-2: `join_to_semi_join_rule.[c|h]pp`
+  - O-3: `join_to_predicate_rewrite_rule.[c|h]pp`
+- `hyrise/src/plugins/dependency_discovery_plugin.[c|h]pp` contains the dependency discovery plug-in. The implementation is further split.
+  - The `candidate_strategy` subdirectory contains the candidate generation rules.
+  - The `validation_strategy` subdirectory contains the metadata-aware dependency validation algorithms.
 
 The code to run experiments is mostly located in the `python` folder.
 

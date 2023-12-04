@@ -6,8 +6,6 @@ import atexit
 import json
 import os
 import random
-import shutil
-import socket
 import statistics
 import struct
 import subprocess

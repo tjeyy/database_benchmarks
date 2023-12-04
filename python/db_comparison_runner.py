@@ -116,8 +116,11 @@ parser.add_argument("--hyrise_server_path", type=str, default="hyrise/cmake-buil
 parser.add_argument("--skip_warmup", action="store_true")
 parser.add_argument("--skip_data_loading", action="store_true")
 parser.add_argument("--rewrites", action="store_true")
+parser.add_argument("--O1", action="store_true")
+parser.add_argument("--O3", action="store_true")
 parser.add_argument("--rows", action="store_true")
 args = parser.parse_args()
+assert not (args.rewrites and (args.O1 or args.O3)), "--rewrites is shorthand for --O1 --O3"
 
 if args.dbms in ["hyrise", "hyrise-int"]:
     hyrise_server_path = Path(args.hyrise_server_path).expanduser().resolve()
@@ -136,16 +139,20 @@ if args.dbms == "hana":
 elif args.dbms == "umbra":
     ssb_queries.update(static_ssb_queries.umbra_queries)
 
-if args.rewrites:
+if args.rewrites or args.O1:
     tpch_queries.update(static_tpch_queries.queries_o1)
-    tpch_queries.update(static_tpch_queries.queries_o3)
-    ssb_queries.update(static_ssb_queries.queries_o3)
-    job_queries.update(static_job_queries.queries_o3)
     tpcds_queries.update(static_tpcds_queries.queries_o1)
-    tpcds_queries.update(static_tpcds_queries.queries_o3)
 
     if args.dbms == "hana":
         tpch_queries.update(static_tpch_queries.hana_queries_o1)
+
+if args.rewrites or args.O3:
+    tpch_queries.update(static_tpch_queries.queries_o3)
+    ssb_queries.update(static_ssb_queries.queries_o3)
+    job_queries.update(static_job_queries.queries_o3)
+    tpcds_queries.update(static_tpcds_queries.queries_o3)
+
+    if args.dbms == "hana":
         tpch_queries.update(static_tpch_queries.hana_queries_o3)
         job_queries.update(static_job_queries.hana_queries_o3)
         ssb_queries.update(static_ssb_queries.umbra_queries_o3)
@@ -599,7 +606,13 @@ for query_id in benchmark_queries:
     runtimes[query_name] = successful_runs
 
 row_suffix = "-rows" if args.rows else ""
-rewrite_suffix = "__rewrites" if args.rewrites else ""
+rewrite_suffix = ""
+if args.o1:
+    rewrite_suffix += "__O1"
+if args.o3:
+    rewrite_suffix += "__O3"
+if args.rewrites:
+    rewrite_suffix += "__rewrites"
 result_csv_filename = "db_comparison_results/database_comparison__{}__{}{}{}.csv".format(
     args.benchmark, args.dbms, row_suffix, rewrite_suffix
 )

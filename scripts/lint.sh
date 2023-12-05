@@ -6,6 +6,6 @@ if [ -n "$output" ]; then
 	exitcode=1
 fi
 
-shellcheck scripts/*.sh
+shellcheck scripts/*.sh reproduction.sh
 
 exit $exitcode

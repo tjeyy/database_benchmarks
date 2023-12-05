@@ -1,8 +1,0 @@
-duckdb >= 0.5.1
-joblib == 1.2.0
-matplotlib == 3.5.1
-multiprocess == 0.70.12.2
-pymonetdb == 1.5.0
-psycopg2 == 2.9.3
-black
-flake8

@@ -4,13 +4,13 @@ This repository contains the artifacts for the paper _Enabling Data Dependency-b
 
 ## Reproduction guide
 
-We listed all steps required to compile the DBMS code and execute all experiments in `reproduction.sh` See this file for details, or execute it as is.
+We listed all steps required to compile the DBMS code and execute all experiments in [`reproduction.sh`](blob/main/reproduction.sh). See this file for details, or execute it as is.
 
 Reproducing all results will require multiple days. The script is expected to run on a recent Ubuntu version. See the usage in the following:
 ```
-./reproduction.sh NUMA_NODE [CLIENTS]
+./reproduction.sh [NUMA_NODE] [CLIENTS]
 ```
-  - `NUMA_NODE` is the NUMA node ID to bound the experiments to.
+  - `NUMA_NODE` is the NUMA node ID to bind the experiments to.
   - `CLIENTS` is the number of clients to use for the high-load experiments. Defaults to the number of cores' avaible on NUMA node `NUMA_NODE` * 0.6.
 
 ## Repository Structure

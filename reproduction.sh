@@ -2,28 +2,42 @@
 
 set -e
 
-if [ $# -ne 1 ] && [ $# -ne 2 ]
-then
-  echo 'Usage: ./reproduction.sh NUMA_NODE [CLIENTS]'
-  echo '  NUMA_NODE is the NUMA node ID to bound the experiments to.'
-  echo '  CLIENTS is the number of clients to use for the high-load experiments. Defaults to the number of cores'
-  echo '          avaible on NUMA node NUMA_NODE * 0.6.'
-  exit 1
-fi
-
-node_id=$1
-num_cpu=$(numactl --hardware | grep "node[[:space:]]${node_id}[[:space:]]cpus" | tail -c +"$(echo "node ${node_id} cpus: " | wc -c)" | wc -w)
-
-num_clients=$((num_cpu * 3 / 5))
-if [ $# -eq 2 ]
-then
-  num_clients=$2
-fi
+for param in "$@"
+do
+  if [ "$param" == "--help" ] || [ "$param" == "-h" ]; then
+    echo 'Usage: ./reproduction.sh [NUMA_NODE] [CLIENTS]'
+    echo '  NUMA_NODE is the NUMA node ID to bind the experiments to.'
+    echo '  CLIENTS is the number of clients to use for the high-load experiments. Defaults to the number of cores'
+    echo '          avaible on NUMA node NUMA_NODE * 0.6.'
+    exit 1
+  fi
+done
 
 # Load Hyrise submodule, install dependencies.
-git submodule update --init --recurive
-./hyrise/install_dependencies.sh
-pip3 install -r requirements.txt
+if [[ -z $SKIP_INSTALL ]]; then
+  git submodule update --init --recursive --quiet
+  HYRISE_HEADLESS_SETUP=1 ./hyrise/install_dependencies.sh
+  pip3 install -r requirements.txt
+else
+  echo "Skip dependency installation"
+fi
+
+if [ $# -gt 0 ]; then
+  node_id=$1
+else
+  node_id="0"
+fi
+
+if which numactl > /dev/null; then
+  num_cpu=$(numactl --hardware | grep "node[[:space:]]${node_id}[[:space:]]cpus" | tail -c +"$(echo "node ${node_id} cpus: " | wc -c)" | wc -w)
+else
+  num_cpu=$(nproc)
+fi
+
+num_clients=$((num_cpu * 3 / 5))
+if [ $# -eq 2 ]; then
+  num_clients=$2
+fi
 
 # Build Hyrise binaries and dependency discovery plugin.
 cd hyrise

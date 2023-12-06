@@ -1,3 +1,9 @@
 [submodule "hyrise"]
 	path = hyrise
 	url = https://github.com/HPI-Information-Systems/dependency-based-optimization-hyrise
+[submodule "monetdb"]
+	path = monetdb
+	url = https://github.com/MonetDB/MonetDB/
+[submodule "greenplum"]
+	path = greenplum
+	url = https://github.com/greenplum-db/gpdb

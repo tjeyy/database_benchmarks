@@ -38,5 +38,5 @@ cd "${gp_home}/bin"
 ln -s "${gp_dir}/gpMgmt/bin/gppylib" .
 
 # Download data for experiments on different systems.
-cd ..
+cd "$root_dir"
 python3 python/helpers/download_data.py

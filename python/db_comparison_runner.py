@@ -6,6 +6,7 @@ import atexit
 import json
 import os
 import random
+import socket
 import statistics
 import struct
 import subprocess
@@ -128,7 +129,7 @@ if args.dbms in ["hyrise", "hyrise-int"]:
 
 assert (
     args.clients == 1 or args.time >= 300
-), "When multiple clients are set, a shuffled run is initiated which should last at least 300s."
+), "When multiple clients are set, a shuffled run is initiated, which should last at least 300s."
 
 dbms_process = None
 
@@ -253,6 +254,8 @@ elif args.dbms == "greenplum":
 
     print("Make sure to start Greenplum before by running ./scripts/greenplum_init.sh")
     time.sleep(1)
+elif args.dbms == "hana":
+    from hdbcli import dbapi
 
 
 def get_cursor():
@@ -271,11 +274,9 @@ def get_cursor():
     elif args.dbms == "umbra":
         connection = psycopg2.connect(host="/tmp", user="postgres")
     elif args.dbms == "greenplum":
-        connection = psycopg2.connect(host="nemea", port=args.port, dbname="dbbench", user="bench", password="password")
-
+        host = socket.gethostname()
+        connection = psycopg2.connect(host=host, port=args.port, dbname="dbbench", user="bench", password="password")
     elif args.dbms == "hana":
-        from hdbcli import dbapi
-
         with open("resources/database_connection.json", "r") as file:
             connection_data = json.load(file)
         connection = dbapi.connect(

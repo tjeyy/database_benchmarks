@@ -36,3 +36,7 @@ CC=clang-14 CXX=clang++-14 make -j "$(nproc)" install
 
 cd "${gp_home}/bin"
 ln -s "${gp_dir}/gpMgmt/bin/gppylib" .
+
+# Download data for experiments on different systems.
+cd ..
+python3 python/helpers/download_data.py

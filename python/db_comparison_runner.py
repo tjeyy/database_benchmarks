@@ -184,6 +184,8 @@ print("Starting {}...".format(args.dbms))
 if args.dbms == "monetdb":
     import pymonetdb
 
+    monetdb_home = os.path.join(os.getcwd(), "db_comparison_data", "monetdb")
+
     subprocess.Popen(["pkill", "-9", "mserver5"])
     time.sleep(5)
     cmd = [
@@ -192,8 +194,8 @@ if args.dbms == "monetdb":
         f"+0-+{args.cores - 1}",
         "-m",
         str(args.memory_node),
-        "{}/monetdb_bin/bin/mserver5".format(Path.home()),
-        "--dbpath={}/monetdb_farm".format(Path.home()),
+        "{}/bin/mserver5".format(monetdb_home),
+        "--dbpath={}/data".format(monetdb_home),
         "--set",
         "gdk_nr_threads={}".format(args.cores),
     ]
@@ -240,7 +242,7 @@ elif args.dbms == "umbra":
             "+0-+{}".format(args.cores - 1),
             "-m",
             str(args.memory_node),
-            "{}/umbra/bin/server".format(Path.home()),
+            "{}/db_comparison_data/umbra/bin/server".format(os.getcwd()),
         ],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,

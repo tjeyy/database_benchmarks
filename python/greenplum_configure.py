@@ -3,7 +3,6 @@
 import argparse as ap
 import os
 import socket
-from pathlib import Path
 
 
 def parse_args():
@@ -22,7 +21,7 @@ def main(port, num_partitions):
     with open(host_file, "w") as f:
         f.write(f"{hostname}\n")
 
-    gp_data_dir = os.path.join(Path.home(), "gp_data")
+    gp_data_dir = os.path.join(os.getcwd(), "db_comparison_data", "greenplum", "data")
     with open(config_file, "w") as f:
         f.write("SEG_PREFIX=gpseg\n")
         f.write(f"PORT_BASE={args.port + 1}\n")

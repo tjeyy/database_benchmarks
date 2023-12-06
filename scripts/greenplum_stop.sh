@@ -2,9 +2,6 @@
 
 set -e
 
-home_dir=$(readlink -e ~)
-echo "$home_dir"
-gp_home="${home_dir}/greenplum"
-echo "$gp_home"
+gp_home="$(pwd)/db_comparison_data/greenplum"
 
-GPHOME="${gp_home}" "${gp_home}/bin/gpstop" -a -d "${home_dir}/gp_data/gpseg-1"
+GPHOME="${gp_home}" "${gp_home}/bin/gpstop" -a -d "${gp_home}/data/gpseg-1"

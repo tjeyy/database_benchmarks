@@ -13,3 +13,4 @@ resources/greenplum_config.cfg
 figures/
 db_comparison_results/
 resources/experiment_data/
+db_comparison_data

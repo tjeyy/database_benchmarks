@@ -2,15 +2,14 @@
 
 set -e
 
-home_dir=$(readlink -e ~)
-gp_home="${home_dir}/greenplum"
+gp_home="$(pwd)/db_comparison_data/greenplum"
 
-rm -rf ~/gp_data
-rm -rf ~/gpAdminLogs
+rm -rf "${gp_home}/data"
+rm -rf "${gp_home}/logs"
 
-mkdir ~/gp_data
-mkdir ~/gpAdminLogs
+mkdir "${gp_home}/data"
+mkdir "${gp_home}/logs"
 
-GPHOME="${gp_home}" "${gp_home}/bin/gpinitsystem" -c "$(pwd)/resources/greenplum_config.cfg" -m 300 -a -l "${home_dir}/gpAdminLogs"
+GPHOME="${gp_home}" "${gp_home}/bin/gpinitsystem" -c "$(pwd)/resources/greenplum_config.cfg" -m 300 -a -l "${gp_home}/logs"
 
 ./scripts/greenplum_configure.sh

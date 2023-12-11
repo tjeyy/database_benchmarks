@@ -120,6 +120,7 @@ parser.add_argument("--rewrites", action="store_true")
 parser.add_argument("--O1", action="store_true")
 parser.add_argument("--O3", action="store_true")
 parser.add_argument("--rows", action="store_true")
+parser.add_argument("--no_numactl", action="store_true")
 args = parser.parse_args()
 assert not (args.rewrites and (args.O1 or args.O3)), "--rewrites is shorthand for --O1 --O3"
 
@@ -181,6 +182,10 @@ def cleanup():
 atexit.register(cleanup)
 
 print("Starting {}...".format(args.dbms))
+numactl_command = ["numactl", "-C", f"+0-+{args.cores - 1}"]
+if not args.no_numactl:
+    numactl_command += ["-m", str(args.memory_node)]
+
 if args.dbms == "monetdb":
     import pymonetdb
 
@@ -188,12 +193,7 @@ if args.dbms == "monetdb":
 
     subprocess.Popen(["pkill", "-9", "mserver5"])
     time.sleep(5)
-    cmd = [
-        "numactl",
-        "-C",
-        f"+0-+{args.cores - 1}",
-        "-m",
-        str(args.memory_node),
+    cmd = numactl_command + [
         "{}/bin/mserver5".format(monetdb_home),
         "--dbpath={}/data".format(monetdb_home),
         "--set",
@@ -214,17 +214,14 @@ elif args.dbms in ["hyrise", "hyrise-int"]:
     import psycopg2
 
     dbms_process = subprocess.Popen(
-        [
-            "numactl",
-            "-C",
-            "+0-+{}".format(args.cores - 1),
-            "-m",
-            str(args.memory_node),
+        numactl_command
+        + [
             "{}/hyriseServer".format(hyrise_server_path),
             "-p",
             str(args.port),
         ],
         stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
     )
     time.sleep(5)
     while True:
@@ -236,12 +233,8 @@ elif args.dbms == "umbra":
 
     parallel_dir = {"PARALLEL": "off"} if args.cores == 1 else {"PARALLEL": str(args.cores)}
     dbms_process = subprocess.Popen(
-        [
-            "numactl",
-            "-C",
-            "+0-+{}".format(args.cores - 1),
-            "-m",
-            str(args.memory_node),
+        numactl_command
+        + [
             "{}/db_comparison_data/umbra/bin/server".format(os.getcwd()),
         ],
         stdout=subprocess.DEVNULL,
@@ -366,8 +359,28 @@ def import_data():
     for t_id, table_file in enumerate(table_files):
         table_name = table_file[: -len(".csv")]
         table_file_path = f"{data_path}/{table_file}"
-        print(f" - ({t_id + 1}/{len(table_files)}) Import {table_name} from {table_file_path}", end=" ")
+        print(f" - ({t_id + 1}/{len(table_files)}) Import {table_name} from {table_file_path} ...", end=" ", flush=True)
         start = time.time()
+
+        if args.dbms == "umbra":
+            # Umbra seems to have issues as well, so we rewrite the CSVs with '|' or '\r' as delimiter (which is an
+            # ASCII character that does not occur in any file).
+            new_file_path = f"{data_path}/{table_name}.umbra.csv"
+            sep = "|" if table_name not in ["movie_info", "person_info"] else "\r"
+            if not os.path.isfile(new_file_path):
+                with open(table_file_path + ".json") as f:
+                    meta = json.load(f)
+                column_names, column_types, nullable = parse_csv_meta(meta)
+                data = pd.read_csv(
+                    table_file_path, header=None, names=column_names, dtype=column_types, keep_default_na=False
+                )
+                data.to_csv(new_file_path, sep=sep, header=False, index=False)
+            cursor.execute(
+                """COPY "{}" FROM '{}' WITH DELIMITER '{}' NULL '';""".format(table_name, new_file_path, sep)
+            )
+
+        if ".umbra.csv" in table_files:
+            continue
 
         if args.dbms == "monetdb" and table_name in tables["JOB"]:
             # MonetDB does not like some IMDB CSV files, so we encode them in their binary format.
@@ -407,27 +420,10 @@ def import_data():
                                 else:
                                     f.write(s.pack(value))
 
-                cursor.execute(
-                    """COPY LITTLE ENDIAN BINARY INTO "{}" FROM {} ON SERVER;""".format(
-                        table_name, ", ".join(all_column_files)
-                    )
-                )
-
-        elif args.dbms == "umbra":
-            # Umbra seems to have issues as well, so we rewrite the CSVs with '|' or '\r' as delimiter (which is an
-            # ASCII character that does not occur in any file).
-            new_file_path = f"{data_path}/{table_name}.umbra.csv"
-            sep = "|" if table_name not in ["movie_info", "person_info"] else "\r"
-            if not os.path.isfile(new_file_path):
-                with open(table_file_path + ".json") as f:
-                    meta = json.load(f)
-                column_names, column_types, nullable = parse_csv_meta(meta)
-                data = pd.read_csv(
-                    table_file_path, header=None, names=column_names, dtype=column_types, keep_default_na=False
-                )
-                data.to_csv(new_file_path, sep=sep, header=False, index=False)
             cursor.execute(
-                """COPY "{}" FROM '{}' WITH DELIMITER '{}' NULL '';""".format(table_name, new_file_path, sep)
+                """COPY LITTLE ENDIAN BINARY INTO "{}" FROM {} ON SERVER;""".format(
+                    table_name, ", ".join(all_column_files)
+                )
             )
 
         elif args.dbms != "hana":

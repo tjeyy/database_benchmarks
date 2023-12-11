@@ -26,11 +26,13 @@ else
   node_id="0"
 fi
 
-if which numactl > /dev/null; then
-  num_cpu=$(numactl --hardware | grep "node[[:space:]]${node_id}[[:space:]]cpus" | tail -c +"$(echo "node ${node_id} cpus: " | wc -c)" | wc -w)
-else
+if ! which numactl > /dev/null || ! numactl -s > /dev/null; then
   num_cpu=$(nproc)
+  node_id="-1"
+else
+  num_cpu=$(numactl --hardware | grep "node[[:space:]]${node_id}[[:space:]]cpus" | tail -c +"$(echo "node ${node_id} cpus: " | wc -c)" | wc -w)
 fi
+
 
 num_clients=$((num_cpu * 3 / 5))
 if [ $# -eq 2 ]; then

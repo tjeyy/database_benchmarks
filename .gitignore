@@ -14,3 +14,4 @@ figures/
 db_comparison_results/
 resources/experiment_data/
 db_comparison_data
+inmemory/

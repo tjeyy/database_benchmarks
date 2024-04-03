@@ -45,6 +45,8 @@ def main(data_dir, output_dir):
     runtime = 7200
     order = list(reversed(["hyrise-int", "hyrise", "umbra", "hana", "monetdb", "greenplum"]))
     changes = dict()
+    HANA_NAME = "SAP HANA"
+    HANA_NAME = "System X"
 
     print("LATENCY")
     for dbms in order:
@@ -64,11 +66,11 @@ def main(data_dir, output_dir):
         print(f"{dbms.rjust(max_len)}: {round(changes[dbms], 2)}%")
 
     names = {
-        "hyrise-int": "Hyrise\n(internal)",
+        "hyrise-int": "Hyrise\n(optimizer)",
         "hyrise": "Hyrise",
         "monetdb": "MonetDB",
         "umbra": "Umbra",
-        "hana": "HANA",
+        "hana": HANA_NAME,
         "greenplum": "Greenplum",
         "greenplum-rows": "Greenplum\n(row)",
     }

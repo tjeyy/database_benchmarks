@@ -32,11 +32,14 @@ def parse_args():
 
 
 def get_old_new_latency(old_path, new_path):
-    with open(old_path) as old_file:
-        old_data = json.load(old_file)
+    try:
+        with open(old_path) as old_file:
+            old_data = json.load(old_file)
 
-    with open(new_path) as new_file:
-        new_data = json.load(new_file)
+        with open(new_path) as new_file:
+            new_data = json.load(new_file)
+    except FileNotFoundError:
+        return (1, 1)
 
     if old_data["context"]["benchmark_mode"] != new_data["context"]["benchmark_mode"]:
         exit("Benchmark runs with different modes (ordered/shuffled) are not comparable")

@@ -9,6 +9,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+from palettable.cartocolors.qualitative import Safe_6
 
 
 def parse_args():
@@ -104,6 +105,7 @@ def main(commit, data_dir, output_dir):
     latencies_old = dict()
     latencies_new = dict()
     discovery_times = dict()
+    improvements = dict()
 
     for scale_factor in [10]:
         for benchmark, benchmark_title in benchmarks.items():
@@ -116,55 +118,73 @@ def main(commit, data_dir, output_dir):
             latency_old, latency_new = get_latency_improvement(old_path, new_path)
             latencies_old[benchmark_title] = latency_old
             latencies_new[benchmark_title] = latency_new
-            discovery_times[benchmark_title] = get_discovery_time(f"{common_path}_plugin.log")
+            improvements[benchmark_title] = round((1 - (latency_new / latency_old)) * 100)
+            discovery_times[benchmark_title] = get_discovery_time(os.path.join(data_dir, f"{common_path}_plugin.log"))
 
-    bar_width = 0.4
-    margin = 0.00
+    bar_width = 0.35
+    margin = 0.05
 
     group_centers = np.arange(len(benchmarks))
     offsets = [-0.5, 0.5]
     ax = plt.gca()
 
-    bens = ["JOB", "SSB", "TPC-DS", "TPC-H"]
+    bens = list(reversed(["JOB", "SSB", "TPC-DS", "TPC-H"]))
 
     bar_positions = [p + offsets[0] * (bar_width + margin) for p in group_centers]
     baselines = [latencies_old[b] / 10**9 for b in bens]
-    ax.bar(bar_positions, baselines, bar_width, color="#848787", label="Baseline", linewidth=0)
+    # ax.bar(bar_positions, baselines, bar_width, color="#848787", label="Baseline", linewidth=0)
+    ax.bar(bar_positions, baselines, bar_width, color="darkgrey", label="Baseline", linewidth=0)
 
     bar_positions = [p + offsets[1] * (bar_width + margin) for p in group_centers]
     overheads = [(latencies_new[b] + discovery_times[b]) / 10**9 for b in bens]
-    ax.bar(bar_positions, overheads, bar_width, color="#e8723c", label="Overhead (once)", linewidth=0)
+    # ax.bar(bar_positions, overheads, bar_width, color="#e8723c", label="Overhead (once)", linewidth=0)
+    ax.bar(bar_positions, overheads, bar_width, color=Safe_6.hex_colors[1], label="Overhead (once)", linewidth=0)
 
     optimized = [latencies_new[b] / 10**9 for b in bens]
-    ax.bar(bar_positions, optimized, bar_width, color="#57a3d5", label="Optimized", linewidth=0)
+    # ax.bar(bar_positions, optimized, bar_width, color="#57a3d5", label="Optimized", linewidth=0)
+    ax.bar(
+        bar_positions,
+        optimized,
+        bar_width,
+        color=Safe_6.hex_colors[0],
+        label="With dependency-based optimizations",
+        linewidth=0,
+    )
+
+    for y, x, bench in zip(optimized, bar_positions, bens):
+        label = f"-{improvements[bench]}" + r"\,\%"
+        y = y + 0.5
+        ax.text(x, y, label, ha="center", va="bottom", size=7 * 2)
 
     plt.xticks(group_centers, bens, rotation=0)
     plt.grid(which="major", axis="x", visible=False)
-    ax.tick_params(axis="both", which="major", labelsize=7 * 2)
-    ax.tick_params(axis="both", which="minor", labelsize=7 * 2)
+    ax.tick_params(axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, color="lightgrey")
     plt.ylabel("Runtime [s]", fontsize=8 * 2)
-    # plt.xlabel('Benchmark', fontsize=8*2)
+    plt.xlabel("Benchmark", fontsize=8 * 2)
 
     handles, labels = plt.gca().get_legend_handles_labels()
     order = [0, 2, 1]
+    order = [0, 1]
+    order = [0, 1]
 
     plt.legend(
         [handles[idx] for idx in order],
         [labels[idx] for idx in order],
-        ncols=3,
-        bbox_to_anchor=[0.5, 1.15],
+        ncols=len(order),
+        bbox_to_anchor=[0.5, 1.2],
         loc="upper center",
         frameon=False,
+        fontsize=7 * 2,
     )
 
     column_width = 3.3374
-    fig_width = column_width * 2 * (2 / 3)
-    fig_height = column_width
+    fig_width = column_width * 2
+    fig_height = column_width * 0.475 * 2
     fig = plt.gcf()
     fig.set_size_inches(fig_width, fig_height)
     plt.tight_layout(pad=0)
-    plt.savefig(os.path.join(output_dir, "benchmarks_combined_s10.svg"), dpi=300, bbox_inches="tight")
-    plt.savefig(os.path.join(output_dir, "benchmarks_combined_s10.pdf"), dpi=300, bbox_inches="tight")
+    plt.savefig(os.path.join(output_dir, "benchmarks_combined_s10_base.svg"), dpi=300, bbox_inches="tight")
+    plt.savefig(os.path.join(output_dir, "benchmarks_combined_s10_base.pdf"), dpi=300, bbox_inches="tight")
     plt.close()
 
 

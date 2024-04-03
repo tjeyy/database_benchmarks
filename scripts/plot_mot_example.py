@@ -100,7 +100,7 @@ def main(output_dir):
         [regular, rewritten, optimized],
         Safe_6.hex_colors[:3],
         offsets,
-        ["Baseline", "External rewrite", "Internal optimization"],
+        ["Baseline", "SQL rewrite", "DBMS optimizer"],
     ):
         bar_positions = [p + offset * (bar_width + margin) for p in group_centers]
         vals = [opt[b] / 10**6 for b in chosen]

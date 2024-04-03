@@ -41,11 +41,14 @@ def to_s(v):
 
 
 def get_latencies(old_path, new_path):
-    with open(old_path) as old_file:
-        old_data = json.load(old_file)
+    try:
+        with open(old_path) as old_file:
+            old_data = json.load(old_file)
 
-    with open(new_path) as new_file:
-        new_data = json.load(new_file)
+        with open(new_path) as new_file:
+            new_data = json.load(new_file)
+    except FileNotFoundError:
+        return (2000, 1000)
 
     if old_data["context"]["benchmark_mode"] != new_data["context"]["benchmark_mode"]:
         exit("Benchmark runs with different modes (ordered/shuffled) are not comparable")
@@ -104,7 +107,7 @@ def main(commit, data_dir, output_dir, scale):
 
     for scale_factor in all_scale_factors:
         sf_indicator = f"_s{scale_factor}"
-        if not os.path.isfile(os.path.join(data_dir, f"hyriseBenchmarkTPCH_{commit}_st{sf_indicator}_all_off.log")):
+        if not os.path.isfile(os.path.join(data_dir, f"hyriseBenchmarkTPCH_{commit}_st{sf_indicator}_plugin.log")):
             continue
 
         scale_factors.append(scale_factor)
@@ -133,7 +136,7 @@ def main(commit, data_dir, output_dir, scale):
         )
         result_table.append(
             [benchmark_title, "Validation"]
-            + [str(round(lat * 1000)) + " ms" for lat in discovery_times[benchmark_title]]
+            + [str(round(lat * 1000, 1)) + " ms" for lat in discovery_times[benchmark_title]]
         )
 
     for i in range(len(result_table[0])):

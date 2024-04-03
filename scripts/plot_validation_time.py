@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 from matplotlib.ticker import FixedLocator, FuncFormatter
+from palettable.cartocolors.qualitative import Safe_6
 
 
 def parse_args():
@@ -100,23 +101,35 @@ def main(commit, data_dir, output_dir, scale):
         print("   ", benchmark_candidates, "candidates overall")
 
         order = ["OD", "IND", "UCC", "FD"]
-        unique_keys = sorted(set(plot_data["type"]), key=lambda x: order.index(x.split("\\")[0]))
+
+        def mapper(label):
+            return order.index(label.split("\\")[0])
+
+        unique_keys = list(sorted(set(plot_data["type"]), key=mapper))
+        colors = {k: Safe_6.hex_colors[mapper(k)] for k in unique_keys}
+        # print(colors)
 
         ax = sns.boxplot(
             data=plot_data,
             x="type",
             y="time",
-            color="white",
+            palette=colors,
+            saturation=1.0,
+            # hue="type",
             order=unique_keys,
-            boxprops={"fc": "w", "ec": "k"},
+            # boxprops={"fc": "w", "ec": "k"},
+            boxprops={"ec": "k"},
             whiskerprops={"c": "k"},
             flierprops={"mfc": "k", "mec": "k"},
             medianprops={"c": "k"},
             capprops={"c": "k"},
+            whis=[0, 100],
         )
 
         ax = plt.gca()
+
         y_max = max(plot_data["time"]) * 1.5
+        # ax.get_legend().remove()
 
         if scale == "symlog":
             ax.set_yscale("symlog", linthresh=0.1)

@@ -30,6 +30,8 @@ $numactl_command ./python/db_comparison_runner.py hyrise --rewrites --clients "$
 $numactl_command ./python/db_comparison_runner.py hyrise-int --clients "${num_clients}" --cores "${num_cpu}" -m "${node_id}" "${no_numa}"
 $numactl_command ./python/db_comparison_runner.py monetdb --clients "${num_clients}" --cores "${num_cpu}" -m "${node_id}" "${no_numa}"
 $numactl_command ./python/db_comparison_runner.py monetdb --clients "${num_clients}" --cores "${num_cpu}" -m "${node_id}" --skip_data_loading "${no_numa}"
+$numactl_command ./python/db_comparison_runner.py umbra --clients "${num_clients}" --cores "${num_cpu}" -m "${node_id}" "${no_numa}"
+$numactl_command ./python/db_comparison_runner.py umbra --rewrites --clients "${num_clients}" --cores "${num_cpu}" -m "${node_id}" "${no_numa}"
 
 num_segments=$([ "$num_cpu" -le 14 ] && echo "$num_cpu" || echo "14")
 ./python/greenplum_configure.py -p 7777 -n "$num_segments"

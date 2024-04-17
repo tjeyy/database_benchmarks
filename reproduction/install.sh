@@ -11,9 +11,9 @@ pip3 install -r requirements.txt
 
 mkdir -p db_comparison_data
 
-root_dir=$(pwd)
-monetdb_home="${root_dir}/db_comparison_data/monetdb"
-gp_home="${root_dir}/db_comparison_data/greenplum"
+project_root=$(pwd)
+monetdb_home="${project_root}/db_comparison_data/monetdb"
+gp_home="${project_root}/db_comparison_data/greenplum"
 
 # Build Hyrise binaries and dependency discovery plugin.
 cd hyrise
@@ -23,22 +23,28 @@ make hyriseBenchmarkTPCH hyriseBenchmarkTPCDS  hyriseBenchmarkStarSchema hyriseB
      hyriseServer hyriseDependencyDiscoveryPlugin -j "$(nproc)"
 
 # Build and install MonetDB binaries.
-cd ../../monetdb
+cd "$project_root"/monetdb
 mkdir -p rel && cd rel
 cmake -DCMAKE_INSTALL_PREFIX="$monetdb_home" -DASSERT=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang-14 \
       -DCMAKE_CXX_COMPILER=clang++-14 ..
-cmake --build . --target install
+cmake --build . --target install -- -j "$(nproc)"
+
+# Download and unpack Umbra binaries.
+cd "$project_root"/db_comparison_data
+curl "https://db.in.tum.de/~fent/umbra-2023-10-10.tar.xz" -o umbra-2023-10-10.tar.xz
+tar xf umbra-2023-10-10.tar.xz
+rm umbra-2023-10-10.tar.xz
+cd "$project_root"
 
 # Build and install Greenplum binaries.
-cd ../../greenplum
+cd "$project_root"/greenplum
 gp_dir=$(pwd)
 CC=clang-14 CXX=clang++-14 ./configure --prefix="$gp_home" --disable-gpfdist
 CC=clang-14 CXX=clang++-14 make -j "$(nproc)"
 CC=clang-14 CXX=clang++-14 make -j "$(nproc)" install
-
 cd "${gp_home}/bin"
 ln -s -f "${gp_dir}/gpMgmt/bin/gppylib" .
 
 # Download data for experiments on different systems.
-cd "$root_dir"
+cd "$project_root"
 python3 python/helpers/download_data.py

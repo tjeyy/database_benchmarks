@@ -28,6 +28,7 @@ def parse_args():
     parser = ap.ArgumentParser()
     parser.add_argument("commit", type=str)
     parser.add_argument("--data", "-d", type=str, default="./hyrise/cmake-build-release/benchmark_plugin_results")
+    parser.add_argument("--mode", "-m", type=str, default="st", choices=["mt", "st"])
     return parser.parse_args()
 
 
@@ -112,15 +113,17 @@ def parse_duration(duration):
     return candidate_time
 
 
-def main(commit, data_dir):
+def main(commit, data_dir, mode):
     benchmarks = ["TPCH", "TPCDS", "StarSchema", "JoinOrder"]
     configs = ["dgr", "jts", "jtp", "combined"]
+    mode = mode if mode == "st" else "mt_ordered"
+
     print("ALL OFF VS PLUGIN")
     for benchmark in benchmarks:
         print(benchmark)
         results = list()
         for opt in configs:
-            common_path = os.path.join(data_dir, f"hyriseBenchmark{benchmark}_{commit}_st")
+            common_path = os.path.join(data_dir, f"hyriseBenchmark{benchmark}_{commit}_{mode}")
             if benchmark != "JoinOrder":
                 common_path += "_s10"
             base_file = common_path + "_all_off.json"
@@ -149,7 +152,7 @@ def main(commit, data_dir):
     print("\nSCHEMA VS PLUGIN")
     for benchmark in benchmarks:
         print(benchmark)
-        common_path = os.path.join(data_dir, f"hyriseBenchmark{benchmark}_{commit}_st")
+        common_path = os.path.join(data_dir, f"hyriseBenchmark{benchmark}_{commit}_{mode}")
         if benchmark != "JoinOrder":
             common_path += "_s10"
         base_file = common_path + "_schema.json"
@@ -171,4 +174,4 @@ def main(commit, data_dir):
 
 if __name__ == "__main__":
     args = parse_args()
-    main(args.commit, args.data)
+    main(args.commit, args.data, args.mode)

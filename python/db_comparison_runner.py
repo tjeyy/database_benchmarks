@@ -362,6 +362,9 @@ def import_data():
         print(f" - ({t_id + 1}/{len(table_files)}) Import {table_name} from {table_file_path} ...", end=" ", flush=True)
         start = time.time()
 
+        if ".umbra.csv" in table_file:
+            continue
+
         if args.dbms == "umbra":
             # Umbra seems to have issues as well, so we rewrite the CSVs with '|' or '\r' as delimiter (which is an
             # ASCII character that does not occur in any file).
@@ -379,10 +382,7 @@ def import_data():
                 """COPY "{}" FROM '{}' WITH DELIMITER '{}' NULL '';""".format(table_name, new_file_path, sep)
             )
 
-        if ".umbra.csv" in table_files:
-            continue
-
-        if args.dbms == "monetdb" and table_name in tables["JOB"]:
+        elif args.dbms == "monetdb" and table_name in tables["JOB"]:
             # MonetDB does not like some IMDB CSV files, so we encode them in their binary format.
             binary_data_types = {"Int32": "<i", "Int64": "<q"}
             with open(table_file_path + ".json") as f:
@@ -606,9 +606,9 @@ for query_id in benchmark_queries:
 
 row_suffix = "-rows" if args.rows else ""
 rewrite_suffix = ""
-if args.o1:
+if args.O1:
     rewrite_suffix += "__O1"
-if args.o3:
+if args.O3:
     rewrite_suffix += "__O3"
 if args.rewrites:
     rewrite_suffix += "__rewrites"

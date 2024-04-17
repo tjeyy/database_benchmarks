@@ -29,10 +29,10 @@ def grep_throughput_change(old_result_file, new_result_file, clients, runtime):
     df_new = df_new[df_new.CLIENTS == clients]
 
     print(
-        round((1 - (df_new["RUNTIME_MS"].mean() / 1000) / (df_old["RUNTIME_MS"].mean() / 1000)) * 100, 2), "%", sep=""
+        f'{round((1 - (df_new["RUNTIME_MS"].mean() / 1000) / (df_old["RUNTIME_MS"].mean() / 1000)) * 100, 2)}%', end=" "
     )
 
-    print(df_old["RUNTIME_MS"].mean() / 1000, df_new["RUNTIME_MS"].mean() / 1000)
+    print(f'({round(df_old["RUNTIME_MS"].mean() / 1000, 2)} / {round(df_new["RUNTIME_MS"].mean() / 1000, 2)})')
 
     old_throughput = runtime / (df_old["RUNTIME_MS"].mean() / 1000)
     new_throughput = runtime / (df_new["RUNTIME_MS"].mean() / 1000)
@@ -48,89 +48,96 @@ def main(data_dir, output_dir):
     HANA_NAME = "SAP HANA"
     HANA_NAME = "System X"
 
-    print("LATENCY")
-    for dbms in order:
-        print(dbms, end=": ")
-        common_path = f"database_comparison__all__{dbms}"
-        old_path = os.path.join(data_dir, common_path + ".csv")
-        new_path = os.path.join(data_dir, common_path + "__rewrites.csv")
-        if dbms == "hyrise-int":
-            new_path = old_path
-            old_path = os.path.join(data_dir, common_path[: -len("-int")] + ".csv")
-        changes[dbms] = grep_throughput_change(old_path, new_path, clients, runtime)
-    changes = {k: (v - 1) * 100 for k, v in changes.items()}
+    for benchmark in ["all", "TPCH", "TPCDS", "SSB", "JOB"]:
+        print(f"\n\n{benchmark}")
 
-    print("THROUGHPUT")
-    max_len = max([len(db) for db in order])
-    for dbms in order:
-        print(f"{dbms.rjust(max_len)}: {round(changes[dbms], 2)}%")
+        print("LATENCY")
+        for dbms in order:
+            print(dbms, end=": ")
+            common_path = f"database_comparison__{benchmark}__{dbms}"
+            old_path = os.path.join(data_dir, common_path + ".csv")
+            new_path = os.path.join(data_dir, common_path + "__rewrites.csv")
+            if dbms == "hyrise-int":
+                new_path = old_path
+                old_path = os.path.join(data_dir, common_path[: -len("-int")] + ".csv")
+            changes[dbms] = grep_throughput_change(old_path, new_path, clients, runtime)
+        if all([v == 1 for v in changes.values()]):
+            continue
+        changes = {k: (v - 1) * 100 for k, v in changes.items()}
 
-    names = {
-        "hyrise-int": "Hyrise\n(optimizer)",
-        "hyrise": "Hyrise",
-        "monetdb": "MonetDB",
-        "umbra": "Umbra",
-        "hana": HANA_NAME,
-        "greenplum": "Greenplum",
-        "greenplum-rows": "Greenplum\n(row)",
-    }
+        print("THROUGHPUT")
+        max_len = max([len(db) for db in order])
+        for dbms in order:
+            print(f"{dbms.rjust(max_len)}: {round(changes[dbms], 2)}%")
 
-    sns.set()
-    sns.set_theme(style="whitegrid")
-    plt.rcParams["font.family"] = "serif"
-
-    bar_width = 0.4
-
-    mpl.use("pgf")
-
-    plt.rcParams.update(
-        {
-            "font.family": "serif",  # use serif/main font for text elements
-            "text.usetex": True,  # use inline math for ticks
-            "pgf.rcfonts": False,  # don't setup fonts from rc parameters
-            "pgf.preamble": r"""\usepackage{iftex}
-      \ifxetex
-        \usepackage[libertine]{newtxmath}
-        \usepackage[tt=false]{libertine}
-        \setmonofont[StylisticSet=3]{inconsolata}
-      \else
-        \ifluatex
-          \usepackage[libertine]{newtxmath}
-          \usepackage[tt=false]{libertine}
-          \setmonofont[StylisticSet=3]{inconsolata}
-        \else
-           \usepackage[tt=false, type1=true]{libertine}
-           \usepackage[varqu]{zi4}
-           \usepackage[libertine]{newtxmath}
-        \fi
-      \fi""",
+        names = {
+            "hyrise-int": "Hyrise\n(optimizer)",
+            "hyrise": "Hyrise",
+            "monetdb": "MonetDB",
+            "umbra": "Umbra",
+            "hana": HANA_NAME,
+            "greenplum": "Greenplum",
+            "greenplum-rows": "Greenplum\n(row)",
         }
-    )
 
-    group_centers = np.arange(len(order))
-    db_count = len(order) - 1
-    hatches = [None] * db_count + ["/"]
-    colors = [c for c in Safe_10.hex_colors[:db_count]] + [Safe_10.hex_colors[db_count - 1]]
+        sns.set()
+        sns.set_theme(style="whitegrid")
+        plt.rcParams["font.family"] = "serif"
 
-    for d, color, pos, h in zip(order, colors, group_centers, hatches):
-        plt.bar([pos], [changes[d]], bar_width, color=color, hatch=h)
+        bar_width = 0.4
 
-    plt.xticks(group_centers, [names[d] for d in order], rotation=0)
-    ax = plt.gca()
-    plt.ylabel("Throughput\nimprovement [\\%]", fontsize=8 * 2)
-    plt.xlabel("System", fontsize=8 * 2)
-    ax.tick_params(axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, color="lightgrey")
+        mpl.use("pgf")
 
-    plt.grid(axis="x", visible=False)
-    fig = plt.gcf()
-    column_width = 3.3374
-    fig_width = column_width * 2
-    fig_height = column_width * 0.475 * 2
-    fig.set_size_inches(fig_width, fig_height)
-    plt.tight_layout(pad=0)
+        plt.rcParams.update(
+            {
+                "font.family": "serif",  # use serif/main font for text elements
+                "text.usetex": True,  # use inline math for ticks
+                "pgf.rcfonts": False,  # don't setup fonts from rc parameters
+                "pgf.preamble": r"""\usepackage{iftex}
+          \ifxetex
+            \usepackage[libertine]{newtxmath}
+            \usepackage[tt=false]{libertine}
+            \setmonofont[StylisticSet=3]{inconsolata}
+          \else
+            \ifluatex
+              \usepackage[libertine]{newtxmath}
+              \usepackage[tt=false]{libertine}
+              \setmonofont[StylisticSet=3]{inconsolata}
+            \else
+               \usepackage[tt=false, type1=true]{libertine}
+               \usepackage[varqu]{zi4}
+               \usepackage[libertine]{newtxmath}
+            \fi
+          \fi""",
+            }
+        )
 
-    plt.savefig(os.path.join(output_dir, "systems_comparison.pdf"), dpi=300, bbox_inches="tight")
-    plt.close()
+        group_centers = np.arange(len(order))
+        db_count = len(order) - 1
+        hatches = [None] * db_count + ["/"]
+        colors = [c for c in Safe_10.hex_colors[:db_count]] + [Safe_10.hex_colors[db_count - 1]]
+
+        for d, color, pos, h in zip(order, colors, group_centers, hatches):
+            plt.bar([pos], [changes[d]], bar_width, color=color, hatch=h)
+
+        plt.xticks(group_centers, [names[d] for d in order], rotation=0)
+        ax = plt.gca()
+        plt.ylabel("Throughput\nimprovement [\\%]", fontsize=8 * 2)
+        plt.xlabel("System", fontsize=8 * 2)
+        ax.tick_params(axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, color="lightgrey")
+
+        plt.grid(axis="x", visible=False)
+        fig = plt.gcf()
+        column_width = 3.3374
+        fig_width = column_width * 2
+        fig_height = column_width * 0.475 * 2
+        fig.set_size_inches(fig_width, fig_height)
+        plt.tight_layout(pad=0)
+
+        plt.savefig(
+            os.path.join(output_dir, f"systems_comparison_{benchmark.lower()}.pdf"), dpi=300, bbox_inches="tight"
+        )
+        plt.close()
 
 
 if __name__ == "__main__":

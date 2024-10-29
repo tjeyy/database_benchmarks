@@ -237,7 +237,7 @@ def add_constraints():
     connection, cursor = get_cursor()
 
     print("- Add UNIQUE constraints ...")
-    add_constraint_command = """ALTER TABLE "{}"" ADD CONSTRAINT comp_constraint_{} UNIQUE ({});"""
+    add_constraint_command = """ALTER TABLE "{}" ADD CONSTRAINT comp_constraint_{} UNIQUE ({});"""
     constraint_id = 1
 
     for table_name, column_name in unique_columns.columns:
@@ -252,7 +252,7 @@ def drop_constraints():
     connection, cursor = get_cursor()
 
     print("- Drop UNIQUE constraints ...")
-    drop_constraint_command = """ALTER TABLE "{}"" DROP CONSTRAINT comp_constraint_{};"""
+    drop_constraint_command = """ALTER TABLE "{}" DROP CONSTRAINT comp_constraint_{};"""
     constraint_id = 1
 
     for table_name, _ in unique_columns.columns:
@@ -582,6 +582,9 @@ if args.dbms == "monetdb":
 
 if not args.skip_data_loading:
     import_data()
+
+if args.dbms == "hana-int":
+    add_constraints()
 
 if args.dbms in ["monetdb", "umbra", "greenplum", "hyrise-int"]:
     print("Warming up database (complete single-threaded run) due to initial persistence on disk: ", end="")

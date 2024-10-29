@@ -16,6 +16,7 @@ import time
 from pathlib import Path
 
 import pandas as pd
+from helpers import unique_columns
 from queries import static_job_queries, static_ssb_queries, static_tpcds_queries, static_tpch_queries
 
 # For a fair comparison, we use the same queries as the Umbra demo does.
@@ -106,7 +107,9 @@ tables = {
 }
 
 parser = argparse.ArgumentParser()
-parser.add_argument("dbms", type=str, choices=["monetdb", "hyrise", "greenplum", "umbra", "hana", "hyrise-int"])
+parser.add_argument(
+    "dbms", type=str, choices=["monetdb", "hyrise", "greenplum", "umbra", "hana", "hana-int", "hyrise-int"]
+)
 parser.add_argument("--time", "-t", type=int, default=7200)
 parser.add_argument("--port", "-p", type=int, default=5432)
 parser.add_argument("--clients", type=int, default=1)
@@ -123,6 +126,9 @@ parser.add_argument("--rows", action="store_true")
 parser.add_argument("--no_numactl", action="store_true")
 args = parser.parse_args()
 assert not (args.rewrites and (args.O1 or args.O3)), "--rewrites is shorthand for --O1 --O3"
+assert not (
+    any([args.rewrites, args.O1, args.O3]) and "-int" in args.dbms
+), "Internal optimization works on original queries"
 
 if args.dbms in ["hyrise", "hyrise-int"]:
     hyrise_server_path = Path(args.hyrise_server_path).expanduser().resolve()
@@ -132,12 +138,32 @@ assert (
     args.clients == 1 or args.time >= 300
 ), "When multiple clients are set, a shuffled run is initiated, which should last at least 300s."
 
-dbms_process = None
 
-if args.dbms == "hana":
+def update_hana_optimized_queries(original_queries):
+    updated_queries = {}
+    hints = [
+        "NO_JOIN_REMOVAL",
+        "NO_HEX_UNIQUE_INDEX_SEARCH",
+        "NO_HEX_INDEX_JOIN",
+        "NO_INDEX_JOIN",
+        "NO_INDEX_SEARCH",
+        "HEX_TABLE_SCAN_SEMI_JOIN",
+    ]
+    for item, query in original_queries.items():
+        assert query.count(";") < 2
+        updated_queries[item] = f"""{query.replace(";", "")} WITH HINT({", ".join(hints)});"""
+    return updated_queries
+
+
+if args.dbms in ["hana", "hana-int"]:
     tpch_queries.update(static_tpch_queries.hana_queries)
     job_queries.update(static_job_queries.hana_queries)
     ssb_queries.update(static_ssb_queries.umbra_queries)
+    if args.dbms == "hana-int":
+        tpch_queries = update_hana_optimized_queries(tpch_queries)
+        tpcds_queries = update_hana_optimized_queries(tpcds_queries)
+        job_queries = update_hana_optimized_queries(job_queries)
+        ssb_queries = update_hana_optimized_queries(ssb_queries)
 elif args.dbms == "umbra":
     ssb_queries.update(static_ssb_queries.umbra_queries)
 
@@ -172,8 +198,81 @@ assert len(ssb_queries) == 13
 assert len(job_queries) == 113
 
 
+def get_cursor():
+    if args.dbms == "monetdb":
+        connection = None
+        while connection is None:
+            try:
+                connection = pymonetdb.connect("", connect_timeout=600, autocommit=True)
+            except Exception as e:
+                print(e)
+                time.sleep(1)
+                raise e
+        connection.settimeout(600)
+    elif args.dbms in ["hyrise", "hyrise-int"]:
+        connection = psycopg2.connect("host=localhost port={}".format(args.port))
+    elif args.dbms == "umbra":
+        connection = psycopg2.connect(host="/tmp", user="postgres")
+    elif args.dbms == "greenplum":
+        host = socket.gethostname()
+        connection = psycopg2.connect(host=host, port=args.port, dbname="dbbench", user="bench", password="password")
+    elif args.dbms in ["hana", "hana-int"]:
+        with open("resources/database_connection.json", "r") as file:
+            connection_data = json.load(file)
+        connection = dbapi.connect(
+            address=connection_data["host"],
+            port=connection_data["port"],
+            user=connection_data["db_user"],
+            password=connection_data["db_user_password"],
+            encrypt=True,
+            sslValidateCertificate=False,
+            autocommit=connection_data["autocommit"],
+        )
+
+    cursor = connection.cursor()
+    return (connection, cursor)
+
+
+def add_constraints():
+    connection, cursor = get_cursor()
+
+    print("- Add UNIQUE constraints ...")
+    add_constraint_command = """ALTER TABLE "{}"" ADD CONSTRAINT comp_constraint_{} UNIQUE ({});"""
+    constraint_id = 1
+
+    for table_name, column_name in unique_columns.columns:
+        cursor.execute(add_constraint_command.format(table_name, constraint_id, column_name))
+        constraint_id += 1
+
+    cursor.close()
+    connection.close()
+
+
+def drop_constraints():
+    connection, cursor = get_cursor()
+
+    print("- Drop UNIQUE constraints ...")
+    drop_constraint_command = """ALTER TABLE "{}"" DROP CONSTRAINT comp_constraint_{};"""
+    constraint_id = 1
+
+    for table_name, _ in unique_columns.columns:
+        try:
+            cursor.execute(drop_constraint_command.format(table_name, constraint_id))
+        except Exception:
+            pass
+        constraint_id += 1
+
+    cursor.close()
+    connection.close()
+
+
+dbms_process = None
+
+
 def cleanup():
     if dbms_process:
+        if args.dbms == "hana-int":
+            drop_constraints()
         print("Shutting {} down...".format(args.dbms))
         dbms_process.kill()
         time.sleep(10)
@@ -249,43 +348,8 @@ elif args.dbms == "greenplum":
 
     print("Make sure to start Greenplum before by running ./scripts/greenplum_init.sh")
     time.sleep(1)
-elif args.dbms == "hana":
+elif args.dbms in ["hana", "hana-int"]:
     from hdbcli import dbapi
-
-
-def get_cursor():
-    if args.dbms == "monetdb":
-        connection = None
-        while connection is None:
-            try:
-                connection = pymonetdb.connect("", connect_timeout=600, autocommit=True)
-            except Exception as e:
-                print(e)
-                time.sleep(1)
-                raise e
-        connection.settimeout(600)
-    elif args.dbms in ["hyrise", "hyrise-int"]:
-        connection = psycopg2.connect("host=localhost port={}".format(args.port))
-    elif args.dbms == "umbra":
-        connection = psycopg2.connect(host="/tmp", user="postgres")
-    elif args.dbms == "greenplum":
-        host = socket.gethostname()
-        connection = psycopg2.connect(host=host, port=args.port, dbname="dbbench", user="bench", password="password")
-    elif args.dbms == "hana":
-        with open("resources/database_connection.json", "r") as file:
-            connection_data = json.load(file)
-        connection = dbapi.connect(
-            address=connection_data["host"],
-            port=connection_data["port"],
-            user=connection_data["db_user"],
-            password=connection_data["db_user_password"],
-            encrypt=True,
-            sslValidateCertificate=False,
-            autocommit=connection_data["autocommit"],
-        )
-
-    cursor = connection.cursor()
-    return (connection, cursor)
 
 
 def parse_data_type(type_string):
@@ -326,7 +390,7 @@ def import_data():
         load_command = """COPY "{}" FROM '{}' WITH DELIMITER ',' NULL '';"""
     elif args.dbms == "greenplum":
         load_command = """COPY "{}" FROM '{}' WITH (FORMAT CSV, DELIMITER ',', NULL '', QUOTE '"');"""
-    elif args.dbms == "hana":
+    elif args.dbms in ["hana", "hana-int"]:
         load_command = """IMPORT FROM CSV FILE '{}' INTO {} WITH FIELD DELIMITED BY ',';"""
 
     connection, cursor = get_cursor()
@@ -345,12 +409,12 @@ def import_data():
                     if args.dbms == "greenplum" and not args.rows:
                         stripped_line = stripped_line[:-1] if stripped_line.endswith(";") else stripped_line
                         stripped_line += "WITH (appendoptimized=true, orientation=column);"
-                    if args.dbms == "hana":
+                    if args.dbms in ["hana", "hana-int"]:
                         cursor.execute(line.replace("text", "nvarchar(1024)"))
                     else:
                         cursor.execute(stripped_line)
 
-    if args.dbms == "hana":
+    if args.dbms in ["hana", "hana-int"]:
         cursor.execute(
             "alter system alter configuration ('indexserver.ini','SYSTEM') set "
             "('import_export','enable_csv_import_path_filter') = 'false' with reconfigure;"
@@ -426,7 +490,7 @@ def import_data():
                 )
             )
 
-        elif args.dbms != "hana":
+        elif args.dbms not in ["hana", "hana-int"]:
             cursor.execute(load_command.format(table_name, table_file_path))
 
         else:

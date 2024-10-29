@@ -45,8 +45,8 @@ def main(data_dir, output_dir):
     runtime = 7200
     order = list(reversed(["hyrise-int", "hyrise", "umbra", "hana", "monetdb", "greenplum"]))
     changes = dict()
-    HANA_NAME = "SAP HANA"
     HANA_NAME = "System X"
+    HANA_NAME = "SAP HANA"
 
     for benchmark in ["all", "TPCH", "TPCDS", "SSB", "JOB"]:
         print(f"\n\n{benchmark}")

@@ -6,4 +6,4 @@
 	url = https://github.com/MonetDB/MonetDB/
 [submodule "greenplum"]
 	path = greenplum
-	url = https://github.com/greenplum-db/gpdb
+	url = https://github.com/greenplum-db/gpdb-archive.git

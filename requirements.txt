@@ -2,3 +2,4 @@ hdbcli
 palettable
 pymonetdb
 psycopg2
+pandas

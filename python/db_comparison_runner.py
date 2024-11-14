@@ -16,7 +16,7 @@ import time
 from pathlib import Path
 
 import pandas as pd
-from helpers import unique_columns
+from helpers import schema_keys
 from queries import static_job_queries, static_ssb_queries, static_tpcds_queries, static_tpch_queries
 
 # For a fair comparison, we use the same queries as the Umbra demo does.
@@ -108,7 +108,7 @@ tables = {
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "dbms", type=str, choices=["monetdb", "hyrise", "greenplum", "umbra", "hana", "hana-int", "hyrise-int"]
+    "dbms", type=str, choices=["monetdb", "hyrise", "greenplum", "umbra", "hana", "hyrise-int"]
 )
 parser.add_argument("--time", "-t", type=int, default=7200)
 parser.add_argument("--port", "-p", type=int, default=5432)
@@ -124,6 +124,7 @@ parser.add_argument("--O1", action="store_true")
 parser.add_argument("--O3", action="store_true")
 parser.add_argument("--rows", action="store_true")
 parser.add_argument("--no_numactl", action="store_true")
+parser.add_argument("--schema_keys", action="store_true")
 args = parser.parse_args()
 assert not (args.rewrites and (args.O1 or args.O3)), "--rewrites is shorthand for --O1 --O3"
 assert not (
@@ -197,7 +198,6 @@ assert len(tpcds_queries) == 48
 assert len(ssb_queries) == 13
 assert len(job_queries) == 113
 
-
 def get_cursor():
     if args.dbms == "monetdb":
         connection = None
@@ -236,12 +236,19 @@ def get_cursor():
 def add_constraints():
     connection, cursor = get_cursor()
 
-    print("- Add UNIQUE constraints ...")
-    add_constraint_command = """ALTER TABLE "{}" ADD CONSTRAINT comp_constraint_{} UNIQUE ({});"""
+    print("- Add PRIMARY KEY constraints ...")
+    add_pk_command = """ALTER TABLE "{}" ADD CONSTRAINT comp_pk_{} PRIMARY KEY ({});"""
     constraint_id = 1
 
-    for table_name, column_name in unique_columns.columns:
-        cursor.execute(add_constraint_command.format(table_name, constraint_id, column_name))
+    for table_name, column_names in schema_keys.primary_keys:
+        cursor.execute(add_pk_command.format(table_name, constraint_id, ", ",join(column_names)))
+        constraint_id += 1
+    print("- Add FOREIGN KEY constraints ...")
+    add_fk_command = """ALTER TABLE "{}" ADD CONSTRAINT comp_fk_{} FOREIGN KEY ({}) REFERENCES "{}" ({});"""
+    constraint_id = 1
+
+    for table_name, column_names, referenced_table, referenced_column_names in schema_keys.foreign_keys:
+        cursor.execute(add_fk_command.format(table_name, constraint_id, ", ",join(column_names), referenced_table, ", ",join(referenced_column_names)))
         constraint_id += 1
 
     cursor.close()
@@ -251,13 +258,24 @@ def add_constraints():
 def drop_constraints():
     connection, cursor = get_cursor()
 
-    print("- Drop UNIQUE constraints ...")
-    drop_constraint_command = """ALTER TABLE "{}" DROP CONSTRAINT comp_constraint_{};"""
+    print("- Drop FOREIGN KEY constraints ...")
+    drop_fk_command = """ALTER TABLE "{}" DROP CONSTRAINT comp_fk_{};"""
     constraint_id = 1
 
-    for table_name, _ in unique_columns.columns:
+    for table_name, _, _, _ in schema_keys.foreign_keys:
         try:
-            cursor.execute(drop_constraint_command.format(table_name, constraint_id))
+            cursor.execute(drop_fk_command.format(table_name, constraint_id))
+        except Exception:
+            pass
+        constraint_id += 1
+
+    print("- Drop PRIMARY KEY constraints ...")
+    drop_pk_command = """ALTER TABLE "{}" DROP CONSTRAINT comp_pk_{};"""
+    constraint_id = 1
+
+    for table_name, _ in schema_keys.primary_keys:
+        try:
+            cursor.execute(drop_pk_command.format(table_name, constraint_id))
         except Exception:
             pass
         constraint_id += 1
@@ -271,7 +289,7 @@ dbms_process = None
 
 def cleanup():
     if dbms_process:
-        if args.dbms == "hana-int":
+        if args.keys and args.dbms not in ["hyrise", "hyrise-int"]:
             drop_constraints()
         print("Shutting {} down...".format(args.dbms))
         dbms_process.kill()
@@ -312,6 +330,7 @@ if args.dbms == "monetdb":
 elif args.dbms in ["hyrise", "hyrise-int"]:
     import psycopg2
 
+    allow_schema_env = {"JOIN_TO_PREDICATE": "0"} if args.schema_keys and arg.dbms != "hyrise-int" else {}
     dbms_process = subprocess.Popen(
         numactl_command
         + [
@@ -321,6 +340,7 @@ elif args.dbms in ["hyrise", "hyrise-int"]:
         ],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        env=allow_schema_env
     )
     time.sleep(5)
     while True:
@@ -583,7 +603,7 @@ if args.dbms == "monetdb":
 if not args.skip_data_loading:
     import_data()
 
-if args.dbms == "hana-int":
+if args.dbms not in ["hyrise-int", "hyrise"] and args.schema_keys:
     add_constraints()
 
 if args.dbms in ["monetdb", "umbra", "greenplum", "hyrise-int"]:
@@ -593,7 +613,7 @@ if args.dbms in ["monetdb", "umbra", "greenplum", "hyrise-int"]:
     print(" done.")
     sys.stdout.flush()
 
-if args.dbms == "hyrise-int":
+if args.dbms == "hyrise-int" or (args.dbms == "hyrise" and args.schema_keys):
     print("Performing dependency discovery", end="")
     sys.stdout.flush()
     connection, cursor = get_cursor()
@@ -679,6 +699,8 @@ if args.O3:
     rewrite_suffix += "__O3"
 if args.rewrites:
     rewrite_suffix += "__rewrites"
+if args.schema_keys:
+    rewrite_suffix += "__keys"
 result_csv_filename = "db_comparison_results/database_comparison__{}__{}{}{}.csv".format(
     args.benchmark, args.dbms, row_suffix, rewrite_suffix
 )

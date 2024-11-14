@@ -18,30 +18,30 @@ gp_home="${project_root}/db_comparison_data/greenplum"
 # Build Hyrise binaries and dependency discovery plugin.
 cd hyrise
 mkdir -p cmake-build-release && cd cmake-build-release
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 ..
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang-17 -DCMAKE_CXX_COMPILER=clang++-17 ..
 make hyriseBenchmarkTPCH hyriseBenchmarkTPCDS  hyriseBenchmarkStarSchema hyriseBenchmarkJoinOrder \
      hyriseServer hyriseDependencyDiscoveryPlugin -j "$(nproc)"
 
 # Build and install MonetDB binaries.
 cd "$project_root"/monetdb
 mkdir -p rel && cd rel
-cmake -DCMAKE_INSTALL_PREFIX="$monetdb_home" -DASSERT=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang-14 \
-      -DCMAKE_CXX_COMPILER=clang++-14 ..
+cmake -DCMAKE_INSTALL_PREFIX="$monetdb_home" -DASSERT=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang-17 \
+      -DCMAKE_CXX_COMPILER=clang++-17 ..
 cmake --build . --target install -- -j "$(nproc)"
 
 # Download and unpack Umbra binaries.
 cd "$project_root"/db_comparison_data
-curl "https://db.in.tum.de/~fent/umbra-2023-10-10.tar.xz" -o umbra-2023-10-10.tar.xz
-tar xf umbra-2023-10-10.tar.xz
-rm umbra-2023-10-10.tar.xz
+curl "https://db.in.tum.de/~fent/umbra-2024-03-28.tar.xz" -o umbra-2024-03-28.tar.xz
+tar xf umbra-2024-03-28.tar.xz
+rm umbra-2024-03-28.tar.xz
 cd "$project_root"
 
 # Build and install Greenplum binaries.
 cd "$project_root"/greenplum
 gp_dir=$(pwd)
-CC=clang-14 CXX=clang++-14 ./configure --prefix="$gp_home" --disable-gpfdist
-CC=clang-14 CXX=clang++-14 make -j "$(nproc)"
-CC=clang-14 CXX=clang++-14 make -j "$(nproc)" install
+CC=clang-17 CXX=clang++-17 ./configure --prefix="$gp_home" --disable-gpfdist
+CC=clang-17 CXX=clang++-17 make -j "$(nproc)"
+CC=clang-17 CXX=clang++-17 make -j "$(nproc)" install
 cd "${gp_home}/bin"
 ln -s -f "${gp_dir}/gpMgmt/bin/gppylib" .
 

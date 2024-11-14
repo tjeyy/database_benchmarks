@@ -8,6 +8,7 @@ def main():
     location = (
         "https://www.dropbox.com/scl/fi/csupwxeg1lnmfknd69mj6/experiment_data.zip?rlkey=grycbrfmmrwft69jx1iuxmvwc&dl=1"
     )
+    location = "https://my.hidrive.com/lnk/Q942Lh8Hz"
     file_name = "experiment_data.zip"
     data_dir = "resources/experiment_data"
 

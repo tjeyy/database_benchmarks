@@ -6,6 +6,7 @@ import atexit
 import json
 import os
 import random
+import re
 import socket
 import statistics
 import struct
@@ -13,6 +14,7 @@ import subprocess
 import sys
 import threading
 import time
+from collections import defaultdict
 from pathlib import Path
 
 import pandas as pd
@@ -107,9 +109,7 @@ tables = {
 }
 
 parser = argparse.ArgumentParser()
-parser.add_argument(
-    "dbms", type=str, choices=["monetdb", "hyrise", "greenplum", "umbra", "hana", "hyrise-int"]
-)
+parser.add_argument("dbms", type=str, choices=["monetdb", "hyrise", "greenplum", "umbra", "hana", "hyrise-int"])
 parser.add_argument("--time", "-t", type=int, default=7200)
 parser.add_argument("--port", "-p", type=int, default=5432)
 parser.add_argument("--clients", type=int, default=1)
@@ -138,6 +138,9 @@ if args.dbms in ["hyrise", "hyrise-int"]:
 assert (
     args.clients == 1 or args.time >= 300
 ), "When multiple clients are set, a shuffled run is initiated, which should last at least 300s."
+
+if args.dbms == "umbra":
+    args.skip_data_loading = False
 
 
 def update_hana_optimized_queries(original_queries):
@@ -198,6 +201,7 @@ assert len(tpcds_queries) == 48
 assert len(ssb_queries) == 13
 assert len(job_queries) == 113
 
+
 def get_cursor():
     if args.dbms == "monetdb":
         connection = None
@@ -236,22 +240,29 @@ def get_cursor():
 def add_constraints():
     connection, cursor = get_cursor()
 
-    print("- Add PRIMARY KEY constraints ...")
     add_pk_command = """ALTER TABLE "{}" ADD CONSTRAINT comp_pk_{} PRIMARY KEY ({});"""
     constraint_id = 1
-
     for table_name, column_names in schema_keys.primary_keys:
-        cursor.execute(add_pk_command.format(table_name, constraint_id, ", ",join(column_names)))
+        print(f"\r- Add PRIMARY KEY constraints ({constraint_id}/{len(schema_keys.primary_keys)})", end="")
+        cursor.execute(add_pk_command.format(table_name, constraint_id, ", ".join(column_names)))
         constraint_id += 1
-    print("- Add FOREIGN KEY constraints ...")
+    print("")
+
     add_fk_command = """ALTER TABLE "{}" ADD CONSTRAINT comp_fk_{} FOREIGN KEY ({}) REFERENCES "{}" ({});"""
     constraint_id = 1
-
     for table_name, column_names, referenced_table, referenced_column_names in schema_keys.foreign_keys:
-        cursor.execute(add_fk_command.format(table_name, constraint_id, ", ",join(column_names), referenced_table, ", ",join(referenced_column_names)))
+        print(f"\r- Add PRIMARY KEY constraints ({constraint_id}/{len(schema_keys.foreign_keys)})", end="")
+        cursor.execute(
+            add_fk_command.format(
+                table_name, constraint_id, ", ".join(column_names), referenced_table, ", ".join(referenced_column_names)
+            )
+        )
         constraint_id += 1
+    print("")
 
     cursor.close()
+    if args.dbms == "greenplum":
+        connection.commit()
     connection.close()
 
 
@@ -281,6 +292,8 @@ def drop_constraints():
         constraint_id += 1
 
     cursor.close()
+    if args.dbms == "greenplum":
+        connection.commit()
     connection.close()
 
 
@@ -289,9 +302,9 @@ dbms_process = None
 
 def cleanup():
     if dbms_process:
-        if args.keys and args.dbms not in ["hyrise", "hyrise-int"]:
-            drop_constraints()
         print("Shutting {} down...".format(args.dbms))
+        if args.schema_keys and args.dbms not in ["hyrise", "hyrise-int", "umbra"]:
+            drop_constraints()
         dbms_process.kill()
         time.sleep(10)
 
@@ -330,7 +343,7 @@ if args.dbms == "monetdb":
 elif args.dbms in ["hyrise", "hyrise-int"]:
     import psycopg2
 
-    allow_schema_env = {"JOIN_TO_PREDICATE": "0"} if args.schema_keys and arg.dbms != "hyrise-int" else {}
+    allow_schema_env = {"JOIN_TO_PREDICATE": "0"} if args.schema_keys and args.dbms != "hyrise-int" else {}
     dbms_process = subprocess.Popen(
         numactl_command
         + [
@@ -340,7 +353,7 @@ elif args.dbms in ["hyrise", "hyrise-int"]:
         ],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        env=allow_schema_env
+        env=allow_schema_env,
     )
     time.sleep(5)
     while True:
@@ -420,6 +433,18 @@ def import_data():
         for table_file in table_files:
             table_name = table_file[: -len(".csv")]
             cursor.execute(f'DROP TABLE IF EXISTS "{table_name}";')
+
+        # Umbra does not allow to add constraints later, so we have to do it now.
+        if args.dbms == "umbra" and args.schema_keys:
+            primary_keys = {}
+            for table_name, column_names in schema_keys.primary_keys:
+                primary_keys[table_name] = column_names
+            foreign_keys = defaultdict(dict)
+            for table_name, column_names, referenced_table, referenced_column_names in schema_keys.foreign_keys:
+                foreign_keys[table_name][referenced_table] = (column_names, referenced_column_names)
+
+        table_name_regex = re.compile(r'(?<=CREATE\sTABLE\s)"?\w+"?(?=\s*\()', flags=re.IGNORECASE)
+
         for benchmark in ["tpch", "job", "ssb", "tpcds"]:
             with open(f"resources/schema_{benchmark}.sql") as f:
                 for line in f:
@@ -430,9 +455,21 @@ def import_data():
                         stripped_line = stripped_line[:-1] if stripped_line.endswith(";") else stripped_line
                         stripped_line += "WITH (appendoptimized=true, orientation=column);"
                     if args.dbms in ["hana", "hana-int"]:
-                        cursor.execute(line.replace("text", "nvarchar(1024)"))
-                    else:
-                        cursor.execute(stripped_line)
+                        stripped_line = stripped_line.replace("text", "nvarchar(1024)")
+                    if args.dbms == "umbra" and args.schema_keys:
+                        stripped_line = stripped_line[:-1].strip() if stripped_line.endswith(";") else stripped_line
+                        stripped_line = stripped_line[:-1]
+                        table_name = table_name_regex.search(stripped_line).group().replace('"', "")
+                        if table_name in primary_keys:
+                            stripped_line += f""", PRIMARY KEY ({", ".join(primary_keys[table_name])})"""
+                        if table_name in foreign_keys:
+                            for referenced_table, columns in foreign_keys[table_name].items():
+                                column_names, referenced_column_names = columns
+                                stripped_line += f""", FOREIGN KEY ({", ".join(column_names)}) REFERENCES """
+                                stripped_line += f""""{referenced_table}" ({", ".join(referenced_column_names)})"""
+                        stripped_line += ");"
+
+                    cursor.execute(stripped_line)
 
     if args.dbms in ["hana", "hana-int"]:
         cursor.execute(
@@ -529,10 +566,6 @@ def import_data():
     connection.close()
 
 
-def adapt_query(query):
-    return query
-
-
 def split_query(query):
     return [statement for statement in query.split(";") if statement.strip()]
 
@@ -546,11 +579,11 @@ def loop(thread_id, queries, query_id, start_time, successful_runs, timeout, is_
 
         for q_id, query in enumerate(queries):
             try:
-                cursor.execute(adapt_query(query))
+                cursor.execute(query)
                 print("({})".format(q_id + 1), end="", flush=True)
             except Exception as e:
                 print(e)
-                print(adapt_query(query))
+                print(query)
                 raise e
 
         cursor.close()
@@ -570,7 +603,7 @@ def loop(thread_id, queries, query_id, start_time, successful_runs, timeout, is_
             items = split_items
         item_start_time = time.time()
         for query in items:
-            cursor.execute(adapt_query(query))
+            cursor.execute(query)
             cursor.fetchall()
             item_end_time = time.time()
 
@@ -594,22 +627,25 @@ elif args.benchmark == "JOB":
 elif args.benchmark == "all":
     selected_benchmark_queries = tpch_queries + tpcds_queries + ssb_queries + job_queries
 
+
 if args.dbms == "monetdb":
     selected_benchmark_queries = [
-        q.replace("!=", "<>").replace("SELECT MIN(chn.name) AS character,", 'SELECT MIN(chn.name) AS "character",')
+        q.replace("!=", "<>")
+        .replace("SELECT MIN(chn.name) AS character,", 'SELECT MIN(chn.name) AS "character",')
+        .replace("ss_list_price BETWEEN 122 AND 122+10", "ss_list_price BETWEEN 122 AND 122+10.0")
         for q in selected_benchmark_queries
     ]
 
 if not args.skip_data_loading:
     import_data()
 
-if args.dbms not in ["hyrise-int", "hyrise"] and args.schema_keys:
+if args.dbms not in ["hyrise-int", "hyrise", "umbra"] and args.schema_keys:
     add_constraints()
 
 if args.dbms in ["monetdb", "umbra", "greenplum", "hyrise-int"]:
     print("Warming up database (complete single-threaded run) due to initial persistence on disk: ", end="")
     sys.stdout.flush()
-    loop(0, selected_benchmark_queries, "shuffled", time.time(), [], 3600, True)
+    loop(0, selected_benchmark_queries, "warmup", time.time(), [], 3600, True)
     print(" done.")
     sys.stdout.flush()
 

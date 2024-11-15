@@ -36,7 +36,7 @@ primary_keys = [
     ("ship_mode", ["sm_ship_mode_sk"]),
     ("time_dim", ["t_time_sk"]),
     # SSB (4)
-    ("lineorder", ["lo_orderkey", "lo_linenumber"])
+    ("lineorder", ["lo_orderkey", "lo_linenumber"]),
     ("ssb_part", ["p_partkey"]),
     ("ssb_supplier", ["s_suppkey"]),
     ("ssb_customer", ["c_custkey"]),
@@ -193,10 +193,10 @@ foreign_keys = [
     ("lineorder", ["lo_commitdate"], "date", ["d_datekey"]),
     # JOB (24)
     ("aka_name", ["person_id"], "name", ["id"]),
-    ("aka_title", ["movie_id"], "title", ["id"]),
+    # ("aka_title", ["id"], "title", ["id"]),  # given in the paper, but invalid on the dataset
     ("cast_info", ["movie_id"], "title", ["id"]),
     ("cast_info", ["person_id"], "name", ["id"]),
-    ("cast_info", ["person_role_id"], "char_name", ["id"]),
+    # ("cast_info", ["person_role_id"], "char_name", ["id"]),  # given in the paper, but invalid on the dataset
     ("cast_info", ["role_id"], "role_type", ["id"]),
     ("complete_cast", ["subject_id"], "comp_cast_type", ["id"]),
     ("complete_cast", ["status_id"], "comp_cast_type", ["id"]),

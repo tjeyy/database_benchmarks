@@ -5,10 +5,7 @@ import zipfile
 
 
 def main():
-    location = (
-        "https://www.dropbox.com/scl/fi/csupwxeg1lnmfknd69mj6/experiment_data.zip?rlkey=grycbrfmmrwft69jx1iuxmvwc&dl=1"
-    )
-    location = "https://my.hidrive.com/lnk/Q942Lh8Hz"
+    location = "https://my.hidrive.com/api/sharelink/download?id=Q942Lh8Hz"
     file_name = "experiment_data.zip"
     data_dir = "resources/experiment_data"
 
@@ -30,7 +27,7 @@ def main():
 
     file = open(file_name, "wb")
 
-    print("- Downloading: %s (%.2f GB)" % (file_name, file_size / 1000 / 1000 / 1000))
+    print(f"- Downloading: {file_name} ({round(file_size / 1000**3, 2)} GB / {round(file_size / 1024**3, 2)} GiB)")
 
     already_retrieved = 0
     block_size = 8192

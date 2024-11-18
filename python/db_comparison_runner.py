@@ -432,7 +432,7 @@ def parse_csv_meta(meta):
 
 def import_data():
     data_path = os.path.join(os.getcwd(), "resources/experiment_data")
-    table_files = sorted([f for f in os.listdir(data_path) if f.endswith(".csv") and ".umbra." not in f])
+    table_files = sorted([f for f in os.listdir(data_path) if f.endswith(".csv")])
 
     if args.dbms == "monetdb":
         load_command = """COPY INTO "{}" FROM '{}' USING DELIMITERS ',', '\n', '"' NULL AS '';"""
@@ -448,10 +448,20 @@ def import_data():
     connection, cursor = get_cursor()
     table_name_regex = re.compile(r'(?<=CREATE\sTABLE\s)"?\w+"?(?=\s*\()', flags=re.IGNORECASE)
     table_order = []
+    create_table_statements = []
     print("- Loading data ...")
 
-    for table_file in table_files:
-        table_name = table_file[: -len(".csv")]
+    for benchmark in ["tpch", "tpcds", "ssb", "job"]:
+        with open(f"resources/schema_{benchmark}.sql") as f:
+            for line in f:
+                stripped_line = line.strip()
+                if not stripped_line:
+                    continue
+                table_name = table_name_regex.search(stripped_line).group().replace('"', "")
+                table_order.append(table_name)
+                create_table_statements.append(stripped_line)
+
+    for table_name in reversed(table_order) :
         cursor.execute(f'DROP TABLE IF EXISTS "{table_name}";')
 
     # Umbra does not allow to add constraints later, so we have to do it now.
@@ -463,33 +473,25 @@ def import_data():
         for table_name, column_names, referenced_table, referenced_column_names in schema_keys.foreign_keys:
             foreign_keys[table_name][referenced_table] = (column_names, referenced_column_names)
 
-    for benchmark in ["tpch", "tpcds", "ssb", "job"]:
-        with open(f"resources/schema_{benchmark}.sql") as f:
-            for line in f:
-                stripped_line = line.strip()
-                if not stripped_line:
-                    continue
-                table_name = table_name_regex.search(stripped_line).group().replace('"', "")
-                table_order.append(table_name)
+    for table_name, create_statement in zip(table_order, create_table_statements):
+        if args.dbms == "greenplum" and not args.rows:
+            create_statement = create_statement[:-1] if create_statement.endswith(";") else create_statement
+            create_statement += "WITH (appendoptimized=true, orientation=column);"
+        if args.dbms in ["hana", "hana-int"]:
+            create_statement = create_statement.replace("text", "nvarchar(1024)")
+        if args.dbms == "umbra" and args.schema_keys:
+            create_statement = create_statement[:-1].strip() if create_statement.endswith(";") else create_statement
+            create_statement = create_statement[:-1]
+            if table_name in primary_keys:
+                create_statement += f""", PRIMARY KEY ({", ".join(primary_keys[table_name])})"""
+            if table_name in foreign_keys:
+                for referenced_table, columns in foreign_keys[table_name].items():
+                    column_names, referenced_column_names = columns
+                    create_statement += f""", FOREIGN KEY ({", ".join(column_names)}) REFERENCES """
+                    create_statement += f""""{referenced_table}" ({", ".join(referenced_column_names)})"""
+            create_statement += ");"
 
-                if args.dbms == "greenplum" and not args.rows:
-                    stripped_line = stripped_line[:-1] if stripped_line.endswith(";") else stripped_line
-                    stripped_line += "WITH (appendoptimized=true, orientation=column);"
-                if args.dbms in ["hana", "hana-int"]:
-                    stripped_line = stripped_line.replace("text", "nvarchar(1024)")
-                if args.dbms == "umbra" and args.schema_keys:
-                    stripped_line = stripped_line[:-1].strip() if stripped_line.endswith(";") else stripped_line
-                    stripped_line = stripped_line[:-1]
-                    if table_name in primary_keys:
-                        stripped_line += f""", PRIMARY KEY ({", ".join(primary_keys[table_name])})"""
-                    if table_name in foreign_keys:
-                        for referenced_table, columns in foreign_keys[table_name].items():
-                            column_names, referenced_column_names = columns
-                            stripped_line += f""", FOREIGN KEY ({", ".join(column_names)}) REFERENCES """
-                            stripped_line += f""""{referenced_table}" ({", ".join(referenced_column_names)})"""
-                    stripped_line += ");"
-
-                cursor.execute(stripped_line)
+        cursor.execute(create_statement)
 
     if args.dbms in ["hana", "hana-int"]:
         cursor.execute(
@@ -499,6 +501,10 @@ def import_data():
 
     for t_id, table_name in enumerate(table_order):
         table_file_path = f"{data_path}/{table_name}.csv"
+        binary_file_path = f"{data_path}/{table_name}.bin"
+        has_binary = os.path.isfile(binary_file_path)
+        if has_binary and args.dbms in ["hyrise", "hyrise-int"]:
+            table_file_path = binary_file_path
         print(f" - ({t_id + 1}/{len(table_order)}) Import {table_name} from {table_file_path} ...", end=" ", flush=True)
         start = time.time()
 
@@ -556,6 +562,10 @@ def import_data():
             except Exception as e:
                 print("\nFailed to import table {}... with exception {}".format(table_name, e))
                 pass
+        if not has_binary and args.dbms in ["hyrise", "hyrise-int"]:
+            print("and cache as binary ...", end=" ", flush=True)
+            cursor.execute(f"""COPY "{table_name}" TO '{binary_file_path}';""")
+
         end = time.time()
         print(f"({round(end - start, 1)} s)")
 

@@ -109,7 +109,9 @@ tables = {
 }
 
 parser = argparse.ArgumentParser()
-parser.add_argument("dbms", type=str, choices=["monetdb", "hyrise", "greenplum", "umbra", "hana", "hyrise-int"])
+parser.add_argument(
+    "dbms", type=str, choices=["monetdb", "hyrise", "greenplum", "umbra", "hana", "hana-int", "hyrise-int"]
+)
 parser.add_argument("--time", "-t", type=int, default=7200)
 parser.add_argument("--port", "-p", type=int, default=5432)
 parser.add_argument("--clients", type=int, default=1)
@@ -139,23 +141,17 @@ assert (
     args.clients == 1 or args.time >= 300
 ), "When multiple clients are set, a shuffled run is initiated, which should last at least 300s."
 
-if args.dbms == "umbra":
+if args.dbms in ["umbra", "hyrise", "hyrise-int"]:
     args.skip_data_loading = False
 
 
 def update_hana_optimized_queries(original_queries):
     updated_queries = {}
     hints = [
-        "NO_JOIN_REMOVAL",
-        "NO_HEX_UNIQUE_INDEX_SEARCH",
-        "NO_HEX_INDEX_JOIN",
-        "NO_INDEX_JOIN",
-        "NO_INDEX_SEARCH",
         "HEX_TABLE_SCAN_SEMI_JOIN",
     ]
     for item, query in original_queries.items():
-        assert query.count(";") < 2
-        updated_queries[item] = f"""{query.replace(";", "")} WITH HINT({", ".join(hints)});"""
+        updated_queries[item] = query.replace(";", f""" WITH HINT({", ".join(hints)})""")
     return updated_queries
 
 
@@ -163,11 +159,7 @@ if args.dbms in ["hana", "hana-int"]:
     tpch_queries.update(static_tpch_queries.hana_queries)
     job_queries.update(static_job_queries.hana_queries)
     ssb_queries.update(static_ssb_queries.umbra_queries)
-    if args.dbms == "hana-int":
-        tpch_queries = update_hana_optimized_queries(tpch_queries)
-        tpcds_queries = update_hana_optimized_queries(tpcds_queries)
-        job_queries = update_hana_optimized_queries(job_queries)
-        ssb_queries = update_hana_optimized_queries(ssb_queries)
+
 elif args.dbms == "umbra":
     ssb_queries.update(static_ssb_queries.umbra_queries)
 
@@ -175,7 +167,7 @@ if args.rewrites or args.O1:
     tpch_queries.update(static_tpch_queries.queries_o1)
     tpcds_queries.update(static_tpcds_queries.queries_o1)
 
-    if args.dbms == "hana":
+    if args.dbms in ["hana", "hana-int"]:
         tpch_queries.update(static_tpch_queries.hana_queries_o1)
 
 if args.rewrites or args.O3:
@@ -184,12 +176,18 @@ if args.rewrites or args.O3:
     job_queries.update(static_job_queries.queries_o3)
     tpcds_queries.update(static_tpcds_queries.queries_o3)
 
-    if args.dbms == "hana":
+    if args.dbms in ["hana", "hana-int"]:
         tpch_queries.update(static_tpch_queries.hana_queries_o3)
         job_queries.update(static_job_queries.hana_queries_o3)
         ssb_queries.update(static_ssb_queries.umbra_queries_o3)
     elif args.dbms == "umbra":
         ssb_queries.update(static_ssb_queries.umbra_queries_o3)
+
+if args.dbms == "hana-int":
+    tpch_queries = update_hana_optimized_queries(tpch_queries)
+    tpcds_queries = update_hana_optimized_queries(tpcds_queries)
+    job_queries = update_hana_optimized_queries(job_queries)
+    ssb_queries = update_hana_optimized_queries(ssb_queries)
 
 tpch_queries = list(tpch_queries.values())
 tpcds_queries = list(tpcds_queries.values())
@@ -205,18 +203,22 @@ assert len(job_queries) == 113
 def get_cursor():
     if args.dbms == "monetdb":
         connection = None
+        attempts = 0
         while connection is None:
             try:
+                attempts += 1
                 connection = pymonetdb.connect("", connect_timeout=600, autocommit=True)
             except Exception as e:
                 print(e)
                 time.sleep(1)
-                raise e
+                if attempts > 5:
+                    raise e
         connection.settimeout(600)
     elif args.dbms in ["hyrise", "hyrise-int"]:
         connection = psycopg2.connect("host=localhost port={}".format(args.port))
     elif args.dbms == "umbra":
-        connection = psycopg2.connect(host="/tmp", user="postgres")
+        # connection = psycopg2.connect(host="/tmp", user="postgres")
+        connection = psycopg2.connect(host="127.0.0.1", user="postgres", password="postgres")
     elif args.dbms == "greenplum":
         host = socket.gethostname()
         connection = psycopg2.connect(host=host, port=args.port, dbname="dbbench", user="bench", password="password")
@@ -237,36 +239,44 @@ def get_cursor():
     return (connection, cursor)
 
 
-def add_constraints():
+def add_constraints(fk_only):
+    if fk_only:
+        return
     connection, cursor = get_cursor()
 
-    add_pk_command = """ALTER TABLE "{}" ADD CONSTRAINT comp_pk_{} PRIMARY KEY ({});"""
-    constraint_id = 1
-    for table_name, column_names in schema_keys.primary_keys:
-        print(f"\r- Add PRIMARY KEY constraints ({constraint_id}/{len(schema_keys.primary_keys)})", end="")
-        cursor.execute(add_pk_command.format(table_name, constraint_id, ", ".join(column_names)))
-        constraint_id += 1
-    print("")
+    start = time.time()
+    if not fk_only:
+        add_pk_command = """ALTER TABLE "{}" ADD CONSTRAINT comp_pk_{} PRIMARY KEY ({});"""
+        constraint_id = 1
+        for table_name, column_names in schema_keys.primary_keys:
+            print(f"\r- Add PRIMARY KEY constraints ({constraint_id}/{len(schema_keys.primary_keys)})", end="")
+            cursor.execute(add_pk_command.format(table_name, constraint_id, ", ".join(column_names)))
+            constraint_id += 1
+        end = time.time()
+        print(f"\r- Added {len(schema_keys.primary_keys)} PRIMARY KEY constraints ({round(end - start, 1)} s)")
+        start = end
 
     add_fk_command = """ALTER TABLE "{}" ADD CONSTRAINT comp_fk_{} FOREIGN KEY ({}) REFERENCES "{}" ({});"""
     constraint_id = 1
     for table_name, column_names, referenced_table, referenced_column_names in schema_keys.foreign_keys:
-        print(f"\r- Add PRIMARY KEY constraints ({constraint_id}/{len(schema_keys.foreign_keys)})", end="")
+        print(f"\r- Add FOREIGN KEY constraints ({constraint_id}/{len(schema_keys.foreign_keys)})", end="")
         cursor.execute(
             add_fk_command.format(
                 table_name, constraint_id, ", ".join(column_names), referenced_table, ", ".join(referenced_column_names)
             )
         )
         constraint_id += 1
-    print("")
+    print(f"\r- Added {len(schema_keys.foreign_keys)} FOREIGN KEY constraints ({round(end - start, 1)} s)")
 
     cursor.close()
-    if args.dbms == "greenplum":
+    if args.dbms in ["umbra", "greenplum"]:
         connection.commit()
     connection.close()
 
 
-def drop_constraints():
+def drop_constraints(fk_only):
+    if fk_only:
+        return
     connection, cursor = get_cursor()
 
     print("- Drop FOREIGN KEY constraints ...")
@@ -280,19 +290,20 @@ def drop_constraints():
             pass
         constraint_id += 1
 
-    print("- Drop PRIMARY KEY constraints ...")
-    drop_pk_command = """ALTER TABLE "{}" DROP CONSTRAINT comp_pk_{};"""
-    constraint_id = 1
+    if not fk_only:
+        print("- Drop PRIMARY KEY constraints ...")
+        drop_pk_command = """ALTER TABLE "{}" DROP CONSTRAINT comp_pk_{};"""
+        constraint_id = 1
 
-    for table_name, _ in schema_keys.primary_keys:
-        try:
-            cursor.execute(drop_pk_command.format(table_name, constraint_id))
-        except Exception:
-            pass
-        constraint_id += 1
+        for table_name, _ in schema_keys.primary_keys:
+            try:
+                cursor.execute(drop_pk_command.format(table_name, constraint_id))
+            except Exception:
+                pass
+            constraint_id += 1
 
     cursor.close()
-    if args.dbms == "greenplum":
+    if args.dbms in ["umbra", "greenplum"]:
         connection.commit()
     connection.close()
 
@@ -303,8 +314,8 @@ dbms_process = None
 def cleanup():
     if dbms_process:
         print("Shutting {} down...".format(args.dbms))
-        if args.schema_keys and args.dbms not in ["hyrise", "hyrise-int", "umbra"]:
-            drop_constraints()
+        if args.dbms == "hana-int" or (args.schema_keys and args.dbms not in ["hyrise", "hyrise-int"]):
+            drop_constraints(args.dbms == "umbra")
         dbms_process.kill()
         time.sleep(10)
 
@@ -351,8 +362,8 @@ elif args.dbms in ["hyrise", "hyrise-int"]:
             "-p",
             str(args.port),
         ],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        # stdout=subprocess.PIPE,
+        # stderr=subprocess.PIPE,
         env=allow_schema_env,
     )
     time.sleep(5)
@@ -363,18 +374,26 @@ elif args.dbms in ["hyrise", "hyrise-int"]:
 elif args.dbms == "umbra":
     import psycopg2
 
-    parallel_dir = {"PARALLEL": "off"} if args.cores == 1 else {"PARALLEL": str(args.cores)}
-    dbms_process = subprocess.Popen(
-        numactl_command
-        + [
-            "{}/db_comparison_data/umbra/bin/server".format(os.getcwd()),
-        ],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-        env=parallel_dir,
-    )
-    print("Waiting 10s for Umbra to start ... ", end="")
-    time.sleep(10)
+    # parallel_dir = {"PARALLEL": "off"} if args.cores == 1 else {"PARALLEL": str(args.cores)}
+    # dbms_process = subprocess.Popen(
+    #     numactl_command
+    #     + [
+    #         "{}/db_comparison_data/umbra/bin/server".format(os.getcwd()),
+    #     ],
+    #     stdout=subprocess.DEVNULL,
+    #     stderr=subprocess.DEVNULL,
+    #     env=parallel_dir,
+    # )
+    # dbms_process = subprocess.Popen(
+    #     ["docker",
+    #      "run",
+    #      "-v umbra-db:/var/db",
+    #      f"-p {args.port}:{args.port}",
+    #      "umbradb/umbra:24.11"
+    #     ],
+    # )
+    # print("Waiting 10s for Umbra to start ... ", end="")
+    # time.sleep(10)
     print("done.")
 elif args.dbms == "greenplum":
     import psycopg2
@@ -420,56 +439,57 @@ def import_data():
     elif args.dbms in ["hyrise", "hyrise-int"]:
         load_command = """COPY "{}" FROM '{}';"""
     elif args.dbms == "umbra":
-        load_command = """COPY "{}" FROM '{}' WITH DELIMITER ',' NULL '';"""
+        load_command = """COPY "{}" FROM '{}' WITH (FORMAT CSV, DELIMITER ',', NULL '', QUOTE '"');"""
     elif args.dbms == "greenplum":
         load_command = """COPY "{}" FROM '{}' WITH (FORMAT CSV, DELIMITER ',', NULL '', QUOTE '"');"""
     elif args.dbms in ["hana", "hana-int"]:
         load_command = """IMPORT FROM CSV FILE '{}' INTO {} WITH FIELD DELIMITED BY ',';"""
 
     connection, cursor = get_cursor()
+    table_name_regex = re.compile(r'(?<=CREATE\sTABLE\s)"?\w+"?(?=\s*\()', flags=re.IGNORECASE)
+    table_order = []
     print("- Loading data ...")
 
-    if args.dbms not in ["hyrise", "hyrise-int"]:
-        for table_file in table_files:
-            table_name = table_file[: -len(".csv")]
-            cursor.execute(f'DROP TABLE IF EXISTS "{table_name}";')
+    for table_file in table_files:
+        table_name = table_file[: -len(".csv")]
+        cursor.execute(f'DROP TABLE IF EXISTS "{table_name}";')
 
-        # Umbra does not allow to add constraints later, so we have to do it now.
-        if args.dbms == "umbra" and args.schema_keys:
-            primary_keys = {}
-            for table_name, column_names in schema_keys.primary_keys:
-                primary_keys[table_name] = column_names
-            foreign_keys = defaultdict(dict)
-            for table_name, column_names, referenced_table, referenced_column_names in schema_keys.foreign_keys:
-                foreign_keys[table_name][referenced_table] = (column_names, referenced_column_names)
+    # Umbra does not allow to add constraints later, so we have to do it now.
+    if args.dbms == "umbra" and args.schema_keys:
+        primary_keys = {}
+        for table_name, column_names in schema_keys.primary_keys:
+            primary_keys[table_name] = column_names
+        foreign_keys = defaultdict(dict)
+        for table_name, column_names, referenced_table, referenced_column_names in schema_keys.foreign_keys:
+            foreign_keys[table_name][referenced_table] = (column_names, referenced_column_names)
 
-        table_name_regex = re.compile(r'(?<=CREATE\sTABLE\s)"?\w+"?(?=\s*\()', flags=re.IGNORECASE)
+    for benchmark in ["tpch", "tpcds", "ssb", "job"]:
+        with open(f"resources/schema_{benchmark}.sql") as f:
+            for line in f:
+                stripped_line = line.strip()
+                if not stripped_line:
+                    continue
+                table_name = table_name_regex.search(stripped_line).group().replace('"', "")
+                table_order.append(table_name)
 
-        for benchmark in ["tpch", "job", "ssb", "tpcds"]:
-            with open(f"resources/schema_{benchmark}.sql") as f:
-                for line in f:
-                    stripped_line = line.strip()
-                    if not stripped_line:
-                        continue
-                    if args.dbms == "greenplum" and not args.rows:
-                        stripped_line = stripped_line[:-1] if stripped_line.endswith(";") else stripped_line
-                        stripped_line += "WITH (appendoptimized=true, orientation=column);"
-                    if args.dbms in ["hana", "hana-int"]:
-                        stripped_line = stripped_line.replace("text", "nvarchar(1024)")
-                    if args.dbms == "umbra" and args.schema_keys:
-                        stripped_line = stripped_line[:-1].strip() if stripped_line.endswith(";") else stripped_line
-                        stripped_line = stripped_line[:-1]
-                        table_name = table_name_regex.search(stripped_line).group().replace('"', "")
-                        if table_name in primary_keys:
-                            stripped_line += f""", PRIMARY KEY ({", ".join(primary_keys[table_name])})"""
-                        if table_name in foreign_keys:
-                            for referenced_table, columns in foreign_keys[table_name].items():
-                                column_names, referenced_column_names = columns
-                                stripped_line += f""", FOREIGN KEY ({", ".join(column_names)}) REFERENCES """
-                                stripped_line += f""""{referenced_table}" ({", ".join(referenced_column_names)})"""
-                        stripped_line += ");"
+                if args.dbms == "greenplum" and not args.rows:
+                    stripped_line = stripped_line[:-1] if stripped_line.endswith(";") else stripped_line
+                    stripped_line += "WITH (appendoptimized=true, orientation=column);"
+                if args.dbms in ["hana", "hana-int"]:
+                    stripped_line = stripped_line.replace("text", "nvarchar(1024)")
+                if args.dbms == "umbra" and args.schema_keys:
+                    stripped_line = stripped_line[:-1].strip() if stripped_line.endswith(";") else stripped_line
+                    stripped_line = stripped_line[:-1]
+                    if table_name in primary_keys:
+                        stripped_line += f""", PRIMARY KEY ({", ".join(primary_keys[table_name])})"""
+                    if table_name in foreign_keys:
+                        for referenced_table, columns in foreign_keys[table_name].items():
+                            column_names, referenced_column_names = columns
+                            stripped_line += f""", FOREIGN KEY ({", ".join(column_names)}) REFERENCES """
+                            stripped_line += f""""{referenced_table}" ({", ".join(referenced_column_names)})"""
+                    stripped_line += ");"
 
-                    cursor.execute(stripped_line)
+                cursor.execute(stripped_line)
 
     if args.dbms in ["hana", "hana-int"]:
         cursor.execute(
@@ -477,33 +497,12 @@ def import_data():
             "('import_export','enable_csv_import_path_filter') = 'false' with reconfigure;"
         )
 
-    for t_id, table_file in enumerate(table_files):
-        table_name = table_file[: -len(".csv")]
-        table_file_path = f"{data_path}/{table_file}"
-        print(f" - ({t_id + 1}/{len(table_files)}) Import {table_name} from {table_file_path} ...", end=" ", flush=True)
+    for t_id, table_name in enumerate(table_order):
+        table_file_path = f"{data_path}/{table_name}.csv"
+        print(f" - ({t_id + 1}/{len(table_order)}) Import {table_name} from {table_file_path} ...", end=" ", flush=True)
         start = time.time()
 
-        if ".umbra.csv" in table_file:
-            continue
-
-        if args.dbms == "umbra":
-            # Umbra seems to have issues as well, so we rewrite the CSVs with '|' or '\r' as delimiter (which is an
-            # ASCII character that does not occur in any file).
-            new_file_path = f"{data_path}/{table_name}.umbra.csv"
-            sep = "|" if table_name not in ["movie_info", "person_info"] else "\r"
-            if not os.path.isfile(new_file_path):
-                with open(table_file_path + ".json") as f:
-                    meta = json.load(f)
-                column_names, column_types, nullable = parse_csv_meta(meta)
-                data = pd.read_csv(
-                    table_file_path, header=None, names=column_names, dtype=column_types, keep_default_na=False
-                )
-                data.to_csv(new_file_path, sep=sep, header=False, index=False)
-            cursor.execute(
-                """COPY "{}" FROM '{}' WITH DELIMITER '{}' NULL '';""".format(table_name, new_file_path, sep)
-            )
-
-        elif args.dbms == "monetdb" and table_name in tables["JOB"]:
+        if args.dbms == "monetdb" and table_name in tables["JOB"]:
             # MonetDB does not like some IMDB CSV files, so we encode them in their binary format.
             binary_data_types = {"Int32": "<i", "Int64": "<q"}
             with open(table_file_path + ".json") as f:
@@ -560,6 +559,20 @@ def import_data():
         end = time.time()
         print(f"({round(end - start, 1)} s)")
 
+    # if args.dbms == "umbra":
+    #     add_fk_command = """ALTER TABLE "{}" ADD CONSTRAINT comp_fk_{} FOREIGN KEY ({}) REFERENCES "{}" ({});"""
+    #     constraint_id = 1
+    #     for table_name, column_names, referenced_table, referenced_column_names in schema_keys.foreign_keys:
+    #         print(f"\r- Add FOREIGN KEY constraints ({constraint_id}/{len(schema_keys.foreign_keys)})", end="")
+    #         cursor.execute(
+    #             add_fk_command.format(
+    #                 table_name, constraint_id, ", ".join(column_names), referenced_table,
+    #                 ", ".join(referenced_column_names)
+    #             )
+    #         )
+    #         constraint_id += 1
+    #     print("")
+
     cursor.close()
     if args.dbms in ["umbra", "greenplum"]:
         connection.commit()
@@ -596,7 +609,7 @@ def loop(thread_id, queries, query_id, start_time, successful_runs, timeout, is_
             random.shuffle(items)
         else:
             items = [queries[query_id - 1]]
-        if args.dbms == "hana":
+        if args.dbms in ["hana", "hana-int"]:
             split_items = []
             for item in items:
                 split_items += split_query(item)
@@ -639,8 +652,8 @@ if args.dbms == "monetdb":
 if not args.skip_data_loading:
     import_data()
 
-if args.dbms not in ["hyrise-int", "hyrise", "umbra"] and args.schema_keys:
-    add_constraints()
+if (args.dbms not in ["hyrise-int", "hyrise"] and args.schema_keys) or args.dbms == "hana-int":
+    add_constraints(args.dbms == "umbra")
 
 if args.dbms in ["monetdb", "umbra", "greenplum", "hyrise-int"]:
     print("Warming up database (complete single-threaded run) due to initial persistence on disk: ", end="")

@@ -1,3 +1,4 @@
+CREATE TABLE kind_type ( id integer NOT NULL , kind character varying(15) NOT NULL );
 CREATE TABLE comp_cast_type ( id integer NOT NULL , kind character varying(32) NOT NULL );
 CREATE TABLE company_name ( id integer NOT NULL , name text NOT NULL, country_code character varying(255), imdb_id integer, name_pcode_nf character varying(5), name_pcode_sf character varying(5), md5sum character varying(32) );
 CREATE TABLE company_type ( id integer NOT NULL , kind character varying(32) NOT NULL );
@@ -12,7 +13,6 @@ CREATE TABLE aka_name ( id integer NOT NULL , person_id integer NOT NULL, name t
 CREATE TABLE aka_title ( id integer NOT NULL , movie_id integer NOT NULL, title text NOT NULL, imdb_index character varying(12), kind_id integer NOT NULL, production_year integer, phonetic_code character varying(5), episode_of_id integer, season_nr integer, episode_nr integer, note text, md5sum character varying(32) );
 CREATE TABLE cast_info ( id integer NOT NULL , person_id integer NOT NULL, movie_id integer NOT NULL, person_role_id integer, note text, nr_order integer, role_id integer NOT NULL );
 CREATE TABLE complete_cast ( id integer NOT NULL , movie_id integer, subject_id integer NOT NULL, status_id integer NOT NULL );
-CREATE TABLE kind_type ( id integer NOT NULL , kind character varying(15) NOT NULL );
 CREATE TABLE movie_companies ( id integer NOT NULL , movie_id integer NOT NULL, company_id integer NOT NULL, company_type_id integer NOT NULL, note text );
 CREATE TABLE movie_info ( id integer NOT NULL , movie_id integer NOT NULL, info_type_id integer NOT NULL, info text NOT NULL, note text );
 CREATE TABLE movie_info_idx ( id integer NOT NULL , movie_id integer NOT NULL, info_type_id integer NOT NULL, info text NOT NULL, note text );

@@ -193,10 +193,10 @@ foreign_keys = [
     ("lineorder", ["lo_commitdate"], "date", ["d_datekey"]),
     # JOB (24)
     ("aka_name", ["person_id"], "name", ["id"]),
-    # ("aka_title", ["id"], "title", ["id"]),  # given in the paper, but invalid on the dataset
+    # ("aka_title", ["id"], "title", ["id"]),  # given in the paper, but invalid on the dataset (93 violating tuples)
     ("cast_info", ["movie_id"], "title", ["id"]),
     ("cast_info", ["person_id"], "name", ["id"]),
-    # ("cast_info", ["person_role_id"], "char_name", ["id"]),  # given in the paper, but invalid on the dataset
+    ("cast_info", ["person_role_id"], "char_name", ["id"]),
     ("cast_info", ["role_id"], "role_type", ["id"]),
     ("complete_cast", ["subject_id"], "comp_cast_type", ["id"]),
     ("complete_cast", ["status_id"], "comp_cast_type", ["id"]),

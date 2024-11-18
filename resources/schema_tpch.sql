@@ -1,5 +1,5 @@
-CREATE TABLE nation ( n_nationkey INTEGER not null, n_name CHAR(25) not null, n_regionkey INTEGER not null, n_comment VARCHAR(152) );
 CREATE TABLE region ( r_regionkey INTEGER not null, r_name CHAR(25) not null, r_comment VARCHAR(152) );
+CREATE TABLE nation ( n_nationkey INTEGER not null, n_name CHAR(25) not null, n_regionkey INTEGER not null, n_comment VARCHAR(152) );
 CREATE TABLE tpch_part ( p_partkey INTEGER not null, p_name VARCHAR(55) not null, p_mfgr CHAR(25) not null, p_brand CHAR(10) not null, p_type VARCHAR(25) not null, p_size INTEGER not null, p_container CHAR(10) not null, p_retailprice DECIMAL(12,2) not null, p_comment VARCHAR(23) not null );
 CREATE TABLE tpch_supplier ( s_suppkey INTEGER not null, s_name CHAR(25) not null, s_address VARCHAR(40) not null, s_nationkey INTEGER not null, s_phone CHAR(15) not null, s_acctbal DECIMAL(12,2) not null, s_comment VARCHAR(101) not null );
 CREATE TABLE partsupp ( ps_partkey INTEGER not null, ps_suppkey INTEGER not null, ps_availqty INTEGER not null, ps_supplycost DECIMAL(12,2) not null, ps_comment VARCHAR(199) not null );

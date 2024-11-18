@@ -30,11 +30,12 @@ cmake -DCMAKE_INSTALL_PREFIX="$monetdb_home" -DASSERT=OFF -DCMAKE_BUILD_TYPE=Rel
 cmake --build . --target install -- -j "$(nproc)"
 
 # Download and unpack Umbra binaries.
-cd "$project_root"/db_comparison_data
-curl "https://db.in.tum.de/~fent/umbra-2024-03-28.tar.xz" -o umbra-2024-03-28.tar.xz
-tar xf umbra-2024-03-28.tar.xz
-rm umbra-2024-03-28.tar.xz
-cd "$project_root"
+# cd "$project_root"/db_comparison_data
+# curl "https://db.in.tum.de/~fent/umbra-2024-03-28.tar.xz" -o umbra-2024-03-28.tar.xz
+# tar xf umbra-2024-03-28.tar.xz
+# rm umbra-2024-03-28.tar.xz
+# cd "$project_root"
+docker pull umbradb/umbra:24.11
 
 # Build and install Greenplum binaries.
 cd "$project_root"/greenplum

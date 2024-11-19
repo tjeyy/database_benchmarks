@@ -266,6 +266,7 @@ def add_constraints(fk_only):
             )
         )
         constraint_id += 1
+    end = time.time()
     print(f"\r- Added {len(schema_keys.foreign_keys)} FOREIGN KEY constraints ({round(end - start, 1)} s)")
 
     cursor.close()
@@ -362,13 +363,14 @@ elif args.dbms in ["hyrise", "hyrise-int"]:
             "-p",
             str(args.port),
         ],
-        # stdout=subprocess.PIPE,
-        # stderr=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         env=allow_schema_env,
     )
     time.sleep(5)
     while True:
         line = dbms_process.stdout.readline()
+        print(line.decode())
         if b"Server started at" in line:
             break
 elif args.dbms == "umbra":

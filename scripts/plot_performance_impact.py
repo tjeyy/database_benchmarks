@@ -170,13 +170,17 @@ def main(commit, data_dir, output_dir, scale):
         plt.ylabel("Latency w/ optimizations [s]", fontsize=8 * 2)
         plt.xlabel("Base latency [s]", fontsize=8 * 2)
         ax.tick_params(
-            axis="both", which="major", labelsize=7 * 2, width=1, length=6, bottom=True, left=True, color="lightgrey"
+            axis="both", which="major", labelsize=7 * 2, width=1, length=6, bottom=True, left=True, color="black"
         )
         ax.tick_params(
-            axis="both", which="minor", labelsize=7 * 2, width=0.5, length=4, bottom=True, left=True, color="lightgrey"
+            axis="both", which="minor", labelsize=7 * 2, width=0.5, length=4, bottom=True, left=True, color="black"
         )
         plt.grid(which="minor", axis="both", visible=True, linewidth=0.5, alpha=0.5)
         plt.grid(which="major", axis="both", visible=True)
+        ax.spines["top"].set_color("black")
+        ax.spines["bottom"].set_color("black")
+        ax.spines["left"].set_color("black")
+        ax.spines["right"].set_color("black")
 
         fig = plt.gcf()
         column_width = 3.3374

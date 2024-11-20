@@ -29,7 +29,7 @@ def to_s(v):
     def val_to_s(x):
         return x / 10**9
 
-    if type(v) != list:
+    if not isinstance(v, list):
         return val_to_s(v)
     return [val_to_s(i) for i in v]
 

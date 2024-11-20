@@ -35,7 +35,7 @@ def to_s(v):
     def val_to_s(x):
         return x / 10**9
 
-    if type(v) != list:
+    if not isinstance(v, list):
         return val_to_s(v)
     return [val_to_s(i) for i in v]
 
@@ -259,7 +259,7 @@ def main(commit, data_dir, output_dir, scale):
         y_label = "Execution benefit [s]" if measurement_type == "abs" else "Share of Execution benefit [%]"
         plt.ylabel(y_label, fontsize=8 * 2)
         plt.xlabel("Scale factor", fontsize=8 * 2)
-        plt.legend(fontsize=6 * 2, fancybox=False, framealpha=1.0, ncols=2)
+        plt.legend(fontsize=6 * 2, fancybox=False, framealpha=1.0, ncols=2, edgecolor="black")
         ax.tick_params(
             axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, bottom=True, color="lightgrey"
         )
@@ -320,8 +320,12 @@ def main(commit, data_dir, output_dir, scale):
                 length=6,
                 left=True,
                 bottom=True,
-                color="lightgrey",
+                color="black",
             )
+            ax.spines["top"].set_color("black")
+            ax.spines["bottom"].set_color("black")
+            ax.spines["left"].set_color("black")
+            ax.spines["right"].set_color("black")
 
             fig = plt.gcf()
             column_width = 3.3374

@@ -2,7 +2,6 @@
 
 import argparse as ap
 import os
-from collections import defaultdict
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -22,83 +21,77 @@ def parse_args():
 
 def grep_throughput_change(old_result_file, new_result_file, clients, runtime):
     if not (os.path.isfile(old_result_file) and os.path.isfile(new_result_file)):
-        return 0
+        print("-")
+        return 1
     df_old = pd.read_csv(old_result_file)
     df_new = pd.read_csv(new_result_file)
 
     df_old = df_old[df_old.CLIENTS == clients]
     df_new = df_new[df_new.CLIENTS == clients]
+
+    print(
+        f'{round((1 - (df_new["RUNTIME_MS"].mean() / 1000) / (df_old["RUNTIME_MS"].mean() / 1000)) * 100, 2)}%', end=" "
+    )
+
+    print(f'({round(df_old["RUNTIME_MS"].mean() / 1000, 2)} / {round(df_new["RUNTIME_MS"].mean() / 1000, 2)})')
 
     old_throughput = runtime / (df_old["RUNTIME_MS"].mean() / 1000)
     new_throughput = runtime / (df_new["RUNTIME_MS"].mean() / 1000)
 
-    return new_throughput / old_throughput * 100 - 100
-
-
-def get_offsets(key, changes, factor):
-    num_configs = max(len(c.keys()) for c in changes.values())
-    step_size = 2 / (num_configs - 1)
-    num_entries = len(changes[key].keys())
-    diff = num_configs - num_entries
-
-    base_offsets = np.arange(-1, 1.001, step_size)
-    if diff % 2 != 0:
-        base_offsets = np.arange(-1 + (step_size / 2), 1.001 - (step_size / 2), step_size)
-        num_configs = len(base_offsets)
-        diff = num_configs - num_entries
-    return [o * factor for o in base_offsets[diff // 2 : num_configs - diff // 2]]
+    return new_throughput / old_throughput
 
 
 def grep_runtime_change(old_result_file, new_result_file, clients, runtime):
     if not (os.path.isfile(old_result_file) and os.path.isfile(new_result_file)):
-        return 5
+        print("-")
+        return 1
     df_old = pd.read_csv(old_result_file)
     df_new = pd.read_csv(new_result_file)
 
     df_old = df_old[df_old.CLIENTS == clients]
     df_new = df_new[df_new.CLIENTS == clients]
 
+    print(
+        f'{round((1 - (df_new["RUNTIME_MS"].mean() / 1000) / (df_old["RUNTIME_MS"].mean() / 1000)) * 100, 2)}%', end=" "
+    )
+
+    print(f'({round(df_old["RUNTIME_MS"].mean() / 1000, 2)} / {round(df_new["RUNTIME_MS"].mean() / 1000, 2)})')
+
     old_runtime = df_old["RUNTIME_MS"].mean()
     new_runtime = df_new["RUNTIME_MS"].mean()
 
-    return 100 - (new_runtime / old_runtime) * 100
+    return new_runtime / old_runtime
 
 
 def main(data_dir, output_dir, metric):
     clients = 32
     runtime = 7200
-    order = list(reversed(["hyrise-int", "hyrise", "hana-int", "hana", "umbra", "monetdb", "greenplum"]))
-    changes = defaultdict(dict)
+    order = list(reversed(["hyrise-int", "hyrise", "umbra", "hana", "monetdb", "greenplum"]))
+    changes = dict()
     HANA_NAME = "SAP HANA"
 
     for benchmark in ["all"]:  # , "TPCH", "TPCDS", "SSB", "JOB"]:
         print(f"\n\n{benchmark}")
 
+        print("LATENCY")
         for dbms in order:
+            print(dbms, end=": ")
             common_path = f"database_comparison__{benchmark}__{dbms}"
-            base_path = os.path.join(data_dir, common_path + ".csv")
-            rewrites_path = os.path.join(data_dir, common_path + "__rewrites.csv")
-            keys_path = os.path.join(data_dir, common_path + "__keys.csv")
-            rewrites_keys_path = os.path.join(data_dir, common_path + "__rewrites__keys.csv")
+            old_path = os.path.join(data_dir, common_path + ".csv")
+            new_path = os.path.join(data_dir, common_path + "__rewrites.csv")
+            if dbms == "hyrise-int":
+                new_path = old_path
+                old_path = os.path.join(data_dir, common_path[: -len("-int")] + ".csv")
             method = grep_throughput_change if metric == "throughput" else grep_runtime_change
-            if dbms.endswith("-int"):
-                optimizer_path = base_path
-                base_path = os.path.join(data_dir, common_path[: -len("-int")] + ".csv")
-                changes[dbms[: -len("-int")]]["optimizer"] = method(base_path, optimizer_path, clients, runtime)
-                # changes[dbms[:-len("-int")]]["opt_rewrites"] = method(base_path, rewrites_path, clients, runtime)
-                continue
-
-            changes[dbms]["rewrites"] = method(base_path, rewrites_path, clients, runtime)
-            changes[dbms]["keys"] = method(base_path, keys_path, clients, runtime)
-            changes[dbms]["rewrites_keys"] = method(base_path, rewrites_keys_path, clients, runtime)
-        order = [d for d in order if not d.endswith("-int")]
+            changes[dbms] = method(old_path, new_path, clients, runtime)
+        if all([v == 1 for v in changes.values()]):
+            continue
+        changes = {k: abs((v - 1) * 100) for k, v in changes.items()}
 
         print(metric.upper())
-        max_len = max([len(s) for s in changes["hyrise"].keys()])
+        max_len = max([len(db) for db in order])
         for dbms in order:
-            print(dbms.title())
-            for c, v in changes[dbms].items():
-                print(f"    {c.rjust(max_len)}: {round(v, 2)}%")
+            print(f"{dbms.rjust(max_len)}: {round(changes[dbms], 2)}%")
 
         names = {
             "hyrise-int": "Hyrise\n(optimizer)",
@@ -111,6 +104,7 @@ def main(data_dir, output_dir, metric):
         }
 
         sns.set_theme(style="whitegrid")
+        bar_width = 0.4
         mpl.use("pgf")
 
         plt.rcParams.update(
@@ -137,40 +131,15 @@ def main(data_dir, output_dir, metric):
             }
         )
 
-        base_palette = Safe_10.hex_colors
-        configs = ["keys", "rewrites", "rewrites_keys", "optimizer"]  # , "opt_rewrites"]
-        colors = {c: base_palette[i] for i, c in enumerate(configs)}
-
         group_centers = np.arange(len(order))
-        offsets = {d: get_offsets(d, changes, 3) for d in changes.keys()}
-        bar_width = 0.175
-        margin = 0.01
+        db_count = len(order) - 1
+        hatches = [None] * db_count + ["/"]
+        colors = [c for c in Safe_10.hex_colors[:db_count]] + [Safe_10.hex_colors[db_count - 1]]
 
-        labels = {
-            "keys": r"PKs, FKs",
-            "rewrites": r"SQL rewrites",
-            "rewrites_keys": "PKs, FKs, SQL rewrites",
-            "optimizer": "Optimizer",
-            "opt_rewrites": "Optimizer, SQL rewrites",
-        }
-
-        ax = plt.gca()
-        for offset_id, config in enumerate(configs[:3]):
-            bar_positions = [
-                p + offsets[d][offset_id] * (0.5 * bar_width + margin) for d, p in zip(order, group_centers)
-            ]
-            data = [changes[d][config] for d in order]
-            ax.bar(bar_positions, data, bar_width, color=colors[config], label=labels[config], edgecolor="none")
-
-        for config in configs[-1:]:
-            offset_id = configs.index(config)
-            bar_positions = [
-                p + offsets[d][offset_id] * (0.5 * bar_width + margin) for d, p in zip(order[-2:], group_centers[-2:])
-            ]
-            data = [changes[d][config] for d in order[-2:]]
-            ax.bar(bar_positions, data, bar_width, color=colors[config], label=labels[config], edgecolor="none")
-
-        ax.set_ylim(0, ax.get_ylim()[1] * 1.25)
+        for d, color, pos, h in zip(order, colors, group_centers, hatches):
+            plt.bar(
+                [pos], [changes[d]], bar_width, color=color, hatch=h, edgecolor="white", linewidth=0.0, linestyle=""
+            )
 
         plt.xticks(group_centers, [names[d] for d in order], rotation=0)
         ax = plt.gca()
@@ -186,19 +155,6 @@ def main(data_dir, output_dir, metric):
         ax.spines["right"].set_color("black")
 
         plt.grid(axis="x", visible=False)
-        plt.legend(
-            loc="best",
-            fontsize=6 * 2,
-            ncol=4,
-            fancybox=False,
-            framealpha=1.0,
-            columnspacing=1.0,
-            labelspacing=0.25,
-            handlelength=1.5,
-            handletextpad=0.4,
-            edgecolor="black",
-        )
-
         fig = plt.gcf()
         column_width = 3.3374
         fig_width = column_width * 2
@@ -207,7 +163,7 @@ def main(data_dir, output_dir, metric):
         plt.tight_layout(pad=0)
 
         plt.savefig(
-            os.path.join(output_dir, f"systems_comparison_{benchmark.lower()}_{metric}.pdf"),
+            os.path.join(output_dir, f"systems_comparison_simple_{benchmark.lower()}_{metric}.pdf"),
             dpi=300,
             bbox_inches="tight",
         )

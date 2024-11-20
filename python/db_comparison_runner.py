@@ -129,9 +129,9 @@ parser.add_argument("--no_numactl", action="store_true")
 parser.add_argument("--schema_keys", action="store_true")
 args = parser.parse_args()
 assert not (args.rewrites and (args.O1 or args.O3)), "--rewrites is shorthand for --O1 --O3"
-assert not (
-    any([args.rewrites, args.O1, args.O3]) and "-int" in args.dbms
-), "Internal optimization works on original queries"
+# assert not (
+#     any([args.rewrites, args.O1, args.O3]) and "-int" in args.dbms
+# ), "Internal optimization works on original queries"
 
 if args.dbms in ["hyrise", "hyrise-int"]:
     hyrise_server_path = Path(args.hyrise_server_path).expanduser().resolve()
@@ -370,7 +370,7 @@ elif args.dbms in ["hyrise", "hyrise-int"]:
     time.sleep(5)
     while True:
         line = dbms_process.stdout.readline()
-        print(line.decode())
+        print(line.decode(), end="")
         if b"Server started at" in line:
             break
 elif args.dbms == "umbra":
@@ -434,7 +434,6 @@ def parse_csv_meta(meta):
 
 def import_data():
     data_path = os.path.join(os.getcwd(), "resources/experiment_data")
-    table_files = sorted([f for f in os.listdir(data_path) if f.endswith(".csv")])
 
     if args.dbms == "monetdb":
         load_command = """COPY INTO "{}" FROM '{}' USING DELIMITERS ',', '\n', '"' NULL AS '';"""
@@ -454,6 +453,8 @@ def import_data():
     print("- Loading data ...")
 
     for benchmark in ["tpch", "tpcds", "ssb", "job"]:
+        # if args.benchmark != "all" and args.benchmark.lower() != benchmark:
+        #     continue
         with open(f"resources/schema_{benchmark}.sql") as f:
             for line in f:
                 stripped_line = line.strip()
@@ -463,7 +464,7 @@ def import_data():
                 table_order.append(table_name)
                 create_table_statements.append(stripped_line)
 
-    for table_name in reversed(table_order) :
+    for table_name in reversed(table_order):
         cursor.execute(f'DROP TABLE IF EXISTS "{table_name}";')
 
     # Umbra does not allow to add constraints later, so we have to do it now.
@@ -475,25 +476,26 @@ def import_data():
         for table_name, column_names, referenced_table, referenced_column_names in schema_keys.foreign_keys:
             foreign_keys[table_name][referenced_table] = (column_names, referenced_column_names)
 
-    for table_name, create_statement in zip(table_order, create_table_statements):
-        if args.dbms == "greenplum" and not args.rows:
-            create_statement = create_statement[:-1] if create_statement.endswith(";") else create_statement
-            create_statement += "WITH (appendoptimized=true, orientation=column);"
-        if args.dbms in ["hana", "hana-int"]:
-            create_statement = create_statement.replace("text", "nvarchar(1024)")
-        if args.dbms == "umbra" and args.schema_keys:
-            create_statement = create_statement[:-1].strip() if create_statement.endswith(";") else create_statement
-            create_statement = create_statement[:-1]
-            if table_name in primary_keys:
-                create_statement += f""", PRIMARY KEY ({", ".join(primary_keys[table_name])})"""
-            if table_name in foreign_keys:
-                for referenced_table, columns in foreign_keys[table_name].items():
-                    column_names, referenced_column_names = columns
-                    create_statement += f""", FOREIGN KEY ({", ".join(column_names)}) REFERENCES """
-                    create_statement += f""""{referenced_table}" ({", ".join(referenced_column_names)})"""
-            create_statement += ");"
+    if args.dbms not in ["hyrise", "hyrise-int"]:
+        for table_name, create_statement in zip(table_order, create_table_statements):
+            if args.dbms == "greenplum" and not args.rows:
+                create_statement = create_statement[:-1] if create_statement.endswith(";") else create_statement
+                create_statement += "WITH (appendoptimized=true, orientation=column);"
+            if args.dbms in ["hana", "hana-int"]:
+                create_statement = create_statement.replace("text", "nvarchar(1024)")
+            if args.dbms == "umbra" and args.schema_keys:
+                create_statement = create_statement[:-1].strip() if create_statement.endswith(";") else create_statement
+                create_statement = create_statement[:-1]
+                if table_name in primary_keys:
+                    create_statement += f""", PRIMARY KEY ({", ".join(primary_keys[table_name])})"""
+                if table_name in foreign_keys:
+                    for referenced_table, columns in foreign_keys[table_name].items():
+                        column_names, referenced_column_names = columns
+                        create_statement += f""", FOREIGN KEY ({", ".join(column_names)}) REFERENCES """
+                        create_statement += f""""{referenced_table}" ({", ".join(referenced_column_names)})"""
+                create_statement += ");"
 
-        cursor.execute(create_statement)
+            cursor.execute(create_statement)
 
     if args.dbms in ["hana", "hana-int"]:
         cursor.execute(
@@ -564,6 +566,7 @@ def import_data():
             except Exception as e:
                 print("\nFailed to import table {}... with exception {}".format(table_name, e))
                 pass
+
         if not has_binary and args.dbms in ["hyrise", "hyrise-int"]:
             print("and cache as binary ...", end=" ", flush=True)
             cursor.execute(f"""COPY "{table_name}" TO '{binary_file_path}';""")
@@ -667,7 +670,7 @@ if not args.skip_data_loading:
 if (args.dbms not in ["hyrise-int", "hyrise"] and args.schema_keys) or args.dbms == "hana-int":
     add_constraints(args.dbms == "umbra")
 
-if args.dbms in ["monetdb", "umbra", "greenplum", "hyrise-int"]:
+if args.dbms in ["monetdb", "umbra", "greenplum", "hyrise-int"] or (args.dbms == "hyrise" and args.schema_keys):
     print("Warming up database (complete single-threaded run) due to initial persistence on disk: ", end="")
     sys.stdout.flush()
     loop(0, selected_benchmark_queries, "warmup", time.time(), [], 3600, True)

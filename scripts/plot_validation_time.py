@@ -153,11 +153,15 @@ def main(commit, data_dir, output_dir, scale):
 
         plt.xlabel(r"Candidate type\thinspace($\#$)", fontsize=8 * 2)
         plt.ylabel("Validation time [ms]", fontsize=8 * 2)
-        ax.tick_params(axis="y", which="major", labelsize=7 * 2, width=1, length=6, left=True, color="lightgrey")
-        ax.tick_params(axis="y", which="minor", labelsize=7 * 2, width=0.5, length=4, left=True, color="lightgrey")
+        ax.tick_params(axis="y", which="major", labelsize=7 * 2, width=1, length=6, left=True, color="black")
+        ax.tick_params(axis="y", which="minor", labelsize=7 * 2, width=0.5, length=4, left=True, color="black")
         ax.tick_params(axis="x", which="major", labelsize=6 * 2)
         ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
         ax.yaxis.set_minor_locator(FixedLocator(minor_ticks))
+        ax.spines["top"].set_color("black")
+        ax.spines["bottom"].set_color("black")
+        ax.spines["left"].set_color("black")
+        ax.spines["right"].set_color("black")
 
         fig = plt.gcf()
         column_width = 3.3374

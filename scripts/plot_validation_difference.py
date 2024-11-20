@@ -141,7 +141,7 @@ def main(commit, data_dir, output_dir, scale):
         print()
 
         ax = plt.gca()
-        ax.bar(bar_positions, t_sum, bar_width, color=color, label=f"{impl[0].upper()}{impl[1:]}")
+        ax.bar(bar_positions, t_sum, bar_width, color=color, label=f"{impl[0].upper()}{impl[1:]}", edgecolor="none")
 
         for y, x in zip(t_sum, bar_positions):
             label = str(round(y, 1))
@@ -201,14 +201,18 @@ def main(commit, data_dir, output_dir, scale):
     y_label = "Validation runtime [ms]"
     plt.ylabel(y_label, fontsize=8 * 2)
     plt.xlabel("Benchmark", fontsize=8 * 2)
-    plt.legend(loc="best", fontsize=7 * 2, ncol=2, fancybox=False, framealpha=1.0)
+    plt.legend(loc="best", fontsize=7 * 2, ncol=2, fancybox=False, framealpha=1.0, edgecolor="black")
     plt.grid(axis="x", visible=False)
     fig = plt.gcf()
 
-    ax.tick_params(axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, color="lightgrey")
-    ax.tick_params(axis="y", which="minor", width=0.5, length=4, left=True, color="lightgrey")
+    ax.tick_params(axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, color="black")
+    ax.tick_params(axis="y", which="minor", width=0.5, length=4, left=True, color="black")
     ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
     ax.yaxis.set_minor_locator(FixedLocator(minor_ticks))
+    ax.spines["top"].set_color("black")
+    ax.spines["bottom"].set_color("black")
+    ax.spines["left"].set_color("black")
+    ax.spines["right"].set_color("black")
 
     column_width = 3.3374
     fig_width = column_width * 2

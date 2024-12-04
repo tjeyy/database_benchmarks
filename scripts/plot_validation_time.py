@@ -18,7 +18,7 @@ def parse_args():
     parser.add_argument("commit", type=str)
     parser.add_argument("--data", "-d", type=str, default="./hyrise/cmake-build-release/benchmark_plugin_results")
     parser.add_argument("--output", "-o", type=str, default="./figures")
-    parser.add_argument("--scale", "-s", type=str, default="log", choices=["linear", "log", "symlog"])
+    parser.add_argument("--scale", "-s", type=str, default="symlog", choices=["linear", "log", "symlog"])
     return parser.parse_args()
 
 
@@ -27,8 +27,7 @@ def format_number(n):
 
 
 def main(commit, data_dir, output_dir, scale):
-    sns.set()
-    sns.set_theme(style="whitegrid")
+    sns.set_theme(style="white")
 
     mpl.use("pgf")
 
@@ -115,7 +114,8 @@ def main(commit, data_dir, output_dir, scale):
             y="time",
             palette=colors,
             saturation=1.0,
-            # hue="type",
+            hue="type",
+            legend=False,
             order=unique_keys,
             # boxprops={"fc": "w", "ec": "k"},
             boxprops={"ec": "k"},
@@ -128,8 +128,12 @@ def main(commit, data_dir, output_dir, scale):
 
         ax = plt.gca()
 
-        y_max = max(plot_data["time"]) * 1.5
-        # ax.get_legend().remove()
+        y_max = max(plot_data["time"])
+        y_scale_factor = 1.5
+        if y_max < 0.1:
+            y_scale_factor = 1.15
+        y_max *= y_scale_factor
+        y_max = max(0.1, y_max)
 
         if scale == "symlog":
             ax.set_yscale("symlog", linthresh=0.1)
@@ -153,15 +157,13 @@ def main(commit, data_dir, output_dir, scale):
 
         plt.xlabel(r"Candidate type\thinspace($\#$)", fontsize=8 * 2)
         plt.ylabel("Validation time [ms]", fontsize=8 * 2)
-        ax.tick_params(axis="y", which="major", labelsize=7 * 2, width=1, length=6, left=True, color="black")
-        ax.tick_params(axis="y", which="minor", labelsize=7 * 2, width=0.5, length=4, left=True, color="black")
-        ax.tick_params(axis="x", which="major", labelsize=6 * 2)
-        ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
+        ax.tick_params(axis="y", which="major", labelsize=7 * 2, width=1, length=6, left=True)
+        ax.tick_params(axis="y", which="minor", labelsize=7 * 2, width=0.5, length=4, left=True)
+        ax.tick_params(axis="x", which="major", labelsize=6 * 2, width=1, length=6, bottom=True)
+        if scale != "log" or y_max < 0.1:
+            ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
         ax.yaxis.set_minor_locator(FixedLocator(minor_ticks))
-        ax.spines["top"].set_color("black")
-        ax.spines["bottom"].set_color("black")
-        ax.spines["left"].set_color("black")
-        ax.spines["right"].set_color("black")
+        plt.grid(axis="y", visible=True)
 
         fig = plt.gcf()
         column_width = 3.3374

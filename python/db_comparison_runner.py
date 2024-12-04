@@ -396,6 +396,7 @@ elif args.dbms == "umbra":
     # )
     # print("Waiting 10s for Umbra to start ... ", end="")
     # time.sleep(10)
+    # umbra docker: docker run -v /mnt/data/umbra:/var/db -p 5432:5432 umbradb/umbra:24.11 --cpuset-cpus 56-83,168-195 --cpuset-mems 2
     print("done.")
 elif args.dbms == "greenplum":
     import psycopg2
@@ -669,6 +670,8 @@ if not args.skip_data_loading:
 
 if (args.dbms not in ["hyrise-int", "hyrise"] and args.schema_keys) or args.dbms == "hana-int":
     add_constraints(args.dbms == "umbra")
+else:
+    drop_constraints(args.dbms == "umbra")
 
 if args.dbms in ["monetdb", "umbra", "greenplum", "hyrise-int"] or (args.dbms == "hyrise" and args.schema_keys):
     print("Warming up database (complete single-threaded run) due to initial persistence on disk: ", end="")

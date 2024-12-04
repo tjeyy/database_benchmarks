@@ -164,8 +164,7 @@ def main(commit, data_dir, output_dir, scale):
         [latency_improvements, latency_improvements_relative],
         [discovery_times, discovery_times_relative],
     ):
-        sns.set()
-        sns.set_theme(style="whitegrid")
+        sns.set_theme(style="white")
         mpl.use("pgf")
 
         plt.rcParams.update(
@@ -260,9 +259,7 @@ def main(commit, data_dir, output_dir, scale):
         plt.ylabel(y_label, fontsize=8 * 2)
         plt.xlabel("Scale factor", fontsize=8 * 2)
         plt.legend(fontsize=6 * 2, fancybox=False, framealpha=1.0, ncols=2, edgecolor="black")
-        ax.tick_params(
-            axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, bottom=True, color="lightgrey"
-        )
+        ax.tick_params(axis="both", which="major", labelsize=7 * 2, width=1, length=6)
 
         fig = plt.gcf()
         column_width = 3.3374
@@ -302,6 +299,9 @@ def main(commit, data_dir, output_dir, scale):
                 ax.set_yscale(scale)
             max_lim = plt.ylim()[1]
             if scale != "log":
+                if measurement_type == "abs" and measurement == "Latency improvement" and max(pl_data.y) < 123:
+                    max_lim = min(max_lim, 124.99)
+                    ax.yaxis.set_major_locator(FixedLocator(list(range(0, int(max_lim), 20))))
                 plt.ylim((0, max_lim))
             ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x, 1)))
             ax.xaxis.set_major_locator(FixedLocator([1] + list(range(20, 101, 20))))
@@ -311,21 +311,10 @@ def main(commit, data_dir, output_dir, scale):
             y_label += time_unit if measurement_type == "abs" else " [%]"
             plt.ylabel(y_label, fontsize=8 * 2)
             plt.xlabel("Scale factor", fontsize=8 * 2)
-            plt.legend(fontsize=7 * 2, fancybox=False, framealpha=1.0)
-            ax.tick_params(
-                axis="both",
-                which="major",
-                labelsize=7 * 2,
-                width=1,
-                length=6,
-                left=True,
-                bottom=True,
-                color="black",
-            )
-            ax.spines["top"].set_color("black")
-            ax.spines["bottom"].set_color("black")
-            ax.spines["left"].set_color("black")
-            ax.spines["right"].set_color("black")
+            plt.legend(fontsize=7 * 2, fancybox=False, framealpha=1.0, edgecolor="black")
+            plt.grid(axis="y", visible=True)
+            plt.grid(axis="x", visible=True)
+            ax.tick_params(axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, bottom=True)
 
             fig = plt.gcf()
             column_width = 3.3374

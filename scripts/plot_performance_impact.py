@@ -18,7 +18,7 @@ def parse_args():
     parser.add_argument("commit", type=str)
     parser.add_argument("--data", "-d", type=str, default="./hyrise/cmake-build-release/benchmark_plugin_results")
     parser.add_argument("--output", "-o", type=str, default="./figures")
-    parser.add_argument("--scale", "-s", type=str, default="log", choices=["linear", "log", "symlog"])
+    parser.add_argument("--scale", "-s", type=str, default="symlog", choices=["linear", "log", "symlog"])
     return parser.parse_args()
 
 
@@ -64,8 +64,7 @@ def get_trend(old, new):
 
 
 def main(commit, data_dir, output_dir, scale):
-    sns.set()
-    sns.set_theme(style="whitegrid")
+    sns.set_theme(style="white")
 
     mpl.use("pgf")
 
@@ -169,18 +168,10 @@ def main(commit, data_dir, output_dir, scale):
         ax.yaxis.set_minor_locator(FixedLocator(minor_ticks))
         plt.ylabel("Latency w/ optimizations [s]", fontsize=8 * 2)
         plt.xlabel("Base latency [s]", fontsize=8 * 2)
-        ax.tick_params(
-            axis="both", which="major", labelsize=7 * 2, width=1, length=6, bottom=True, left=True, color="black"
-        )
-        ax.tick_params(
-            axis="both", which="minor", labelsize=7 * 2, width=0.5, length=4, bottom=True, left=True, color="black"
-        )
+        ax.tick_params(axis="both", which="major", labelsize=7 * 2, width=1, length=6, bottom=True, left=True)
+        ax.tick_params(axis="both", which="minor", labelsize=7 * 2, width=0.5, length=4, bottom=True, left=True)
         plt.grid(which="minor", axis="both", visible=True, linewidth=0.5, alpha=0.5)
         plt.grid(which="major", axis="both", visible=True)
-        ax.spines["top"].set_color("black")
-        ax.spines["bottom"].set_color("black")
-        ax.spines["left"].set_color("black")
-        ax.spines["right"].set_color("black")
 
         fig = plt.gcf()
         column_width = 3.3374

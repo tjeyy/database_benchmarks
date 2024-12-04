@@ -18,7 +18,7 @@ def parse_args():
     parser.add_argument("commit", type=str)
     parser.add_argument("--data", "-d", type=str, default="./hyrise/cmake-build-release/benchmark_plugin_results")
     parser.add_argument("--output", "-o", type=str, default="./figures")
-    parser.add_argument("--scale", "-s", type=str, default="log", choices=["linear", "log", "symlog"])
+    parser.add_argument("--scale", "-s", type=str, default="symlog", choices=["linear", "log", "symlog"])
     return parser.parse_args()
 
 
@@ -77,8 +77,7 @@ def main(commit, data_dir, output_dir, scale):
     candidate_times_old = dict()
     candidate_times_new = dict()
 
-    sns.set()
-    sns.set_theme(style="whitegrid")
+    sns.set_theme(style="white")
 
     mpl.use("pgf")
 
@@ -202,17 +201,13 @@ def main(commit, data_dir, output_dir, scale):
     plt.ylabel(y_label, fontsize=8 * 2)
     plt.xlabel("Benchmark", fontsize=8 * 2)
     plt.legend(loc="best", fontsize=7 * 2, ncol=2, fancybox=False, framealpha=1.0, edgecolor="black")
-    plt.grid(axis="x", visible=False)
+    plt.grid(axis="y", visible=True)
     fig = plt.gcf()
 
-    ax.tick_params(axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, color="black")
-    ax.tick_params(axis="y", which="minor", width=0.5, length=4, left=True, color="black")
+    ax.tick_params(axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, bottom=True)
+    ax.tick_params(axis="y", which="minor", width=0.5, length=4, left=True)
     ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: format_number(x)))
     ax.yaxis.set_minor_locator(FixedLocator(minor_ticks))
-    ax.spines["top"].set_color("black")
-    ax.spines["bottom"].set_color("black")
-    ax.spines["left"].set_color("black")
-    ax.spines["right"].set_color("black")
 
     column_width = 3.3374
     fig_width = column_width * 2

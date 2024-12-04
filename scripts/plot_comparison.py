@@ -110,7 +110,7 @@ def main(data_dir, output_dir, metric):
             "greenplum-rows": "Greenplum\n(row)",
         }
 
-        sns.set_theme(style="whitegrid")
+        sns.set_theme(style="white")
         mpl.use("pgf")
 
         plt.rcParams.update(
@@ -176,16 +176,9 @@ def main(data_dir, output_dir, metric):
         ax = plt.gca()
         plt.ylabel(f"Average {metric}\nimprovement [\\%]", fontsize=8 * 2)
         plt.xlabel("System", fontsize=8 * 2)
-        ax.tick_params(
-            axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, bottom=True, color="black"
-        )
-        ax.patch.set_edgecolor("black")
-        ax.spines["top"].set_color("black")
-        ax.spines["bottom"].set_color("black")
-        ax.spines["left"].set_color("black")
-        ax.spines["right"].set_color("black")
+        ax.tick_params(axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, bottom=True)
 
-        plt.grid(axis="x", visible=False)
+        plt.grid(axis="y", visible=True)
         plt.legend(
             loc="best",
             fontsize=6 * 2,

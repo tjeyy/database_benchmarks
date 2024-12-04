@@ -176,7 +176,7 @@ if args.rewrites or args.O3:
     job_queries.update(static_job_queries.queries_o3)
     tpcds_queries.update(static_tpcds_queries.queries_o3)
 
-    if args.dbms in ["hana", "hana-int"]:
+    if args.dbms == ["hana"]:
         tpch_queries.update(static_tpch_queries.hana_queries_o3)
         job_queries.update(static_job_queries.hana_queries_o3)
         ssb_queries.update(static_ssb_queries.umbra_queries_o3)

@@ -176,7 +176,7 @@ if args.rewrites or args.O3:
     job_queries.update(static_job_queries.queries_o3)
     tpcds_queries.update(static_tpcds_queries.queries_o3)
 
-    if args.dbms == ["hana"]:
+    if args.dbms in ["hana", "hana-int"]:
         tpch_queries.update(static_tpch_queries.hana_queries_o3)
         job_queries.update(static_job_queries.hana_queries_o3)
         ssb_queries.update(static_ssb_queries.umbra_queries_o3)
@@ -466,7 +466,15 @@ def import_data():
                 create_table_statements.append(stripped_line)
 
     for table_name in reversed(table_order):
-        cursor.execute(f'DROP TABLE IF EXISTS "{table_name}";')
+        if not args.dbms.startswith("hana"):
+            cursor.execute(f'DROP TABLE IF EXISTS "{table_name}";')
+        else:
+            try:
+                cursor.execute(f'DROP TABLE "{table_name}";')
+            except Exception as e:
+                print("-  Could not drop table {} ({}) - continue".format(table_name, e))
+                pass
+
 
     # Umbra does not allow to add constraints later, so we have to do it now.
     if args.dbms == "umbra" and args.schema_keys:

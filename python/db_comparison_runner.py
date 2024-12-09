@@ -470,7 +470,7 @@ def import_data():
             cursor.execute(f'DROP TABLE IF EXISTS "{table_name}";')
         else:
             try:
-                cursor.execute(f'DROP TABLE "{table_name}";')
+                cursor.execute(f'DROP TABLE "{table_name.upper()}";')
             except Exception as e:
                 print("-  Could not drop table {} ({}) - continue".format(table_name, e))
                 pass

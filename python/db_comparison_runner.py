@@ -250,7 +250,8 @@ def add_constraints(fk_only):
         constraint_id = 1
         for table_name, column_names in schema_keys.primary_keys:
             print(f"\r- Add PRIMARY KEY constraints ({constraint_id}/{len(schema_keys.primary_keys)})", end="")
-            cursor.execute(add_pk_command.format(table_name, constraint_id, ", ".join(column_names)))
+            table = f'"{table_name}"' if table_name == "date"  else table_name
+            cursor.execute(add_pk_command.format(table, constraint_id, ", ".join(column_names)))
             constraint_id += 1
         end = time.time()
         print(f"\r- Added {len(schema_keys.primary_keys)} PRIMARY KEY constraints ({round(end - start, 1)} s)")
@@ -260,9 +261,11 @@ def add_constraints(fk_only):
     constraint_id = 1
     for table_name, column_names, referenced_table, referenced_column_names in schema_keys.foreign_keys:
         print(f"\r- Add FOREIGN KEY constraints ({constraint_id}/{len(schema_keys.foreign_keys)})", end="")
+        table = f'"{table_name}"' if table_name == "date"  else table_name
+        referenced_table_name = f'"{referenced_table}"' if referenced_table == "date"  else referenced_table
         cursor.execute(
             add_fk_command.format(
-                table_name, constraint_id, ", ".join(column_names), referenced_table, ", ".join(referenced_column_names)
+                table, constraint_id, ", ".join(column_names), referenced_table_name, ", ".join(referenced_column_names)
             )
         )
         constraint_id += 1
@@ -281,24 +284,26 @@ def drop_constraints(fk_only):
     connection, cursor = get_cursor()
 
     print("- Drop FOREIGN KEY constraints ...")
-    drop_fk_command = """ALTER TABLE "{}" DROP CONSTRAINT comp_fk_{};"""
+    drop_fk_command = """ALTER TABLE {} DROP CONSTRAINT comp_fk_{};"""
     constraint_id = 1
 
     for table_name, _, _, _ in schema_keys.foreign_keys:
+        table = f'"{table_name}"' if table_name == "date"  else table_name
         try:
-            cursor.execute(drop_fk_command.format(table_name, constraint_id))
+            cursor.execute(drop_fk_command.format(table, constraint_id))
         except Exception:
             pass
         constraint_id += 1
 
     if not fk_only:
         print("- Drop PRIMARY KEY constraints ...")
-        drop_pk_command = """ALTER TABLE "{}" DROP CONSTRAINT comp_pk_{};"""
+        drop_pk_command = """ALTER TABLE {} DROP CONSTRAINT comp_pk_{};"""
         constraint_id = 1
 
         for table_name, _ in schema_keys.primary_keys:
+            table = f'"{table_name}"' if table_name == "date" else table_name
             try:
-                cursor.execute(drop_pk_command.format(table_name, constraint_id))
+                cursor.execute(drop_pk_command.format(table, constraint_id))
             except Exception:
                 pass
             constraint_id += 1
@@ -470,9 +475,10 @@ def import_data():
             cursor.execute(f'DROP TABLE IF EXISTS "{table_name}";')
         else:
             try:
-                cursor.execute(f'DROP TABLE "{table_name.upper()}";')
+                table = f'"{table_name}"' if table_name == "date" else table_name
+                cursor.execute(f'DROP TABLE {table};')
             except Exception as e:
-                print("-  Could not drop table {} ({}) - continue".format(table_name, e))
+                print("-  Could not drop table {} ({}) - continue".format(table, e))
                 pass
 
 

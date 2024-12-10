@@ -494,7 +494,7 @@ def import_data():
         for table_name, create_statement in zip(table_order, create_table_statements):
             if args.dbms == "greenplum":
                 create_statement = create_statement[:-1] if create_statement.endswith(";") else create_statement
-                if not args.rows
+                if not args.rows:
                     create_statement += " WITH (appendoptimized=true, orientation=column)"
                 # Greenplum allows PKs only on the columns used for distributing.
                 if table_name in primary_keys:

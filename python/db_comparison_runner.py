@@ -257,7 +257,7 @@ def add_constraints(fk_only):
         print(f"\r- Added {len(schema_keys.primary_keys)} PRIMARY KEY constraints ({round(end - start, 1)} s)")
         start = end
 
-    add_fk_command = """ALTER TABLE {} ADD CONSTRAINT comp_fk_{} FOREIGN KEY ({}) REFERENCES "{}" ({});"""
+    add_fk_command = """ALTER TABLE {} ADD CONSTRAINT comp_fk_{} FOREIGN KEY ({}) REFERENCES {} ({});"""
     constraint_id = 1
     for table_name, column_names, referenced_table, referenced_column_names in schema_keys.foreign_keys:
         print(f"\r- Add FOREIGN KEY constraints ({constraint_id}/{len(schema_keys.foreign_keys)})", end="")

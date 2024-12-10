@@ -246,7 +246,7 @@ def add_constraints(fk_only):
 
     start = time.time()
     if not fk_only:
-        add_pk_command = """ALTER TABLE "{}" ADD CONSTRAINT comp_pk_{} PRIMARY KEY ({});"""
+        add_pk_command = """ALTER TABLE {} ADD CONSTRAINT comp_pk_{} PRIMARY KEY ({});"""
         constraint_id = 1
         for table_name, column_names in schema_keys.primary_keys:
             print(f"\r- Add PRIMARY KEY constraints ({constraint_id}/{len(schema_keys.primary_keys)})", end="")
@@ -257,7 +257,7 @@ def add_constraints(fk_only):
         print(f"\r- Added {len(schema_keys.primary_keys)} PRIMARY KEY constraints ({round(end - start, 1)} s)")
         start = end
 
-    add_fk_command = """ALTER TABLE "{}" ADD CONSTRAINT comp_fk_{} FOREIGN KEY ({}) REFERENCES "{}" ({});"""
+    add_fk_command = """ALTER TABLE {} ADD CONSTRAINT comp_fk_{} FOREIGN KEY ({}) REFERENCES "{}" ({});"""
     constraint_id = 1
     for table_name, column_names, referenced_table, referenced_column_names in schema_keys.foreign_keys:
         print(f"\r- Add FOREIGN KEY constraints ({constraint_id}/{len(schema_keys.foreign_keys)})", end="")
@@ -482,22 +482,29 @@ def import_data():
                 pass
 
 
-    # Umbra does not allow to add constraints later, so we have to do it now.
-    if args.dbms == "umbra" and args.schema_keys:
-        primary_keys = {}
-        for table_name, column_names in schema_keys.primary_keys:
-            primary_keys[table_name] = column_names
-        foreign_keys = defaultdict(dict)
-        for table_name, column_names, referenced_table, referenced_column_names in schema_keys.foreign_keys:
-            foreign_keys[table_name][referenced_table] = (column_names, referenced_column_names)
+
+    primary_keys = {}
+    for table_name, column_names in schema_keys.primary_keys:
+        primary_keys[table_name] = column_names
+    foreign_keys = defaultdict(dict)
+    for table_name, column_names, referenced_table, referenced_column_names in schema_keys.foreign_keys:
+        foreign_keys[table_name][referenced_table] = (column_names, referenced_column_names)
 
     if args.dbms not in ["hyrise", "hyrise-int"]:
         for table_name, create_statement in zip(table_order, create_table_statements):
-            if args.dbms == "greenplum" and not args.rows:
+            if args.dbms == "greenplum":
                 create_statement = create_statement[:-1] if create_statement.endswith(";") else create_statement
-                create_statement += "WITH (appendoptimized=true, orientation=column);"
+                if not args.rows
+                    create_statement += " WITH (appendoptimized=true, orientation=column)"
+                # Greenplum allows PKs only on the columns used for distributing.
+                if table_name in primary_keys:
+                    create_statement += f""" DISTRIBUTED BY ({", ".join(primary_keys[table_name])})"""
+                create_statement += ";"
+
             if args.dbms in ["hana", "hana-int"]:
                 create_statement = create_statement.replace("text", "nvarchar(1024)")
+
+            # Umbra does not allow to add constraints later, so we have to do it now.
             if args.dbms == "umbra" and args.schema_keys:
                 create_statement = create_statement[:-1].strip() if create_statement.endswith(";") else create_statement
                 create_statement = create_statement[:-1]

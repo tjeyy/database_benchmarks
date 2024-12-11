@@ -582,9 +582,10 @@ def import_data():
             cursor.execute(load_command.format(table_name, table_file_path))
 
         else:
+            table = f'"{table_name}"' if table_name == "date" else table_name
             try:
-                cursor.execute(load_command.format(table_file_path, table_name))
-                cursor.execute(f"MERGE DELTA OF {table_name};")
+                cursor.execute(load_command.format(table_file_path, table))
+                cursor.execute(f"MERGE DELTA OF {table};")
             except Exception as e:
                 print("\nFailed to import table {}... with exception {}".format(table_name, e))
                 pass

@@ -686,13 +686,13 @@ if args.dbms == "monetdb":
         for q in selected_benchmark_queries
     ]
 
+drop_constraints(args.dbms == "umbra")
+
 if not args.skip_data_loading:
     import_data()
 
 if (args.dbms not in ["hyrise-int", "hyrise"] and args.schema_keys) or args.dbms == "hana-int":
     add_constraints(args.dbms == "umbra")
-else:
-    drop_constraints(args.dbms == "umbra")
 
 if args.dbms in ["monetdb", "umbra", "greenplum", "hyrise-int"] or (args.dbms == "hyrise" and args.schema_keys):
     print("Warming up database (complete single-threaded run) due to initial persistence on disk: ", end="")

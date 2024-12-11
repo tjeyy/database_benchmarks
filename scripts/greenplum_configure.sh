@@ -15,7 +15,7 @@ gp_home="$(pwd)/db_comparison_data/greenplum"
 "${gp_home}/bin/psql" -p "${PORT}" -d dbbench -f "$(pwd)/scripts/gp_create_users.sql"
 
 # Increase memory limit.
-PGPORT=${PORT} GPHOME="${gp_home}" COORDINATOR_DATA_DIRECTORY="${gp_home}/data/gpseg-1"  "${gp_home}/bin/gpconfig" -c gp_vmem_protect_limit -v 50000
+PGPORT=${PORT} GPHOME="${gp_home}" COORDINATOR_DATA_DIRECTORY="${gp_home}/data/gpseg-1"  "${gp_home}/bin/gpconfig" -c gp_vmem_protect_limit -v 200000
 
 # Reload config.
 GPHOME="${gp_home}" "${gp_home}/bin/gpstop" -d "${gp_home}/data/gpseg-1" -u

@@ -250,7 +250,7 @@ def add_constraints(fk_only):
         constraint_id = 1
         for table_name, column_names in schema_keys.primary_keys:
             print(f"\r- Add PRIMARY KEY constraints ({constraint_id}/{len(schema_keys.primary_keys)})", end="")
-            table = f'"{table_name}"' if table_name == "date"  else table_name
+            table = f'"{table_name}"' if table_name == "date" else table_name
             cursor.execute(add_pk_command.format(table, constraint_id, ", ".join(column_names)))
             constraint_id += 1
         end = time.time()
@@ -261,13 +261,24 @@ def add_constraints(fk_only):
     constraint_id = 1
     for table_name, column_names, referenced_table, referenced_column_names in schema_keys.foreign_keys:
         print(f"\r- Add FOREIGN KEY constraints ({constraint_id}/{len(schema_keys.foreign_keys)})", end="")
-        table = f'"{table_name}"' if table_name == "date"  else table_name
-        referenced_table_name = f'"{referenced_table}"' if referenced_table == "date"  else referenced_table
-        cursor.execute(
-            add_fk_command.format(
-                table, constraint_id, ", ".join(column_names), referenced_table_name, ", ".join(referenced_column_names)
+        table = f'"{table_name}"' if table_name == "date" else table_name
+        referenced_table_name = f'"{referenced_table}"' if referenced_table == "date" else referenced_table
+        try:
+            cursor.execute(
+                add_fk_command.format(
+                    table,
+                    constraint_id,
+                    ", ".join(column_names),
+                    referenced_table_name,
+                    ", ".join(referenced_column_names),
+                )
             )
-        )
+        except Exception as e:
+            print(f"""\n - Error adding FK {table} ({", ".join(column_names)})""", end=" ")
+            print(f"""REFERENCES {referenced_table_name} ({", ".join(referenced_column_names)}):""")
+            print(f"    {str(e)}")
+            pass
+
         constraint_id += 1
     end = time.time()
     print(f"\r- Added {len(schema_keys.foreign_keys)} FOREIGN KEY constraints ({round(end - start, 1)} s)")
@@ -288,7 +299,7 @@ def drop_constraints(fk_only):
     constraint_id = 1
 
     for table_name, _, _, _ in schema_keys.foreign_keys:
-        table = f'"{table_name}"' if table_name == "date"  else table_name
+        table = f'"{table_name}"' if table_name == "date" else table_name
         try:
             cursor.execute(drop_fk_command.format(table, constraint_id))
         except Exception:
@@ -401,7 +412,8 @@ elif args.dbms == "umbra":
     # )
     # print("Waiting 10s for Umbra to start ... ", end="")
     # time.sleep(10)
-    # umbra docker: docker run -v /mnt/data/umbra:/var/db -p 5432:5432 umbradb/umbra:24.11 --cpuset-cpus 56-83,168-195 --cpuset-mems 2
+    # umbra docker: docker run -v /mnt/data/umbra:/var/db -p 5432:5432 umbradb/umbra:24.11  \
+    #                          --cpuset-cpus 56-83,168-195 --cpuset-mems 2
     print("done.")
 elif args.dbms == "greenplum":
     import psycopg2
@@ -476,12 +488,10 @@ def import_data():
         else:
             try:
                 table = f'"{table_name}"' if table_name == "date" else table_name
-                cursor.execute(f'DROP TABLE {table};')
+                cursor.execute(f"DROP TABLE {table};")
             except Exception as e:
                 print("-  Could not drop table {} ({}) - continue".format(table, e))
                 pass
-
-
 
     primary_keys = {}
     for table_name, column_names in schema_keys.primary_keys:

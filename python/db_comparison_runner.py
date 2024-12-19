@@ -230,7 +230,7 @@ def get_cursor():
             port=connection_data["port"],
             user=connection_data["db_user"],
             password=connection_data["db_user_password"],
-            encrypt=True,
+            # encrypt=True,
             sslValidateCertificate=False,
             autocommit=connection_data["autocommit"],
         )

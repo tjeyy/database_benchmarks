@@ -258,6 +258,8 @@ def add_constraints(fk_only):
         start = end
 
     add_fk_command = """ALTER TABLE {} ADD CONSTRAINT comp_fk_{} FOREIGN KEY ({}) REFERENCES {} ({});"""
+    if args.dbms.startswith("hana"):
+        add_fk_command = """ALTER TABLE {} ADD CONSTRAINT comp_fk_{} FOREIGN KEY ({}) REFERENCES {} ({}) NOT VALIDATED;"""
     constraint_id = 1
     for table_name, column_names, referenced_table, referenced_column_names in schema_keys.foreign_keys:
         print(f"\r- Add FOREIGN KEY constraints ({constraint_id}/{len(schema_keys.foreign_keys)})", end="")

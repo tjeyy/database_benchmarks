@@ -3,6 +3,7 @@
 
 import argparse
 import atexit
+import csv
 import json
 import os
 import random
@@ -462,7 +463,9 @@ def import_data():
     elif args.dbms == "greenplum":
         load_command = """COPY "{}" FROM '{}' WITH (FORMAT CSV, DELIMITER ',', NULL '', QUOTE '"');"""
     elif args.dbms in ["hana", "hana-int"]:
-        load_command = """IMPORT FROM CSV FILE '{}' INTO {} WITH FIELD DELIMITED BY ',' ESCAPE '"' FAIL ON INVALID DATA;"""
+        load_command = (
+            """IMPORT FROM CSV FILE '{}' INTO {} WITH FIELD DELIMITED BY ',' ESCAPE '"' FAIL ON INVALID DATA;"""
+        )
 
     connection, cursor = get_cursor()
     table_name_regex = re.compile(r'(?<=CREATE\sTABLE\s)"?\w+"?(?=\s*\()', flags=re.IGNORECASE)
@@ -593,11 +596,46 @@ def import_data():
 
         else:
             table = f'"{table_name}"' if table_name == "date" else table_name
+            if table_name not in tables["JOB"]:
+                try:
+                    cursor.execute(load_command.format(table_file_path, table))
+                except Exception as e:
+                    print("\nFailed to import table {}... with exception {}".format(table_name, e))
+                    pass
+            else:
+                # HANA seems to have issues with some JOB tables, so we rewrite the CSVs with a delimiter that does not
+                # occur in any file using pandas. The HANA documentation suggests to use '\u0007'. To be on the safe
+                # side, we also use '\u0010' as quoting char because the files contain a lot of double quotes.
+                new_file_path = f"{data_path}/{table_name}.hana.csv"
+                if not os.path.isfile(new_file_path):
+                    with open(table_file_path + ".json") as f:
+                        meta = json.load(f)
+                    column_names, column_types, nullable = parse_csv_meta(meta)
+                    data = pd.read_csv(
+                        table_file_path, header=None, names=column_names, dtype=column_types, keep_default_na=False
+                    )
+                    data.to_csv(
+                        new_file_path,
+                        sep="\u0007",
+                        header=False,
+                        index=False,
+                        quotechar="\u0010",
+                        quoting=csv.QUOTE_MINIMAL,
+                    )
+                try:
+                    cursor.execute(
+                        """IMPORT FROM CSV FILE '{}' INTO {} WITH FIELD DELIMITED BY '\\u0007' ESCAPE '\\u0010' FAIL ON INVALID DATA;""".format(
+                            new_file_path, table, sep
+                        )
+                    )
+                except Exception as e:
+                    print("\nFailed to import table {}... with exception {}".format(table_name, e))
+                    pass
+
             try:
-                cursor.execute(load_command.format(table_file_path, table))
                 cursor.execute(f"MERGE DELTA OF {table};")
             except Exception as e:
-                print("\nFailed to import table {}... with exception {}".format(table_name, e))
+                print("\nCould not merge delta of table {}... with exception {}".format(table_name, e))
                 pass
 
         if not has_binary and args.dbms in ["hyrise", "hyrise-int"]:

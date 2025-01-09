@@ -625,7 +625,7 @@ def import_data():
                 try:
                     cursor.execute(
                         """IMPORT FROM CSV FILE '{}' INTO {} WITH FIELD DELIMITED BY '\\u0007' ESCAPE '\\u0010' FAIL ON INVALID DATA;""".format(
-                            new_file_path, table, sep
+                            new_file_path, table
                         )
                     )
                 except Exception as e:

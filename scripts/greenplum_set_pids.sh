@@ -1,7 +1,14 @@
 #!/bin/bash
 
-pids=$(ps -ef | grep postgres | grep -o '[[:digit:]][[:digit:]][[:digit:]][[:digit:]][[:digit:]][[:digit:]][[:digit:]]')
+pids=$(pgrep greenplum)
 for pid in $pids
 do
-    sudo echo "+${pid}" | sudo tee /cgroups_benchmark/greenplum/run/cgroup.procs
+    sudo echo "+${pid}" | sudo tee cgroup.procs
+done
+
+
+pids=$(pgrep postgres)
+for pid in $pids
+do
+    sudo echo "+${pid}" | sudo tee cgroup.procs
 done

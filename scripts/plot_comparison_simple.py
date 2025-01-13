@@ -30,13 +30,13 @@ def grep_throughput_change(old_result_file, new_result_file, clients, runtime):
     df_new = df_new[df_new.CLIENTS == clients]
 
     print(
-        f'{round((1 - (df_new["RUNTIME_MS"].mean() / 1000) / (df_old["RUNTIME_MS"].mean() / 1000)) * 100, 2)}%', end=" "
+        f'{round((1 - (df_new["RUNTIME_MS"].median() / 1000) / (df_old["RUNTIME_MS"].median() / 1000)) * 100, 2)}%', end=" "
     )
 
-    print(f'({round(df_old["RUNTIME_MS"].mean() / 1000, 2)} / {round(df_new["RUNTIME_MS"].mean() / 1000, 2)})')
+    print(f'({round(df_old["RUNTIME_MS"].median() / 1000, 2)} / {round(df_new["RUNTIME_MS"].median() / 1000, 2)})')
 
-    old_throughput = runtime / (df_old["RUNTIME_MS"].mean() / 1000)
-    new_throughput = runtime / (df_new["RUNTIME_MS"].mean() / 1000)
+    old_throughput = runtime / (df_old["RUNTIME_MS"].median() / 1000)
+    new_throughput = runtime / (df_new["RUNTIME_MS"].median() / 1000)
 
     return new_throughput / old_throughput
 
@@ -52,13 +52,13 @@ def grep_runtime_change(old_result_file, new_result_file, clients, runtime):
     df_new = df_new[df_new.CLIENTS == clients]
 
     print(
-        f'{round((1 - (df_new["RUNTIME_MS"].mean() / 1000) / (df_old["RUNTIME_MS"].mean() / 1000)) * 100, 2)}%', end=" "
+        f'{round((1 - (df_new["RUNTIME_MS"].median() / 1000) / (df_old["RUNTIME_MS"].median() / 1000)) * 100, 2)}%', end=" "
     )
 
-    print(f'({round(df_old["RUNTIME_MS"].mean() / 1000, 2)} / {round(df_new["RUNTIME_MS"].mean() / 1000, 2)})')
+    print(f'({round(df_old["RUNTIME_MS"].median() / 1000, 2)} / {round(df_new["RUNTIME_MS"].median() / 1000, 2)})')
 
-    old_runtime = df_old["RUNTIME_MS"].mean()
-    new_runtime = df_new["RUNTIME_MS"].mean()
+    old_runtime = df_old["RUNTIME_MS"].median()
+    new_runtime = df_new["RUNTIME_MS"].median()
 
     return new_runtime / old_runtime
 

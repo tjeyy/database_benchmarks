@@ -29,8 +29,8 @@ def grep_throughput_change(old_result_file, new_result_file, clients, runtime):
     df_old = df_old[df_old.CLIENTS == clients]
     df_new = df_new[df_new.CLIENTS == clients]
 
-    old_throughput = runtime / (df_old["RUNTIME_MS"].mean() / 1000)
-    new_throughput = runtime / (df_new["RUNTIME_MS"].mean() / 1000)
+    old_throughput = runtime / (df_old["RUNTIME_MS"].median() / 1000)
+    new_throughput = runtime / (df_new["RUNTIME_MS"].median() / 1000)
 
     return new_throughput / old_throughput * 100 - 100
 
@@ -58,8 +58,8 @@ def grep_runtime_change(old_result_file, new_result_file, clients, runtime):
     df_old = df_old[df_old.CLIENTS == clients]
     df_new = df_new[df_new.CLIENTS == clients]
 
-    old_runtime = df_old["RUNTIME_MS"].mean()
-    new_runtime = df_new["RUNTIME_MS"].mean()
+    old_runtime = df_old["RUNTIME_MS"].median()
+    new_runtime = df_new["RUNTIME_MS"].median()
 
     return 100 - (new_runtime / old_runtime) * 100
 

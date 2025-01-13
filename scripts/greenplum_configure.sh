@@ -33,5 +33,7 @@ GPHOME="${gp_home}" "${gp_home}/bin/gpstop" -a -d "${gp_home}/data/gpseg-1" -r
 
 # We observed that changing the memory limit on all segments can require multiple restarts to be effective.
 while ! PGPORT=${PORT} GPHOME="${gp_home}" COORDINATOR_DATA_DIRECTORY="${gp_home}/data/gpseg-1"  "${gp_home}/bin/gpconfig" -s gp_vmem_protect_limit | grep "Values on all segments are consistent"; do
+  echo "Restart to set memory limit ..."
+  sleep 5
   GPHOME="${gp_home}" "${gp_home}/bin/gpstop" -a -d "${gp_home}/data/gpseg-1" -r
 done

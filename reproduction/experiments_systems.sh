@@ -33,9 +33,10 @@ $numactl_command ./python/db_comparison_runner.py monetdb --clients "${num_clien
 $numactl_command ./python/db_comparison_runner.py umbra --clients "${num_clients}" --cores "${num_cpu}" -m "${node_id}" "${no_numa}"
 $numactl_command ./python/db_comparison_runner.py umbra --rewrites --clients "${num_clients}" --cores "${num_cpu}" -m "${node_id}" "${no_numa}"
 
-num_segments=$([ "$num_cpu" -le 14 ] && echo "$num_cpu" || echo "14")
+num_segments="$num_cpu"
+num_segments=$([ "$num_cpu" -le 14 ] && echo "$num_cpu" || echo "55")
 ./python/greenplum_configure.py -p 7777 -n "$num_segments"
-PORT=7777 ./scripts/greenplum_init.sh
+PORT=7777 NUM_SEGMENTS="$num_segments" ./scripts/greenplum_init.sh
 $numactl_command ./python/db_comparison_runner.py greenplum --clients "${num_clients}" --cores "${num_cpu}" -m "${node_id}" "${no_numa}" -p 7777
 $numactl_command ./python/db_comparison_runner.py greenplum --clients "${num_clients}" --cores "${num_cpu}" -m "${node_id}" --skip_data_loading "${no_numa}" -p 7777
 ./scripts/greenplum_stop.sh

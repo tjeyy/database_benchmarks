@@ -10,6 +10,6 @@ rm -rf "${gp_home}/logs"
 mkdir "${gp_home}/data"
 mkdir "${gp_home}/logs"
 
-GPHOME="${gp_home}" "${gp_home}/bin/gpinitsystem" -c "$(pwd)/resources/greenplum_config.cfg" -m 300 -a -l "${gp_home}/logs"
+GPHOME="${gp_home}" "${gp_home}/bin/gpinitsystem" -c "$(pwd)/resources/greenplum_config.cfg" -m 300 -a -l "${gp_home}/logs" -B ${NUM_SEGMENTS}
 
 ./scripts/greenplum_configure.sh

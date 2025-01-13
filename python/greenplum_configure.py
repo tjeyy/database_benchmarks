@@ -22,10 +22,11 @@ def main(port, num_partitions):
         f.write(f"{hostname}\n")
 
     gp_data_dir = os.path.join(os.getcwd(), "db_comparison_data", "greenplum", "data")
+
     with open(config_file, "w") as f:
         f.write("SEG_PREFIX=gpseg\n")
         f.write(f"PORT_BASE={args.port + 1}\n")
-        f.write(f"declare -a DATA_DIRECTORY=({gp_data_dir})\n")
+        f.write(f"""declare -a DATA_DIRECTORY=({" ".join([gp_data_dir for _ in range(num_partitions)])})\n""")
         f.write(f"COORDINATOR_HOSTNAME={hostname}\n")
         f.write(f"COORDINATOR_DIRECTORY={gp_data_dir}\n")
         f.write(f"COORDINATOR_PORT={args.port}\n")

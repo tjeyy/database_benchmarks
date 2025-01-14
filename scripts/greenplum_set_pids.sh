@@ -12,3 +12,10 @@ for pid in $pids
 do
     echo "+${pid}" | tee /sys/fs/cgroup/greenplum/gpadmin/cgroup.procs
 done
+
+
+pids=$(pgrep -u gpadmin)
+for pid in $pids
+do
+    echo "+${pid}" | tee /sys/fs/cgroup/greenplum/gpadmin/cgroup.procs
+done

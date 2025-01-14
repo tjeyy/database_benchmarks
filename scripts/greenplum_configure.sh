@@ -28,6 +28,9 @@ GPHOME="${gp_home}" "${gp_home}/bin/gpstop" -d "${gp_home}/data/gpseg-1" -u
 sleep 10
 
 "${gp_home}/bin/psql" -p "${PORT}" -d dbbench -f "$(pwd)/scripts/gp_reload.sql"
+sleep 10
+
+GPHOME="${gp_home}" "${gp_home}/bin/gpstop" -d "${gp_home}/data/gpseg-1" -u
 
 # Restart to apply all changes (esp. memory limit).
 echo "Restart to set memory limit ..."
@@ -37,6 +40,18 @@ GPHOME="${gp_home}" "${gp_home}/bin/gpstop" -a -d "${gp_home}/data/gpseg-1" -r
 
 # We observed that changing the memory limit on all segments can require multiple restarts to be effective.
 while sleep 10 && ! PGPORT=${PORT} GPHOME="${gp_home}" COORDINATOR_DATA_DIRECTORY="${gp_home}/data/gpseg-1"  "${gp_home}/bin/gpconfig" -s gp_vmem_protect_limit | grep "Values on all segments are consistent"; do
+  PGPORT=${PORT} GPHOME="${gp_home}" COORDINATOR_DATA_DIRECTORY="${gp_home}/data/gpseg-1" "${gp_home}/bin/gpconfig" -s gp_vmem_protect_limit
   echo "Restart to set memory limit ..."
+  PGPORT=${PORT} GPHOME="${gp_home}" COORDINATOR_DATA_DIRECTORY="${gp_home}/data/gpseg-1"  "${gp_home}/bin/gpconfig" -c gp_vmem_protect_limit -v 50000
+  sleep 5
+  GPHOME="${gp_home}" "${gp_home}/bin/gpstop" -d "${gp_home}/data/gpseg-1" -u
+  sleep 5
+
+  "${gp_home}/bin/psql" -p "${PORT}" -d dbbench -f "$(pwd)/scripts/gp_reload.sql"
+  sleep 5
+
+  GPHOME="${gp_home}" "${gp_home}/bin/gpstop" -d "${gp_home}/data/gpseg-1" -u
+  sleep 5
+
   GPHOME="${gp_home}" "${gp_home}/bin/gpstop" -a -d "${gp_home}/data/gpseg-1" -r
 done

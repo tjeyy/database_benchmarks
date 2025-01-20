@@ -272,6 +272,7 @@ def main(commit, data_dir, output_dir, scale):
             os.path.join(output_dir, f"benchmarks_combined_sf_{measurement_type}_{scale}.pdf"),
             dpi=300,
             bbox_inches="tight",
+            pad_inches=0.01,
         )
         plt.close()
 
@@ -328,6 +329,7 @@ def main(commit, data_dir, output_dir, scale):
                 os.path.join(output_dir, f"benchmarks_combined_sf_{measurement_type}_{measurement_name}_{scale}.pdf"),
                 dpi=300,
                 bbox_inches="tight",
+                pad_inches=0.01,
             )
             plt.close()
 

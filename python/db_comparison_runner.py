@@ -607,7 +607,7 @@ def import_data():
                 # occur in any file using pandas. The HANA documentation suggests to use '\u0007'. To be on the safe
                 # side, we also use '\u0010' as quoting char because the files contain a lot of double quotes.
                 new_file_path = f"{data_path}/{table_name}.hana.csv"
-                if not os.path.isfile(new_file_path):
+                if (not os.path.isfile(new_file_path)) or True:
                     with open(table_file_path + ".json") as f:
                         meta = json.load(f)
                     column_names, column_types, nullable = parse_csv_meta(meta)
@@ -619,12 +619,18 @@ def import_data():
                         sep="\u0007",
                         header=False,
                         index=False,
-                        quotechar="\u0010",
-                        quoting=csv.QUOTE_MINIMAL,
+                        quotechar="+",
+                        quoting=csv.QUOTE_NONE,
                     )
+                    data = None
+                    with open(new_file_path) as f:
+                        data = f.read()
+                    data = data.replace('"', '+"')
+                    with open(new_file_path, "w") as f:
+                        f.write(data)
                 try:
                     cursor.execute(
-                        """IMPORT FROM CSV FILE '{}' INTO {} WITH FIELD DELIMITED BY '\\u0007' ESCAPE '\\u0010' FAIL ON INVALID DATA;""".format(
+                        """IMPORT FROM CSV FILE '{}' INTO {} WITH FIELD DELIMITED BY '\\u0007' ESCAPE '+' FAIL ON INVALID DATA;""".format(
                             new_file_path, table
                         )
                     )

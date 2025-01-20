@@ -171,7 +171,12 @@ def main(commit, data_dir, output_dir, scale):
         fig.set_size_inches(fig_width, fig_width)
 
         plt.tight_layout(pad=0)
-        plt.savefig(os.path.join(output_dir, f"{benchmark}_validation_{scale}.pdf"), dpi=300, bbox_inches="tight")
+        plt.savefig(
+            os.path.join(output_dir, f"{benchmark}_validation_{scale}.pdf"),
+            dpi=300,
+            bbox_inches="tight",
+            pad_inches=0.01,
+        )
         plt.close()
 
 

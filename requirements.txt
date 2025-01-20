@@ -3,3 +3,5 @@ palettable
 pymonetdb
 psycopg2
 pandas
+
+psutil

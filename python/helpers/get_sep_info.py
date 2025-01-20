@@ -5,15 +5,18 @@ import string
 
 
 def main():
-    seps = string.printable
+    seps = string.printable + string.whitespace
     unmachted_sep = {sep: False for sep in seps}
 
-    for table_file in sorted([f for f in os.listdir(".") if f.endswith(".csv")]):
-        table_name = table_file[: -len(".csv")]
-        print(table_name)
-        unmachted_sep = {sep: False for sep in seps}
-        with open(f"{table_name}.csv") as f:
+    for table_file in sorted([f for f in os.listdir(".") if f.endswith(".hana.csv")]):
+        table_name = table_file[: -len(".hana.csv")]
+        print(table_name, table_file)
+        # unmachted_sep = {sep: False for sep in seps}
+        with open(table_file) as f:
             for line in f:
+                if "+" in line or '"' in line:
+                    print(line)
+                    break
                 found_seps = list()
                 for sep, found in unmachted_sep.items():
                     if found:
@@ -25,12 +28,14 @@ def main():
                     if len(unmachted_sep) == 0:
                         break
 
-        if ("|") in unmachted_sep:
-            print("|", seps.index("|"))
-            continue
+        # if ("|") in unmachted_sep:
+        #     print("|", seps.index("|"))
+        #     continue
 
-        for sep in unmachted_sep:
-            print(sep, seps.index(sep))
+    # print(len(unmachted_sep))
+
+    # for sep in unmachted_sep:
+    #     print(sep, seps.index(sep), sep.encode())
 
 
 if __name__ == "__main__":

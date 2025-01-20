@@ -180,7 +180,7 @@ def main(commit, data_dir, output_dir, scale):
         ax.set_aspect(1)
         plt.tight_layout(pad=0)
 
-        plt.savefig(os.path.join(output_dir, f"{benchmark}_{scale}.pdf"), dpi=300, bbox_inches="tight")
+        plt.savefig(os.path.join(output_dir, f"{benchmark}_{scale}.pdf"), dpi=300, bbox_inches="tight", pad_inches=0.01)
         plt.close()
 
 

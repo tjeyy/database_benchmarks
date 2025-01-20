@@ -104,7 +104,7 @@ def main(data_dir, output_dir):
     plt.tight_layout(pad=0)
     fig.set_size_inches(fig_width, fig_height)
 
-    plt.savefig(os.path.join(output_dir, "benchmark_comparison.pdf"), dpi=300, bbox_inches="tight")
+    plt.savefig(os.path.join(output_dir, "benchmark_comparison.pdf"), dpi=300, bbox_inches="tight", pad_inches=0.01)
     plt.close()
 
 

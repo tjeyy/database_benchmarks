@@ -155,11 +155,15 @@ def main(data_dir, output_dir, metric):
         }
 
         ax = plt.gca()
+        m = 0
+        decs = []
         for offset_id, config in enumerate(configs[:3]):
             bar_positions = [
                 p + offsets[d][offset_id] * (0.5 * bar_width + margin) for d, p in zip(order, group_centers)
             ]
             data = [changes[d][config] for d in order]
+            m = max(m, max(data))
+            decs += [pos for pos, val in zip(bar_positions, data) if val <= 0]
             ax.bar(bar_positions, data, bar_width, color=colors[config], label=labels[config], edgecolor="none")
 
         for config in configs[-1:]:
@@ -168,9 +172,15 @@ def main(data_dir, output_dir, metric):
                 p + offsets[d][offset_id] * (0.5 * bar_width + margin) for d, p in zip(order[-2:], group_centers[-2:])
             ]
             data = [changes[d][config] for d in order[-2:]]
+            m = max(m, max(data))
+            decs += [pos for pos, val in zip(bar_positions, data) if val <= 0]
             ax.bar(bar_positions, data, bar_width, color=colors[config], label=labels[config], edgecolor="none")
 
-        ax.set_ylim(0, ax.get_ylim()[1] * 1.25)
+        for pos in decs:
+            ax.text(pos, m / 100, r"$\ast$", ha="center", va="bottom", size=7 * 2)
+
+        # ax.set_ylim(0, ax.get_ylim()[1] * 1.25)
+        ax.set_ylim(0, m * 1.25 * 1.25)
 
         plt.xticks(group_centers, [names[d] for d in order], rotation=0)
         ax = plt.gca()
@@ -203,6 +213,7 @@ def main(data_dir, output_dir, metric):
             os.path.join(output_dir, f"systems_comparison_{benchmark.lower()}_{metric}.pdf"),
             dpi=300,
             bbox_inches="tight",
+            pad_inches=0.01,
         )
         plt.close()
 

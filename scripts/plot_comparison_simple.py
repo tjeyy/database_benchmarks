@@ -30,7 +30,8 @@ def grep_throughput_change(old_result_file, new_result_file, clients, runtime):
     df_new = df_new[df_new.CLIENTS == clients]
 
     print(
-        f'{round((1 - (df_new["RUNTIME_MS"].median() / 1000) / (df_old["RUNTIME_MS"].median() / 1000)) * 100, 2)}%', end=" "
+        f'{round((1 - (df_new["RUNTIME_MS"].median() / 1000) / (df_old["RUNTIME_MS"].median() / 1000)) * 100, 2)}%',
+        end=" ",
     )
 
     print(f'({round(df_old["RUNTIME_MS"].median() / 1000, 2)} / {round(df_new["RUNTIME_MS"].median() / 1000, 2)})')
@@ -52,7 +53,8 @@ def grep_runtime_change(old_result_file, new_result_file, clients, runtime):
     df_new = df_new[df_new.CLIENTS == clients]
 
     print(
-        f'{round((1 - (df_new["RUNTIME_MS"].median() / 1000) / (df_old["RUNTIME_MS"].median() / 1000)) * 100, 2)}%', end=" "
+        f'{round((1 - (df_new["RUNTIME_MS"].median() / 1000) / (df_old["RUNTIME_MS"].median() / 1000)) * 100, 2)}%',
+        end=" ",
     )
 
     print(f'({round(df_old["RUNTIME_MS"].median() / 1000, 2)} / {round(df_new["RUNTIME_MS"].median() / 1000, 2)})')
@@ -159,6 +161,7 @@ def main(data_dir, output_dir, metric):
             os.path.join(output_dir, f"systems_comparison_simple_{benchmark.lower()}_{metric}.pdf"),
             dpi=300,
             bbox_inches="tight",
+            pad_inches=0.01,
         )
         plt.close()
 

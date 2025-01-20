@@ -130,7 +130,9 @@ def main(data_dir, output_dir):
     fig.set_size_inches(fig_height, fig_height)
     plt.tight_layout(pad=0)
 
-    plt.savefig(os.path.join(output_dir, "systems_comparison_narrow.pdf"), dpi=300, bbox_inches="tight")
+    plt.savefig(
+        os.path.join(output_dir, "systems_comparison_narrow.pdf"), dpi=300, bbox_inches="tight", pad_inches=0.01
+    )
     plt.close()
 
 

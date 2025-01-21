@@ -619,9 +619,11 @@ def import_data():
                         sep="\u0007",
                         header=False,
                         index=False,
-                        quotechar="+",
+                        escapechar="+",
                         quoting=csv.QUOTE_NONE,
+                        quotechar='"',
                     )
+
                     data = None
                     with open(new_file_path) as f:
                         data = f.read()

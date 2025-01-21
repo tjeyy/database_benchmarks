@@ -165,6 +165,13 @@ def main(data_dir, output_dir, metric):
             m = max(m, max(data))
             decs += [pos for pos, val in zip(bar_positions, data) if val <= 0]
             ax.bar(bar_positions, data, bar_width, color=colors[config], label=labels[config], edgecolor="none")
+            for pos, val in zip(bar_positions, data):
+                if val <= 0:
+                    continue
+                # print(config, pos, val round(val, 1))
+                ax.text(
+                    pos, val - 0.2, str(round(val, 1)), ha="center", va="top", size=7 * 2, rotation=90, color="white"
+                )
 
         for config in configs[-1:]:
             offset_id = configs.index(config)
@@ -175,16 +182,23 @@ def main(data_dir, output_dir, metric):
             m = max(m, max(data))
             decs += [pos for pos, val in zip(bar_positions, data) if val <= 0]
             ax.bar(bar_positions, data, bar_width, color=colors[config], label=labels[config], edgecolor="none")
+            for pos, val in zip(bar_positions, data):
+                if val <= 0:
+                    continue
+                # print(config, pos, val round(val, 1))
+                ax.text(
+                    pos, val - 0.2, str(round(val, 1)), ha="center", va="top", size=7 * 2, rotation=90, color="white"
+                )
 
         for pos in decs:
-            ax.text(pos, m / 100, r"$\ast$", ha="center", va="bottom", size=7 * 2)
+            ax.text(pos, m / 100, r"$\ast$", ha="center", va="bottom", size=7 * 2, rotation=0)
 
         # ax.set_ylim(0, ax.get_ylim()[1] * 1.25)
         ax.set_ylim(0, m * 1.25 * 1.25)
 
         plt.xticks(group_centers, [names[d] for d in order], rotation=0)
         ax = plt.gca()
-        plt.ylabel(f"Average {metric}\nimprovement [\\%]", fontsize=8 * 2)
+        plt.ylabel(f"Median {metric}\nimprovement [\\%]", fontsize=8 * 2)
         plt.xlabel("System", fontsize=8 * 2)
         ax.tick_params(axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, bottom=True)
 

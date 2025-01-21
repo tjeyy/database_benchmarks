@@ -33,7 +33,6 @@ def parse_csv_meta(meta):
 
 
 def main():
-    tables = ["keyword"]
     tables = [
         "aka_name",
         "aka_title",
@@ -57,6 +56,8 @@ def main():
         "role_type",
         "title",
     ]
+    tables = ["char_name"]
+    tables = ["title", "person_info", "char_name", "movie_info"]
 
     data_path = "."
 
@@ -82,13 +83,13 @@ def main():
         data = None
         with open(new_file_path) as f:
             data = f.read()
-        data = data.replace('"', '+"')
+        data = data.replace('"', '+"').replace("\u0007Null\u0007", '"\u0007Null\u0007"')
         with open(new_file_path, "w") as f:
             f.write(data)
 
-        with open(new_file_path) as f:
-            data = f.read()
-            print("   ", data.count('"'), data.count("+"))
+        # with open(new_file_path) as f:
+        #     data = f.read()
+        #     print("   ", data.count('"'), data.count("+"))
 
 
 if __name__ == "__main__":

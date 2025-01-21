@@ -14,6 +14,7 @@ mkdir -p db_comparison_data
 project_root=$(pwd)
 monetdb_home="${project_root}/db_comparison_data/monetdb"
 gp_home="${project_root}/db_comparison_data/greenplum"
+umbra_home="${project_root}/db_comparison_data/umbra"
 
 # Build Hyrise binaries and dependency discovery plugin.
 cd hyrise
@@ -29,13 +30,35 @@ cmake -DCMAKE_INSTALL_PREFIX="$monetdb_home" -DASSERT=OFF -DCMAKE_BUILD_TYPE=Rel
       -DCMAKE_CXX_COMPILER=clang++-17 ..
 cmake --build . --target install -- -j "$(nproc)"
 
-# Download and unpack Umbra binaries.
+# Add Docker's official GPG key:
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+
+sudo systemctl start docker
+
+# Fetch Umbra docker image.
 # cd "$project_root"/db_comparison_data
 # curl "https://db.in.tum.de/~fent/umbra-2024-03-28.tar.xz" -o umbra-2024-03-28.tar.xz
 # tar xf umbra-2024-03-28.tar.xz
 # rm umbra-2024-03-28.tar.xz
 # cd "$project_root"
-docker pull umbradb/umbra:24.11
+cd "$project_root"
+mkdir -p "$umbra_home"
+chmod 777 "$umbra_home"
+docker pull umbradb/umbra:25.01
+
+sudo systemctl stop docker docker.socket
+
 
 # Build and install Greenplum binaries.
 cd "$project_root"/greenplum

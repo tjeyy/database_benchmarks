@@ -142,7 +142,7 @@ assert (
     args.clients == 1 or args.time >= 300
 ), "When multiple clients are set, a shuffled run is initiated, which should last at least 300s."
 
-if args.dbms in ["umbra", "hyrise", "hyrise-int"]:
+if args.dbms in ["hyrise", "hyrise-int"]:
     args.skip_data_loading = False
 
 
@@ -627,7 +627,7 @@ def import_data():
                     data = None
                     with open(new_file_path) as f:
                         data = f.read()
-                    data = data.replace('"', '+"')
+                    data = data.replace('"', '+"').replace("\u0007Null\u0007", '"\u0007Null\u0007"')
                     with open(new_file_path, "w") as f:
                         f.write(data)
                 try:

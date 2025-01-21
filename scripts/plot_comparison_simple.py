@@ -142,10 +142,24 @@ def main(data_dir, output_dir, metric):
             plt.bar(
                 [pos], [changes[d]], bar_width, color=color, hatch=h, edgecolor="white", linewidth=0.0, linestyle=""
             )
+            ax = plt.gca()
+            if changes[d] <= 0:
+                continue
+            # print(config, pos, val round(val, 1))
+            ax.text(
+                pos,
+                changes[d] - 0.2,
+                str(round(changes[d], 1)),
+                ha="center",
+                va="top",
+                size=7 * 2,
+                rotation=0,
+                color="white",
+            )
 
         plt.xticks(group_centers, [names[d] for d in order], rotation=0)
         ax = plt.gca()
-        plt.ylabel(f"Average {metric}\nimprovement [\\%]", fontsize=8 * 2)
+        plt.ylabel(f"Median {metric}\nimprovement [\\%]", fontsize=8 * 2)
         plt.xlabel("System", fontsize=8 * 2)
         ax.tick_params(axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, bottom=True)
 

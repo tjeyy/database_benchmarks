@@ -144,8 +144,14 @@ def main(commit, data_dir, output_dir, scale):
 
         for y, x in zip(t_sum, bar_positions):
             label = str(round(y, 1))
-            y = y * 1.2 if scale != "linear" else y + 100
-            ax.text(x, y, label, ha="center", va="bottom", size=7 * 2)
+            # y = y * 0.2 if scale != "linear" else y - 100
+            print_above = (scale == "linear" and y < 1500) or (scale != "linear" and y < 1)
+            y_pos = y + 100 if print_above else y - 100
+            if scale != "linear":
+                y_pos = y * 1.2 if print_above else y * 0.8
+            va = "bottom" if print_above else "top"
+            color = "black" if print_above else "white"
+            ax.text(x, y_pos, label, ha="center", va=va, size=7 * 2, color=color, rotation=90)
 
     print("SPEEDUP")
     for benchmark in bens:
@@ -182,7 +188,7 @@ def main(commit, data_dir, output_dir, scale):
     max_lim = ax.get_ylim()[1]
     max_lim = max_lim * 2.5 if scale != "linear" else max_lim * 1.05
     min_lim = 0 if scale != "log" else 1
-    ax.set_ylim(min_lim, max_lim)
+    ax.set_ylim(0, None)
 
     possible_minor_ticks = []
     if scale != "linear":

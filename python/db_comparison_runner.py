@@ -518,7 +518,7 @@ def import_data():
                 # change movie_info.info, person_info.info to nclob because their values exceed the nvarchar length
                 # limit of 5000 bytes.
                 if table_name in ["movie_info", "person_info"]:
-                    create_statement = create_statement.replace("text", "nclob", count=1)
+                    create_statement = create_statement.replace("info text", "info nclob", count=1)
 
                 create_statement = create_statement.replace("text", "nvarchar(1024)")
 

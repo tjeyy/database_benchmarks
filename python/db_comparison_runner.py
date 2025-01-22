@@ -627,7 +627,7 @@ def import_data():
                     data = None
                     with open(new_file_path) as f:
                         data = f.read()
-                    data = data.replace('"', '+"').replace("\u0007Null\u0007", '"\u0007Null\u0007"')
+                    data = data.replace('"', '+"').replace("\u0007Null\u0007", '\u0007"Null"\u0007')
                     with open(new_file_path, "w") as f:
                         f.write(data)
                 try:

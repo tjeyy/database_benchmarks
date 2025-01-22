@@ -143,7 +143,7 @@ def main(commit, data_dir, output_dir, scale):
         ax.bar(bar_positions, t_sum, bar_width, color=color, label=f"{impl[0].upper()}{impl[1:]}", edgecolor="none")
 
         for y, x in zip(t_sum, bar_positions):
-            label = str(round(y, 1))
+            label = str(round(y, 1)) if y < 1 else format_number(round(y))
             # y = y * 0.2 if scale != "linear" else y - 100
             print_above = (scale == "linear" and y < 1500) or (scale != "linear" and y < 1)
             y_pos = y + 100 if print_above else y - 100

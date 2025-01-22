@@ -33,7 +33,7 @@ $numactl_command ./python/db_comparison_runner.py monetdb --clients "${num_clien
 $numactl_command ./python/db_comparison_runner.py monetdb --clients "${num_clients}" --cores "${num_cpu}" -m "${node_id}" --skip_data_loading "${no_numa}"
 
 sudo systemctl start docker
-sudo docker run -v $(pwd)/db_comparison_data/umbra:/var/db -v $(pwd):$(pwd) -p 5432:5432 --cpuset-cpus 56-83,168-195 --cpuset-mems 2 --name umbra-bench umbradb/umbra:25.01
+sudo docker run -v $(pwd)/db_comparison_data/umbra:/var/db -v $(pwd):$(pwd) -p 5432:5432 --cpuset-cpus 56-83,168-195 --cpuset-mems 2 --name umbra-bench -d umbradb/umbra:25.01
 
 $numactl_command ./python/db_comparison_runner.py umbra --clients "${num_clients}" --cores "${num_cpu}" -m "${node_id}" "${no_numa}"
 $numactl_command ./python/db_comparison_runner.py umbra --rewrites --clients "${num_clients}" --cores "${num_cpu}" -m "${node_id}" "${no_numa}"

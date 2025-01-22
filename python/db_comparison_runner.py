@@ -152,7 +152,7 @@ def update_hana_optimized_queries(original_queries):
         "HEX_TABLE_SCAN_SEMI_JOIN",
     ]
     for item, query in original_queries.items():
-        updated_queries[item] = query.replace(";", f""" WITH HINT({", ".join(hints)})""")
+        updated_queries[item] = query.replace(";", f""" WITH HINT({", ".join(hints)});""")
     return updated_queries
 
 
@@ -515,6 +515,11 @@ def import_data():
                 create_statement += ";"
 
             if args.dbms in ["hana", "hana-int"]:
+                # change movie_info.info, person_info.info to nclob because their values exceed the nvarchar length
+                # limit of 5000 bytes.
+                if table_name in ["movie_info", "person_info"]:
+                    create_statement = create_statement.replace("info text", "info nclob") #, count=1)
+
                 create_statement = create_statement.replace("text", "nvarchar(1024)")
 
             # Umbra does not allow to add constraints later, so we have to do it now.
@@ -720,9 +725,15 @@ def loop(thread_id, queries, query_id, start_time, successful_runs, timeout, is_
             items = split_items
         item_start_time = time.time()
         for query in items:
-            cursor.execute(query)
-            cursor.fetchall()
-            item_end_time = time.time()
+            try:
+                cursor.execute(query)
+                cursor.fetchall()
+                item_end_time = time.time()
+            except Exception as e:
+                print(e)
+                cursor.close()
+                connection.close()
+                return
 
         if (time.time() - start_time < timeout) or len(successful_runs) == 0:
             successful_runs.append((item_end_time - item_start_time) * 1000)
@@ -837,10 +848,10 @@ for query_id in benchmark_queries:
     print(
         "\r{}\t>>\t avg.: {:10.4f} ms\tmed.: {:10.4f} ms\tmin.: {:10.4f} ms\tmax.: {:10.4f} ms".format(
             query_name,
-            sum(successful_runs) / len(successful_runs),
-            statistics.median(successful_runs),
-            min(successful_runs),
-            max(successful_runs),
+            sum(successful_runs) / len(successful_runs) if len(successful_runs) > 0 else 0,
+            statistics.median(successful_runs) if len(successful_runs) > 0 else 0,
+            min(successful_runs) if len(successful_runs) > 0 else 0,
+            max(successful_runs) if len(successful_runs) > 0 else 0,
         )
     )
 

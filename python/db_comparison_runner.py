@@ -624,6 +624,11 @@ def import_data():
                     data = pd.read_csv(
                         table_file_path, header=None, names=column_names, dtype=column_types, keep_default_na=False
                     )
+                    # remove failing tuples that we already inserted via SQL
+                    if table_name == "title":
+                        data = data[(data.id != 9795) & (data.id != 2162886)]
+                    if table_name == "char_name":
+                        data = data[data.id != 590883]
                     data.to_csv(
                         new_file_path,
                         sep="\u0007",

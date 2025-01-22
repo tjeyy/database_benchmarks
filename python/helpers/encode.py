@@ -57,7 +57,7 @@ def main():
         "title",
     ]
     tables = ["char_name"]
-    tables = ["title", "person_info", "char_name", "movie_info"]
+    tables = ["title",  "char_name", "person_info", "movie_info"]
 
     data_path = "."
 

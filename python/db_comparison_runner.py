@@ -538,6 +538,11 @@ def import_data():
             "('import_export','enable_csv_import_path_filter') = 'false' with reconfigure;"
         )
 
+        # We could not manage to load these tuples from CSV.
+        cursor.execute("INSERT INTO title VALUES (   9795, 'Null', NULL, 7, NULL, NULL, 'N4', 9785,    1,    11, NULL, '22370d39fa0b1593019c23d5e4ccfca9');")
+        cursor.execute("INSERT INTO title VALUES (2162886, 'Null', NULL, 1, 2009, NULL, 'N4', NULL, NULL, NULL , NULL, '59cf04844319a809042d47e26ac4074b');")
+        cursor.execute("INSERT INTO char_name VALUES (590883, 'Null', NULL, NULL, 'N4' , NULL, 'bbb93ef26e3c101ff11cdd21cab08a94');")
+
     for t_id, table_name in enumerate(table_order):
         table_file_path = f"{data_path}/{table_name}.csv"
         binary_file_path = f"{data_path}/{table_name}.bin"
@@ -614,6 +619,11 @@ def import_data():
                     data = pd.read_csv(
                         table_file_path, header=None, names=column_names, dtype=column_types, keep_default_na=False
                     )
+                    # remove failing tuples that we already inserted via SQL
+                    if table_name == "title":
+                        data = data[(data.id != 9795) & (data.id != 2162886)]
+                    if table_name == "char_name":
+                        data = data[data.id != 590883]
                     data.to_csv(
                         new_file_path,
                         sep="\u0007",

@@ -725,9 +725,15 @@ def loop(thread_id, queries, query_id, start_time, successful_runs, timeout, is_
             items = split_items
         item_start_time = time.time()
         for query in items:
-            cursor.execute(query)
-            cursor.fetchall()
-            item_end_time = time.time()
+            try:
+                cursor.execute(query)
+                cursor.fetchall()
+                item_end_time = time.time()
+            except Exception as e:
+                print(e)
+                cursor.close()
+                connection.close()
+                return
 
         if (time.time() - start_time < timeout) or len(successful_runs) == 0:
             successful_runs.append((item_end_time - item_start_time) * 1000)

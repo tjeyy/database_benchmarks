@@ -1,7 +1,7 @@
 import argparse as ap
+from pathlib import Path
 
 from queries import static_job_queries
-from pathlib import Path
 
 
 def parse_args():
@@ -11,6 +11,7 @@ def parse_args():
     parser.add_argument("pos", type=int)
     parser.add_argument("--range", "-r", type=int, default=10)
     return parser.parse_args()
+
 
 def split_query(query):
     return [statement for statement in query.split(";") if statement.strip()]
@@ -56,6 +57,6 @@ def main(keyword, position, lookahead, config):
             print(q_id, "  ", item[start:end])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     args = parse_args()
     main(args.kw, args.pos, args.range, args.config)

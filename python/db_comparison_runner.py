@@ -518,7 +518,7 @@ def import_data():
                 # change movie_info.info, person_info.info to nclob because their values exceed the nvarchar length
                 # limit of 5000 bytes.
                 if table_name in ["movie_info", "person_info"]:
-                    create_statement = create_statement.replace("info text", "info nclob") #, count=1)
+                    create_statement = create_statement.replace("info text", "info nclob")  # , count=1)
 
                 create_statement = create_statement.replace("text", "nvarchar(1024)")
 
@@ -544,9 +544,15 @@ def import_data():
         )
 
         # We could not manage to load these tuples from CSV.
-        cursor.execute("INSERT INTO title VALUES (   9795, 'Null', NULL, 7, NULL, NULL, 'N4', 9785,    1,    11, NULL, '22370d39fa0b1593019c23d5e4ccfca9');")
-        cursor.execute("INSERT INTO title VALUES (2162886, 'Null', NULL, 1, 2009, NULL, 'N4', NULL, NULL, NULL , NULL, '59cf04844319a809042d47e26ac4074b');")
-        cursor.execute("INSERT INTO char_name VALUES (590883, 'Null', NULL, NULL, 'N4' , NULL, 'bbb93ef26e3c101ff11cdd21cab08a94');")
+        cursor.execute(
+            "INSERT INTO title VALUES (   9795, 'Null', NULL, 7, NULL, NULL, 'N4', 9785,    1,    11, NULL, '22370d39fa0b1593019c23d5e4ccfca9');"
+        )
+        cursor.execute(
+            "INSERT INTO title VALUES (2162886, 'Null', NULL, 1, 2009, NULL, 'N4', NULL, NULL, NULL , NULL, '59cf04844319a809042d47e26ac4074b');"
+        )
+        cursor.execute(
+            "INSERT INTO char_name VALUES (590883, 'Null', NULL, NULL, 'N4' , NULL, 'bbb93ef26e3c101ff11cdd21cab08a94');"
+        )
 
     for t_id, table_name in enumerate(table_order):
         table_file_path = f"{data_path}/{table_name}.csv"

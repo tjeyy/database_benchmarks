@@ -245,7 +245,7 @@ def add_constraints(fk_only):
         return
     connection, cursor = get_cursor()
 
-    start = time.time()
+    start = time.perf_counter()
     if not fk_only:
         add_pk_command = """ALTER TABLE {} ADD CONSTRAINT comp_pk_{} PRIMARY KEY ({});"""
         constraint_id = 1
@@ -254,7 +254,7 @@ def add_constraints(fk_only):
             table = f'"{table_name}"' if table_name == "date" else table_name
             cursor.execute(add_pk_command.format(table, constraint_id, ", ".join(column_names)))
             constraint_id += 1
-        end = time.time()
+        end = time.perf_counter()
         print(f"\r- Added {len(schema_keys.primary_keys)} PRIMARY KEY constraints ({round(end - start, 1)} s)")
         start = end
 
@@ -281,7 +281,7 @@ def add_constraints(fk_only):
             pass
 
         constraint_id += 1
-    end = time.time()
+    end = time.perf_counter()
     print(f"\r- Added {len(schema_keys.foreign_keys)} FOREIGN KEY constraints ({round(end - start, 1)} s)")
 
     cursor.close()
@@ -561,7 +561,7 @@ def import_data():
         if has_binary and args.dbms in ["hyrise", "hyrise-int"]:
             table_file_path = binary_file_path
         print(f" - ({t_id + 1}/{len(table_order)}) Import {table_name} from {table_file_path} ...", end=" ", flush=True)
-        start = time.time()
+        start = time.perf_counter()
 
         if args.dbms == "monetdb" and table_name in tables["JOB"]:
             # MonetDB does not like some IMDB CSV files, so we encode them in their binary format.
@@ -671,7 +671,7 @@ def import_data():
             print("and cache as binary ...", end=" ", flush=True)
             cursor.execute(f"""COPY "{table_name}" TO '{binary_file_path}';""")
 
-        end = time.time()
+        end = time.perf_counter()
         print(f"({round(end - start, 1)} s)")
 
     # if args.dbms == "umbra":
@@ -729,19 +729,13 @@ def loop(thread_id, queries, query_id, start_time, successful_runs, timeout, is_
             for item in items:
                 split_items += split_query(item)
             items = split_items
-        item_start_time = time.time()
+        item_start_time = time.perf_counter()
         for query in items:
-            try:
-                cursor.execute(query)
-                cursor.fetchall()
-                item_end_time = time.time()
-            except Exception as e:
-                print(e)
-                cursor.close()
-                connection.close()
-                return
+            cursor.execute(query)
+            cursor.fetchall()
+        item_end_time = time.perf_counter()
 
-        if (time.time() - start_time < timeout) or len(successful_runs) == 0:
+        if (item_end_time - start_time < timeout) or len(successful_runs) == 0:
             successful_runs.append((item_end_time - item_start_time) * 1000)
         else:
             break
@@ -781,7 +775,7 @@ if (args.dbms not in ["hyrise-int", "hyrise"] and args.schema_keys) or args.dbms
 if args.dbms in ["monetdb", "umbra", "greenplum", "hyrise-int"] or (args.dbms == "hyrise" and args.schema_keys):
     print("Warming up database (complete single-threaded run) due to initial persistence on disk: ", end="")
     sys.stdout.flush()
-    loop(0, selected_benchmark_queries, "warmup", time.time(), [], 3600, True)
+    loop(0, selected_benchmark_queries, "warmup", time.perf_counter(), [], 3600, True)
     print(" done.")
     sys.stdout.flush()
 
@@ -811,7 +805,7 @@ for query_id in benchmark_queries:
     print("Benchmarking {}...".format(query_name), end="", flush=True)
 
     successful_runs = []
-    start_time = time.time()
+    start_time = time.perf_counter()
 
     timeout = args.time
 
@@ -826,7 +820,7 @@ for query_id in benchmark_queries:
         threads[-1].start()
 
     while True:
-        time_left = start_time + timeout - time.time()
+        time_left = start_time + timeout - time.perf_counter()
         if time_left < 0:
             break
         print("\rBenchmarking {}... {:.0f} seconds left".format(query_name, time_left), end="")

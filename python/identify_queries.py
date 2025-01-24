@@ -30,14 +30,15 @@ def load_queries(directory, blacklist={}):
 
 def main(keyword, position, lookahead, config):
     queries = None
+
     if config == "hana":
         queries = static_job_queries.hana_queries
     elif config == "hana_o3":
-        queries == static_job_queries.hana_queries_o3
+        queries = static_job_queries.hana_queries_o3
     elif config == "original":
         queries = load_queries(".", {"fkindexes.sql", "schema.sql"})
-
-
+    else:
+        raise AttributeError(f"Unknown config: '{config}', choices are 'original', 'hana', 'hana_o3'")
 
     for q_id in sorted(queries.keys()):
         query = queries[q_id]

@@ -152,7 +152,7 @@ def update_hana_optimized_queries(original_queries):
         "HEX_TABLE_SCAN_SEMI_JOIN",
     ]
     for item, query in original_queries.items():
-        updated_queries[item] = query.replace(";", f""" WITH HINT({", ".join(hints)})""")
+        updated_queries[item] = query.replace(";", f""" WITH HINT({", ".join(hints)});""")
     return updated_queries
 
 

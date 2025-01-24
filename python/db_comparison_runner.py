@@ -848,10 +848,10 @@ for query_id in benchmark_queries:
     print(
         "\r{}\t>>\t avg.: {:10.4f} ms\tmed.: {:10.4f} ms\tmin.: {:10.4f} ms\tmax.: {:10.4f} ms".format(
             query_name,
-            sum(successful_runs) / len(successful_runs),
-            statistics.median(successful_runs),
-            min(successful_runs),
-            max(successful_runs),
+            sum(successful_runs) / len(successful_runs) if len(successful_runs) > 0 else 0,
+            statistics.median(successful_runs) if len(successful_runs) > 0 else 0,
+            min(successful_runs) if len(successful_runs) > 0 else 0,
+            max(successful_runs) if len(successful_runs) > 0 else 0,
         )
     )
 

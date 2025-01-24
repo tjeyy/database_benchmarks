@@ -190,10 +190,10 @@ if args.dbms == "hana-int":
     job_queries = update_hana_optimized_queries(job_queries)
     ssb_queries = update_hana_optimized_queries(ssb_queries)
 
-tpch_queries = list(tpch_queries.values())
-tpcds_queries = list(tpcds_queries.values())
-ssb_queries = list(ssb_queries.values())
-job_queries = list(job_queries.values())
+tpch_queries = [tpch_queries[q] for q in sorted(tpch_queries.keys())]
+tpcds_queries = [tpcds_queries[q] for q in sorted(tpcds_queries.keys())]
+ssb_queries = [ssb_queries[q] for q in sorted(ssb_queries.keys())]
+job_queries = [job_queries[q] for q in sorted(job_queries.keys())]
 
 assert len(tpch_queries) == 22
 assert len(tpcds_queries) == 48

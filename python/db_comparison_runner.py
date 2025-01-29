@@ -146,13 +146,17 @@ if args.dbms in ["hyrise", "hyrise-int"]:
     args.skip_data_loading = False
 
 
-def update_hana_optimized_queries(original_queries):
-    updated_queries = {}
+def update_hana_optimized_queries(original_queries, items):
+    updated_queries = original_queries.copy();
     hints = [
         "HEX_TABLE_SCAN_SEMI_JOIN",
     ]
-    for item, query in original_queries.items():
-        updated_queries[item] = query.replace(";", f""" WITH HINT({", ".join(hints)});""")
+    for item in items:
+        query = original_queries[item].strip()
+        if query.endswith(";"):
+            query = query[:-1]
+        query += f""" WITH HINT({", ".join(hints)});"""
+        updated_queries[item] = query
     return updated_queries
 
 
@@ -185,10 +189,10 @@ if args.rewrites or args.O3:
         ssb_queries.update(static_ssb_queries.umbra_queries_o3)
 
 if args.dbms == "hana-int":
-    tpch_queries = update_hana_optimized_queries(tpch_queries)
-    tpcds_queries = update_hana_optimized_queries(tpcds_queries)
-    job_queries = update_hana_optimized_queries(job_queries)
-    ssb_queries = update_hana_optimized_queries(ssb_queries)
+    tpch_queries = update_hana_optimized_queries(tpch_queries, list(static_tpch_queries.queries_o3.keys()))
+    tpcds_queries = update_hana_optimized_queries(tpcds_queries, list(static_tpcds_queries.queries_o3.keys()))
+    ssb_queries = update_hana_optimized_queries(ssb_queries, list(static_ssb_queries.queries_o3.keys()))
+    job_queries = update_hana_optimized_queries(job_queries, list(static_job_queries.queries_o3.keys()))
 
 tpch_queries = [tpch_queries[q] for q in sorted(tpch_queries.keys())]
 tpcds_queries = [tpcds_queries[q] for q in sorted(tpcds_queries.keys())]
@@ -199,7 +203,6 @@ assert len(tpch_queries) == 22
 assert len(tpcds_queries) == 48
 assert len(ssb_queries) == 13
 assert len(job_queries) == 113
-
 
 def get_cursor():
     if args.dbms == "monetdb":
@@ -240,23 +243,23 @@ def get_cursor():
     return (connection, cursor)
 
 
-def add_constraints(fk_only):
-    if fk_only:
+def add_constraints(skip):
+    if skip:
         return
     connection, cursor = get_cursor()
 
     start = time.perf_counter()
-    if not fk_only:
-        add_pk_command = """ALTER TABLE {} ADD CONSTRAINT comp_pk_{} PRIMARY KEY ({});"""
-        constraint_id = 1
-        for table_name, column_names in schema_keys.primary_keys:
-            print(f"\r- Add PRIMARY KEY constraints ({constraint_id}/{len(schema_keys.primary_keys)})", end="")
-            table = f'"{table_name}"' if table_name == "date" else table_name
-            cursor.execute(add_pk_command.format(table, constraint_id, ", ".join(column_names)))
-            constraint_id += 1
-        end = time.perf_counter()
-        print(f"\r- Added {len(schema_keys.primary_keys)} PRIMARY KEY constraints ({round(end - start, 1)} s)")
-        start = end
+
+    add_pk_command = """ALTER TABLE {} ADD CONSTRAINT comp_pk_{} PRIMARY KEY ({});"""
+    constraint_id = 1
+    for table_name, column_names in schema_keys.primary_keys:
+        print(f"\r- Add PRIMARY KEY constraints ({constraint_id}/{len(schema_keys.primary_keys)})", end="")
+        table = f'"{table_name}"' if table_name == "date" else table_name
+        cursor.execute(add_pk_command.format(table, constraint_id, ", ".join(column_names)))
+        constraint_id += 1
+    end = time.perf_counter()
+    print(f"\r- Added {len(schema_keys.primary_keys)} PRIMARY KEY constraints ({round(end - start, 1)} s)")
+    start = end
 
     add_fk_command = """ALTER TABLE {} ADD CONSTRAINT comp_fk_{} FOREIGN KEY ({}) REFERENCES {} ({});"""
     constraint_id = 1
@@ -290,8 +293,8 @@ def add_constraints(fk_only):
     connection.close()
 
 
-def drop_constraints(fk_only):
-    if fk_only:
+def drop_constraints(skip):
+    if skip:
         return
     connection, cursor = get_cursor()
 
@@ -307,18 +310,18 @@ def drop_constraints(fk_only):
             pass
         constraint_id += 1
 
-    if not fk_only:
-        print("- Drop PRIMARY KEY constraints ...")
-        drop_pk_command = """ALTER TABLE {} DROP CONSTRAINT comp_pk_{};"""
-        constraint_id = 1
 
-        for table_name, _ in schema_keys.primary_keys:
-            table = f'"{table_name}"' if table_name == "date" else table_name
-            try:
-                cursor.execute(drop_pk_command.format(table, constraint_id))
-            except Exception:
-                pass
-            constraint_id += 1
+    print("- Drop PRIMARY KEY constraints ...")
+    drop_pk_command = """ALTER TABLE {} DROP CONSTRAINT comp_pk_{};"""
+    constraint_id = 1
+
+    for table_name, _ in schema_keys.primary_keys:
+        table = f'"{table_name}"' if table_name == "date" else table_name
+        try:
+            cursor.execute(drop_pk_command.format(table, constraint_id))
+        except Exception:
+            pass
+        constraint_id += 1
 
     cursor.close()
     if args.dbms in ["umbra", "greenplum"]:
@@ -332,8 +335,8 @@ dbms_process = None
 def cleanup():
     if dbms_process:
         print("Shutting {} down...".format(args.dbms))
-        if args.dbms == "hana-int" or (args.schema_keys and args.dbms not in ["hyrise", "hyrise-int"]):
-            drop_constraints(args.dbms == "umbra")
+        if args.dbms == "hana-int" or args.schema_keys:
+            drop_constraints(args.dbms in ["umbra", "hyrise", "hyrise-int"])
         dbms_process.kill()
         time.sleep(10)
 
@@ -764,13 +767,13 @@ if args.dbms == "monetdb":
         for q in selected_benchmark_queries
     ]
 
-drop_constraints(args.dbms == "umbra")
+drop_constraints(args.dbms in ["umbra", "hyrise", "hyrise-int"])
 
 if not args.skip_data_loading:
     import_data()
 
-if (args.dbms not in ["hyrise-int", "hyrise"] and args.schema_keys) or args.dbms == "hana-int":
-    add_constraints(args.dbms == "umbra")
+if args.schema_keys or args.dbms == "hana-int":
+    add_constraints(args.dbms in ["umbra", "hyrise", "hyrise-int"])
 
 if args.dbms in ["monetdb", "umbra", "greenplum", "hyrise-int"] or (args.dbms == "hyrise" and args.schema_keys):
     print("Warming up database (complete single-threaded run) due to initial persistence on disk: ", end="")

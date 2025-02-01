@@ -188,7 +188,7 @@ def main(commit, data_dir, output_dir, scale):
     max_lim = ax.get_ylim()[1]
     max_lim = max_lim * 2.5 if scale != "linear" else max_lim * 1.05
     min_lim = 0 if scale != "log" else 1
-    ax.set_ylim(0, None)
+    ax.set_ylim(0, max_lim)
 
     possible_minor_ticks = []
     if scale != "linear":
@@ -217,7 +217,7 @@ def main(commit, data_dir, output_dir, scale):
 
     column_width = 3.3374
     fig_width = column_width * 2
-    fig_height = column_width * 0.475 * 2
+    fig_height = column_width * 0.475 * 2  # * 0.9
     fig.set_size_inches(fig_width, fig_height)
     plt.tight_layout(pad=0)
 

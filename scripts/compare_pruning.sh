@@ -25,10 +25,11 @@ do
   echo "$benchmark"
   python3 hyrise/scripts/compare_benchmarks.py "benchmark_plugin_results/${benchmark}_${commit}_st_s${sf}_all_off.json" "benchmark_plugin_results/${benchmark}_8eac957fc795e53e775f4284dcfc173b00642b69_no_pruning_st_s${sf}_plugin.json" | grep Sum
   python3 hyrise/scripts/compare_benchmarks.py "benchmark_plugin_results/${benchmark}_${commit}_st_s${sf}_all_off.json" "benchmark_plugin_results/${benchmark}_8eac957fc795e53e775f4284dcfc173b00642b69_no_pruning_st_s${sf}_plugin_jtp.json" | grep Sum
+  python3 hyrise/scripts/compare_benchmarks.py "benchmark_plugin_results/${benchmark}_${commit}_st_s${sf}_plugin.json" "benchmark_plugin_results/${benchmark}_8eac957fc795e53e775f4284dcfc173b00642b69_no_pruning_st_s${sf}_plugin.json" | grep Sum
 done
   echo "hyriseBenchmarkJoinOrder"
   python3 hyrise/scripts/compare_benchmarks.py "benchmark_plugin_results/hyriseBenchmarkJoinOrder_${commit}_st_all_off.json" "benchmark_plugin_results/hyriseBenchmarkJoinOrder_8eac957fc795e53e775f4284dcfc173b00642b69_no_pruning_st_plugin.json" | grep Sum
   python3 hyrise/scripts/compare_benchmarks.py "benchmark_plugin_results/hyriseBenchmarkJoinOrder_${commit}_st_all_off.json" "benchmark_plugin_results/hyriseBenchmarkJoinOrder_8eac957fc795e53e775f4284dcfc173b00642b69_no_pruning_st_plugin_jtp.json" | grep Sum
-
+  python3 hyrise/scripts/compare_benchmarks.py "benchmark_plugin_results/hyriseBenchmarkJoinOrder_${commit}_st_plugin.json" "benchmark_plugin_results/hyriseBenchmarkJoinOrder_8eac957fc795e53e775f4284dcfc173b00642b69_no_pruning_st_plugin.json" | grep Sum
 
 exit 0

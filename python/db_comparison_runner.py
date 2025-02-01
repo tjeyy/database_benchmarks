@@ -147,7 +147,7 @@ if args.dbms in ["hyrise", "hyrise-int"]:
 
 
 def update_hana_optimized_queries(original_queries, items):
-    updated_queries = original_queries.copy();
+    updated_queries = original_queries.copy()
     hints = [
         "HEX_TABLE_SCAN_SEMI_JOIN",
     ]
@@ -203,6 +203,7 @@ assert len(tpch_queries) == 22
 assert len(tpcds_queries) == 48
 assert len(ssb_queries) == 13
 assert len(job_queries) == 113
+
 
 def get_cursor():
     if args.dbms == "monetdb":
@@ -309,7 +310,6 @@ def drop_constraints(skip):
         except Exception:
             pass
         constraint_id += 1
-
 
     print("- Drop PRIMARY KEY constraints ...")
     drop_pk_command = """ALTER TABLE {} DROP CONSTRAINT comp_pk_{};"""

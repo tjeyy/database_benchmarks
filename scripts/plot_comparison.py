@@ -29,6 +29,10 @@ def grep_throughput_change(old_result_file, new_result_file, clients, runtime):
     df_old = df_old[df_old.CLIENTS == clients]
     df_new = df_new[df_new.CLIENTS == clients]
 
+    if "hana" in old_result_file:
+        df_old = df_old[df_old.RUNTIME_MS > 1000]
+        df_new = df_new[df_new.RUNTIME_MS > 1000]
+
     old_throughput = runtime / (df_old["RUNTIME_MS"].median() / 1000)
     new_throughput = runtime / (df_new["RUNTIME_MS"].median() / 1000)
 
@@ -51,12 +55,16 @@ def get_offsets(key, changes, factor):
 
 def grep_runtime_change(old_result_file, new_result_file, clients, runtime):
     if not (os.path.isfile(old_result_file) and os.path.isfile(new_result_file)):
-        return 5
+        return 0
     df_old = pd.read_csv(old_result_file)
     df_new = pd.read_csv(new_result_file)
 
     df_old = df_old[df_old.CLIENTS == clients]
     df_new = df_new[df_new.CLIENTS == clients]
+
+    if "hana" in old_result_file:
+        df_old = df_old[df_old.RUNTIME_MS > 1000]
+        df_new = df_new[df_new.RUNTIME_MS > 1000]
 
     old_runtime = df_old["RUNTIME_MS"].median()
     new_runtime = df_new["RUNTIME_MS"].median()
@@ -67,9 +75,10 @@ def grep_runtime_change(old_result_file, new_result_file, clients, runtime):
 def main(data_dir, output_dir, metric):
     clients = 32
     runtime = 7200
-    order = list(reversed(["hyrise-int", "hyrise", "hana-int", "hana", "umbra", "monetdb", "greenplum"]))
+    order = list(reversed(["hyrise-int", "hyrise", "hana-int", "hana", "umbra", "monetdb", "greenplum"]))[1:]
     changes = defaultdict(dict)
     HANA_NAME = "SAP HANA"
+    min_lim = -10
 
     for benchmark in ["all"]:  # , "TPCH", "TPCDS", "SSB", "JOB"]:
         print(f"\n\n{benchmark}")
@@ -81,7 +90,7 @@ def main(data_dir, output_dir, metric):
             keys_path = os.path.join(data_dir, common_path + "__keys.csv")
             rewrites_keys_path = os.path.join(data_dir, common_path + "__rewrites__keys.csv")
             method = grep_throughput_change if metric == "throughput" else grep_runtime_change
-            if dbms.endswith("-int"):
+            if dbms == ("hyrise-int"):
                 optimizer_path = base_path
                 base_path = os.path.join(data_dir, common_path[: -len("-int")] + ".csv")
                 changes[dbms[: -len("-int")]]["optimizer"] = method(base_path, optimizer_path, clients, runtime)
@@ -101,7 +110,6 @@ def main(data_dir, output_dir, metric):
                 print(f"    {c.rjust(max_len)}: {round(v, 2)}%")
 
         names = {
-            "hyrise-int": "Hyrise\n(optimizer)",
             "hyrise": "Hyrise",
             "monetdb": "MonetDB",
             "umbra": "Umbra",
@@ -147,66 +155,64 @@ def main(data_dir, output_dir, metric):
         margin = 0.01
 
         labels = {
-            "keys": r"PKs, FKs",
-            "rewrites": r"SQL rewrites",
-            "rewrites_keys": "PKs, FKs, SQL rewrites",
-            "optimizer": "Optimizer",
+            "keys": r"PKs \& FKs",
+            "rewrites": "SQL rewrites",
+            "rewrites_keys": r"PKs \& FKs, SQL rewrites",
+            "optimizer": r"Dependency optimizer",
             "opt_rewrites": "Optimizer, SQL rewrites",
         }
 
         ax = plt.gca()
-        m = 0
         decs = []
+        m = max([max(d.values()) for d in changes.values()])
+        m_ = min([min(d.values()) for d in changes.values()])
         for offset_id, config in enumerate(configs[:3]):
             bar_positions = [
                 p + offsets[d][offset_id] * (0.5 * bar_width + margin) for d, p in zip(order, group_centers)
             ]
             data = [changes[d][config] for d in order]
-            m = max(m, max(data))
-            decs += [pos for pos, val in zip(bar_positions, data) if val <= 0]
             ax.bar(bar_positions, data, bar_width, color=colors[config], label=labels[config], edgecolor="none")
+            decs += [pos for pos, val in zip(bar_positions, data) if val <= 0]
             for pos, val in zip(bar_positions, data):
-                if val <= 0:
-                    continue
-                # print(config, pos, val round(val, 1))
-                ax.text(
-                    pos, val - 0.2, str(round(val, 1)), ha="center", va="top", size=7 * 2, rotation=90, color="white"
-                )
+                y_pos = val - m / 100 if val > 0 else max(min_lim, val) + m / 100
+                va = "top" if val > 0 else "bottom"
+                ax.text(pos, y_pos, str(round(val, 1)), ha="center", va=va, size=7 * 2, rotation=90, color="white")
 
         for config in configs[-1:]:
             offset_id = configs.index(config)
+            internal_count = sum([config in s for s in changes.values()])
             bar_positions = [
-                p + offsets[d][offset_id] * (0.5 * bar_width + margin) for d, p in zip(order[-2:], group_centers[-2:])
+                p + offsets[d][offset_id] * (0.5 * bar_width + margin)
+                for d, p in zip(order[-internal_count:], group_centers[-internal_count:])
             ]
-            data = [changes[d][config] for d in order[-2:]]
-            m = max(m, max(data))
+            data = [changes[d][config] for d in order[-internal_count:]]
             decs += [pos for pos, val in zip(bar_positions, data) if val <= 0]
             ax.bar(bar_positions, data, bar_width, color=colors[config], label=labels[config], edgecolor="none")
             for pos, val in zip(bar_positions, data):
-                if val <= 0:
-                    continue
+                # if val <= 0:
+                #     continue
                 # print(config, pos, val round(val, 1))
-                ax.text(
-                    pos, val - 0.2, str(round(val, 1)), ha="center", va="top", size=7 * 2, rotation=90, color="white"
-                )
+                y_pos = val - m / 100 if val > 0 else max(min_lim, val) + m / 100
+                va = "top" if val > 0 else "bottom"
+                ax.text(pos, y_pos, str(round(val, 1)), ha="center", va=va, size=7 * 2, rotation=90, color="white")
 
-        for pos in decs:
-            ax.text(pos, m / 100, r"$\ast$", ha="center", va="bottom", size=7 * 2, rotation=0)
+        # for pos in decs:
+        #     ax.text(pos, m / 100, r"$\ast$", ha="center", va="bottom", size=7 * 2, rotation=0)
 
         # ax.set_ylim(0, ax.get_ylim()[1] * 1.25)
-        ax.set_ylim(0, m * 1.25 * 1.25)
+        ax.set_ylim(None if m_ > min_lim else min_lim, m * 1.25)
 
         plt.xticks(group_centers, [names[d] for d in order], rotation=0)
         ax = plt.gca()
         plt.ylabel(f"Median {metric}\nimprovement [\\%]", fontsize=8 * 2)
-        plt.xlabel("System", fontsize=8 * 2)
+        # plt.xlabel("System", fontsize=8 * 2)
         ax.tick_params(axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, bottom=True)
 
         plt.grid(axis="y", visible=True)
         plt.legend(
             loc="best",
             fontsize=6 * 2,
-            ncol=4,
+            ncol=2,
             fancybox=False,
             framealpha=1.0,
             columnspacing=1.0,
@@ -219,7 +225,7 @@ def main(data_dir, output_dir, metric):
         fig = plt.gcf()
         column_width = 3.3374
         fig_width = column_width * 2
-        fig_height = column_width * 0.475 * 2
+        fig_height = column_width * 0.475 * 2 * 0.9
         fig.set_size_inches(fig_width, fig_height)
         plt.tight_layout(pad=0)
 

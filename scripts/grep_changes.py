@@ -1,4 +1,5 @@
 import argparse as ap
+import os
 
 import pandas as pd
 
@@ -10,8 +11,13 @@ def parse_args():
 
 
 def get_median(system_name, config):
-    data = pd.read_csv(f"database_comparison__all__{system_name}{config}.csv")
+    file_name = f"database_comparison__all__{system_name}{config}.csv"
+    if not os.path.isfile(file_name):
+        return -1
+    data = pd.read_csv(file_name)
     assert len(data.CLIENTS.unique()) == 1 and data.CLIENTS.unique()[0] == 32
+    if system_name == "hana":
+        data = data[data.RUNTIME_MS > 1000]
     return data.RUNTIME_MS.median() / 1000
 
 
@@ -35,14 +41,14 @@ def main(system_name):
         f"{round(rewrites_keys, 2)}s ({perc(baseline, rewrites_keys)})",
     ]
 
-    if system_name == "hyrise":
+    if system_name in ["hyrise", "hana"]:
         legend.append("Optimizer")
         optimizer = get_median(system_name, "-int")
         values.append(f"{round(optimizer, 2)}s ({perc(baseline, optimizer)})")
 
     max_lens = [max(len(a), len(b)) for a, b in zip(legend, values)]
     print("        ".join([v.ljust(l) for v, l in zip(legend, max_lens)]))
-    print("        ".join([v.ljust(l) for v, l in zip(values, max_lens)]))
+    print("        ".join([("--" if v[0] == "-" else v).ljust(l) for v, l in zip(values, max_lens)]))
 
 
 if __name__ == "__main__":

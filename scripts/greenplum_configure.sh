@@ -12,8 +12,6 @@ gp_home="$(pwd)/db_comparison_data/greenplum"
   echo hostssl all +users samenet trust
 } >> "${gp_home}/data/gpseg-1/pg_hba.conf"
 
-"${gp_home}/bin/psql" -p "${PORT}" -d dbbench -f "$(pwd)/scripts/gp_create_users.sql"
-
 # Increase memory limit.
 # https://techdocs.broadcom.com/us/en/vmware-tanzu/data-solutions/tanzu-greenplum/7/greenplum-database/best_practices-sysconfig.html
 # gp_vmem = ((SWAP + RAM) – (7.5GB + 0.05 * RAM)) / 1.17  --> RAM = 370GB, SWAP = 8 GB
@@ -55,3 +53,5 @@ while sleep 10 && ! PGPORT=${PORT} GPHOME="${gp_home}" COORDINATOR_DATA_DIRECTOR
 
   GPHOME="${gp_home}" "${gp_home}/bin/gpstop" -a -d "${gp_home}/data/gpseg-1" -r
 done
+
+"${gp_home}/bin/psql" -p "${PORT}" -d dbbench -f "$(pwd)/scripts/gp_create_users.sql"

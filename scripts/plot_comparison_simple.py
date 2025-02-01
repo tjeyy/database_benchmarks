@@ -19,76 +19,71 @@ def parse_args():
     return parser.parse_args()
 
 
-def grep_throughput_change(old_result_file, new_result_file, clients, runtime):
-    if not (os.path.isfile(old_result_file) and os.path.isfile(new_result_file)):
+def grep_throughput(result_file, clients, runtime):
+    if not (os.path.isfile(result_file)):
         print("-")
-        return 1
-    df_old = pd.read_csv(old_result_file)
-    df_new = pd.read_csv(new_result_file)
+        return np.nan
 
-    df_old = df_old[df_old.CLIENTS == clients]
-    df_new = df_new[df_new.CLIENTS == clients]
+    df = pd.read_csv(result_file)
 
-    print(
-        f'{round((1 - (df_new["RUNTIME_MS"].median() / 1000) / (df_old["RUNTIME_MS"].median() / 1000)) * 100, 2)}%',
-        end=" ",
-    )
+    if "hana" in result_file:
+        df = df[df.RUNTIME_MS > 1000]
 
-    print(f'({round(df_old["RUNTIME_MS"].median() / 1000, 2)} / {round(df_new["RUNTIME_MS"].median() / 1000, 2)})')
-
-    old_throughput = runtime / (df_old["RUNTIME_MS"].median() / 1000)
-    new_throughput = runtime / (df_new["RUNTIME_MS"].median() / 1000)
-
-    return new_throughput / old_throughput
+    return runtime / (df[df.CLIENTS == clients].RUNTIME_MS.median() / 1000)
 
 
-def grep_runtime_change(old_result_file, new_result_file, clients, runtime):
-    if not (os.path.isfile(old_result_file) and os.path.isfile(new_result_file)):
-        print("-")
-        return 1
-    df_old = pd.read_csv(old_result_file)
-    df_new = pd.read_csv(new_result_file)
+def grep_runtime(result_file, clients, runtime):
+    if not (os.path.isfile(result_file)):
+        return np.nan
 
-    df_old = df_old[df_old.CLIENTS == clients]
-    df_new = df_new[df_new.CLIENTS == clients]
+    df = pd.read_csv(result_file)
 
-    print(
-        f'{round((1 - (df_new["RUNTIME_MS"].median() / 1000) / (df_old["RUNTIME_MS"].median() / 1000)) * 100, 2)}%',
-        end=" ",
-    )
+    if "hana" in result_file:
+        df = df[df.RUNTIME_MS > 1000]
 
-    print(f'({round(df_old["RUNTIME_MS"].median() / 1000, 2)} / {round(df_new["RUNTIME_MS"].median() / 1000, 2)})')
-
-    old_runtime = df_old["RUNTIME_MS"].median()
-    new_runtime = df_new["RUNTIME_MS"].median()
-
-    return new_runtime / old_runtime
+    return df[df.CLIENTS == clients].RUNTIME_MS.median()
 
 
 def main(data_dir, output_dir, metric):
     clients = 32
     runtime = 7200
-    order = list(reversed(["hyrise-int", "hyrise", "umbra", "hana", "monetdb", "greenplum"]))
+    order = list(reversed(["hyrise-int", "hyrise", "hana", "umbra", "monetdb", "greenplum"]))[1:-1]
     changes = dict()
     HANA_NAME = "SAP HANA"
 
     for benchmark in ["all"]:  # , "TPCH", "TPCDS", "SSB", "JOB"]:
         print(f"\n\n{benchmark}")
 
-        print("LATENCY")
         for dbms in order:
             print(dbms, end=": ")
             common_path = f"database_comparison__{benchmark}__{dbms}"
-            old_path = os.path.join(data_dir, common_path + ".csv")
-            new_path = os.path.join(data_dir, common_path + "__rewrites.csv")
+            base_path = os.path.join(data_dir, common_path + ".csv")
+            keys_path = old_path = os.path.join(data_dir, common_path + "__keys.csv")
+            rewrites_path = os.path.join(data_dir, common_path + f"__rewrites.csv")
+            rewrites_keys_path = os.path.join(data_dir, common_path + f"__rewrites__keys.csv")
             if dbms == "hyrise-int":
-                new_path = old_path
-                old_path = os.path.join(data_dir, common_path[: -len("-int")] + ".csv")
-            method = grep_throughput_change if metric == "throughput" else grep_runtime_change
-            changes[dbms] = method(old_path, new_path, clients, runtime)
-        if all([v == 1 for v in changes.values()]):
+                base_path = os.path.join(data_dir, common_path[: -len("-int")] + ".csv")
+                keys_path = old_path = os.path.join(data_dir, common_path[: -len("-int")] + "__keys.csv")
+                rewrites_path = os.path.join(data_dir, common_path + ".csv")
+                rewrites_keys_path = rewrites_path
+
+            method = grep_throughput if metric == "throughput" else grep_runtime
+            base = max(grep_throughput(base_path, clients, runtime), grep_throughput(keys_path, clients, runtime))
+            opt = max(
+                grep_throughput(rewrites_path, clients, runtime), grep_throughput(rewrites_keys_path, clients, runtime)
+            )
+            change = opt / base * 100
+            if metric == "runtime":
+                base = min(grep_runtime(base_path, clients, runtime), grep_runtime(keys_path, clients, runtime))
+                opt = min(
+                    grep_runtime(rewrites_path, clients, runtime), grep_runtime(rewrites_keys_path, clients, runtime)
+                )
+                change = 100 - opt / base * 100
+
+            changes[dbms] = change
+
+        if all([np.isnan(v) for v in changes.values()]):
             continue
-        changes = {k: abs((v - 1) * 100) for k, v in changes.items()}
 
         print(metric.upper())
         max_len = max([len(db) for db in order])
@@ -134,9 +129,12 @@ def main(data_dir, output_dir, metric):
         )
 
         group_centers = np.arange(len(order))
-        db_count = len(order) - 1
-        hatches = [None] * db_count + ["/"]
-        colors = [c for c in Safe_10.hex_colors[:db_count]] + [Safe_10.hex_colors[db_count - 1]]
+        db_count = len(order) - 1 if "hyrise-int" in order else len(order)
+        hatches = [None] * db_count
+        colors = [c for c in Safe_10.hex_colors[:db_count]]
+        if "hyrise-int" in order:
+            hatches.append("/")
+            colors.append(Safe_10.hex_colors[db_count - 1])
 
         for d, color, pos, h in zip(order, colors, group_centers, hatches):
             plt.bar(
@@ -148,7 +146,7 @@ def main(data_dir, output_dir, metric):
             # print(config, pos, val round(val, 1))
             ax.text(
                 pos,
-                changes[d] - 0.2,
+                changes[d] - max(changes.values()) / 50,
                 str(round(changes[d], 1)),
                 ha="center",
                 va="top",
@@ -160,14 +158,14 @@ def main(data_dir, output_dir, metric):
         plt.xticks(group_centers, [names[d] for d in order], rotation=0)
         ax = plt.gca()
         plt.ylabel(f"Median {metric}\nimprovement [\\%]", fontsize=8 * 2)
-        plt.xlabel("System", fontsize=8 * 2)
+        #  plt.xlabel("System", fontsize=8 * 2)
         ax.tick_params(axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, bottom=True)
 
         plt.grid(axis="y", visible=True)
         fig = plt.gcf()
         column_width = 3.3374
         fig_width = column_width * 2
-        fig_height = column_width * 0.475 * 2
+        fig_height = column_width * 0.475 * 2 * 0.85
         fig.set_size_inches(fig_width, fig_height)
         plt.tight_layout(pad=0)
 

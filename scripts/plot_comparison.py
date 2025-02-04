@@ -50,7 +50,7 @@ def get_offsets(key, changes, factor):
         base_offsets = np.arange(-1 + (step_size / 2), 1.001 - (step_size / 2), step_size)
         num_configs = len(base_offsets)
         diff = num_configs - num_entries
-    return [o * factor for o in base_offsets[diff // 2 : num_configs - diff // 2]]
+    return [o * factor for o in base_offsets[(diff // 2) : num_configs - diff // 2]]
 
 
 def grep_runtime_change(old_result_file, new_result_file, clients, runtime):
@@ -163,18 +163,16 @@ def main(data_dir, output_dir, metric):
         }
 
         ax = plt.gca()
-        decs = []
-        m = max([max(d.values()) for d in changes.values()])
-        m_ = min([min(d.values()) for d in changes.values()])
+        max_val = max([max(d.values()) for d in changes.values()])
+        min_val = min([min(d.values()) for d in changes.values()])
         for offset_id, config in enumerate(configs[:3]):
             bar_positions = [
                 p + offsets[d][offset_id] * (0.5 * bar_width + margin) for d, p in zip(order, group_centers)
             ]
             data = [changes[d][config] for d in order]
             ax.bar(bar_positions, data, bar_width, color=colors[config], label=labels[config], edgecolor="none")
-            decs += [pos for pos, val in zip(bar_positions, data) if val <= 0]
             for pos, val in zip(bar_positions, data):
-                y_pos = val - m / 100 if val > 0 else max(min_lim, val) + m / 100
+                y_pos = val - max_val / 100 if val > 0 else max(min_lim, val) + max_val / 100
                 va = "top" if val > 0 else "bottom"
                 ax.text(pos, y_pos, str(round(val, 1)), ha="center", va=va, size=7 * 2, rotation=90, color="white")
 
@@ -186,26 +184,17 @@ def main(data_dir, output_dir, metric):
                 for d, p in zip(order[-internal_count:], group_centers[-internal_count:])
             ]
             data = [changes[d][config] for d in order[-internal_count:]]
-            decs += [pos for pos, val in zip(bar_positions, data) if val <= 0]
             ax.bar(bar_positions, data, bar_width, color=colors[config], label=labels[config], edgecolor="none")
             for pos, val in zip(bar_positions, data):
-                # if val <= 0:
-                #     continue
-                # print(config, pos, val round(val, 1))
-                y_pos = val - m / 100 if val > 0 else max(min_lim, val) + m / 100
+                y_pos = val - max_val / 100 if val > 0 else max(min_lim, val) + max_val / 100
                 va = "top" if val > 0 else "bottom"
                 ax.text(pos, y_pos, str(round(val, 1)), ha="center", va=va, size=7 * 2, rotation=90, color="white")
 
-        # for pos in decs:
-        #     ax.text(pos, m / 100, r"$\ast$", ha="center", va="bottom", size=7 * 2, rotation=0)
-
-        # ax.set_ylim(0, ax.get_ylim()[1] * 1.25)
-        ax.set_ylim(None if m_ > min_lim else min_lim, m * 1.25)
+        ax.set_ylim(None if min_val > min_lim else min_lim, max_val * 1.25)
 
         plt.xticks(group_centers, [names[d] for d in order], rotation=0)
         ax = plt.gca()
         plt.ylabel(f"Median {metric}\nimprovement [\\%]", fontsize=8 * 2)
-        # plt.xlabel("System", fontsize=8 * 2)
         ax.tick_params(axis="both", which="major", labelsize=7 * 2, width=1, length=6, left=True, bottom=True)
 
         plt.grid(axis="y", visible=True)

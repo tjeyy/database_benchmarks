@@ -6,7 +6,7 @@ if [ -n "$output" ]; then
     exitcode=1
 fi
 
-shellcheck scripts/*.sh reproduction.sh reproduction/*.sh
+shellcheck scripts/*.sh reproduction.sh reproduction/*.sh scripts/greenplum/*.sh
 stat=$?
 
 if [[ $stat -ne 0 || $exitcode -eq 1 ]]; then

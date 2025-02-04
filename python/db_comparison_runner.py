@@ -396,29 +396,8 @@ elif args.dbms in ["hyrise", "hyrise-int"]:
 elif args.dbms == "umbra":
     import psycopg2
 
-    # parallel_dir = {"PARALLEL": "off"} if args.cores == 1 else {"PARALLEL": str(args.cores)}
-    # dbms_process = subprocess.Popen(
-    #     numactl_command
-    #     + [
-    #         "{}/db_comparison_data/umbra/bin/server".format(os.getcwd()),
-    #     ],
-    #     stdout=subprocess.DEVNULL,
-    #     stderr=subprocess.DEVNULL,
-    #     env=parallel_dir,
-    # )
-    # dbms_process = subprocess.Popen(
-    #     ["docker",
-    #      "run",
-    #      "-v umbra-db:/var/db",
-    #      f"-p {args.port}:{args.port}",
-    #      "umbradb/umbra:24.11"
-    #     ],
-    # )
-    # print("Waiting 10s for Umbra to start ... ", end="")
-    # time.sleep(10)
-    # umbra docker: docker run -v /mnt/data/umbra:/var/db -p 5432:5432 umbradb/umbra:24.11  \
-    #                          --cpuset-cpus 56-83,168-195 --cpuset-mems 2
-    print("done.")
+    print("Make sure to start Umbra before by starting the Docker container")
+    time.sleep(1)
 elif args.dbms == "greenplum":
     import psycopg2
 
@@ -548,13 +527,13 @@ def import_data():
 
         # We could not manage to load these tuples from CSV.
         cursor.execute(
-            "INSERT INTO title VALUES (   9795, 'Null', NULL, 7, NULL, NULL, 'N4', 9785,    1,    11, NULL, '22370d39fa0b1593019c23d5e4ccfca9');"
+            "INSERT INTO title VALUES (   9795, 'Null', NULL, 7, NULL, NULL, 'N4', 9785,    1,    11, NULL, '22370d39fa0b1593019c23d5e4ccfca9');"  # noqa: E501
         )
         cursor.execute(
-            "INSERT INTO title VALUES (2162886, 'Null', NULL, 1, 2009, NULL, 'N4', NULL, NULL, NULL , NULL, '59cf04844319a809042d47e26ac4074b');"
+            "INSERT INTO title VALUES (2162886, 'Null', NULL, 1, 2009, NULL, 'N4', NULL, NULL, NULL , NULL, '59cf04844319a809042d47e26ac4074b');"  # noqa: E501
         )
         cursor.execute(
-            "INSERT INTO char_name VALUES (590883, 'Null', NULL, NULL, 'N4' , NULL, 'bbb93ef26e3c101ff11cdd21cab08a94');"
+            "INSERT INTO char_name VALUES (590883, 'Null', NULL, NULL, 'N4' , NULL, 'bbb93ef26e3c101ff11cdd21cab08a94');"  # noqa: E501
         )
 
     for t_id, table_name in enumerate(table_order):
@@ -654,12 +633,9 @@ def import_data():
                     data = data.replace('"', '+"').replace("\u0007Null\u0007", '\u0007"Null"\u0007')
                     with open(new_file_path, "w") as f:
                         f.write(data)
+                import_statement = "IMPORT FROM CSV FILE '{}' INTO {} WITH FIELD DELIMITED BY '\\u0007' ESCAPE '+' FAIL ON INVALID DATA;"  # noqa: E501
                 try:
-                    cursor.execute(
-                        """IMPORT FROM CSV FILE '{}' INTO {} WITH FIELD DELIMITED BY '\\u0007' ESCAPE '+' FAIL ON INVALID DATA;""".format(
-                            new_file_path, table
-                        )
-                    )
+                    cursor.execute(import_statement.format(new_file_path, table))
                 except Exception as e:
                     print("\nFailed to import table {}... with exception {}".format(table_name, e))
                     pass
@@ -676,20 +652,6 @@ def import_data():
 
         end = time.perf_counter()
         print(f"({round(end - start, 1)} s)")
-
-    # if args.dbms == "umbra":
-    #     add_fk_command = """ALTER TABLE "{}" ADD CONSTRAINT comp_fk_{} FOREIGN KEY ({}) REFERENCES "{}" ({});"""
-    #     constraint_id = 1
-    #     for table_name, column_names, referenced_table, referenced_column_names in schema_keys.foreign_keys:
-    #         print(f"\r- Add FOREIGN KEY constraints ({constraint_id}/{len(schema_keys.foreign_keys)})", end="")
-    #         cursor.execute(
-    #             add_fk_command.format(
-    #                 table_name, constraint_id, ", ".join(column_names), referenced_table,
-    #                 ", ".join(referenced_column_names)
-    #             )
-    #         )
-    #         constraint_id += 1
-    #     print("")
 
     cursor.close()
     if args.dbms in ["umbra", "greenplum"]:

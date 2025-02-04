@@ -6,7 +6,7 @@ This repository contains the artifacts for the paper _Enabling Data Dependency-b
 
 We listed all steps required to compile the DBMS code and execute all experiments in [`reproduction.sh`](reproduction.sh). See this file for details, or execute it as is.
 
-Reproducing all results will require multiple days. The script is expected to run on a recent Ubuntu version. See the usage in the following:
+Reproducing all results will require multiple days. The script is expected to run on a recent Ubuntu version (tested on 24.04). See the usage in the following:
 ```
 ./reproduction.sh [NUMA_NODE] [CLIENTS]
 ```
@@ -38,7 +38,6 @@ The code to run the experiments for dependency-based optimizations on different 
 
 - `python/db_comparison_runner.py` executes the experiment that measures the throughput improvement for different DBMSs.
 
-- `python/greenplum_configure.py` creates the required config files for the Greenplum DBMS.
 
 The `resources` directory contains the benchmark schema/create table statements and log files.
-Python scripts for visualization and helpers to setup and run Greenplum are located in `scripts`.
+Python scripts for visualization and some helpers are located in `scripts`.

@@ -58,16 +58,15 @@ def main(data_dir, output_dir, metric):
             print(dbms, end=": ")
             common_path = f"database_comparison__{benchmark}__{dbms}"
             base_path = os.path.join(data_dir, common_path + ".csv")
-            keys_path = old_path = os.path.join(data_dir, common_path + "__keys.csv")
-            rewrites_path = os.path.join(data_dir, common_path + f"__rewrites.csv")
-            rewrites_keys_path = os.path.join(data_dir, common_path + f"__rewrites__keys.csv")
+            keys_path = os.path.join(data_dir, common_path + "__keys.csv")
+            rewrites_path = os.path.join(data_dir, common_path + "__rewrites.csv")
+            rewrites_keys_path = os.path.join(data_dir, common_path + "__rewrites__keys.csv")
             if dbms == "hyrise-int":
                 base_path = os.path.join(data_dir, common_path[: -len("-int")] + ".csv")
-                keys_path = old_path = os.path.join(data_dir, common_path[: -len("-int")] + "__keys.csv")
+                keys_path = os.path.join(data_dir, common_path[: -len("-int")] + "__keys.csv")
                 rewrites_path = os.path.join(data_dir, common_path + ".csv")
                 rewrites_keys_path = rewrites_path
 
-            method = grep_throughput if metric == "throughput" else grep_runtime
             base = max(grep_throughput(base_path, clients, runtime), grep_throughput(keys_path, clients, runtime))
             opt = max(
                 grep_throughput(rewrites_path, clients, runtime), grep_throughput(rewrites_keys_path, clients, runtime)

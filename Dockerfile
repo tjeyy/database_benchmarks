@@ -2,7 +2,7 @@
 # You need to build and push it manually, see the wiki for details:
 # https://github.com/hyrise/hyrise/wiki/Docker-Image
 
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND noninteractive
 ENV TZ=Europe/London
 ARG USERNAME=reproduction
@@ -14,8 +14,8 @@ RUN apt-get update \
         bash-completion \
         bc \
         bison \
-        clang-11 \
-        clang-14 \
+        clang-17 \
+        gcc-11 \
         cmake \
         curl \
         flex \
@@ -50,8 +50,8 @@ RUN apt-get update \
         valgrind \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-    && ln -sf /usr/bin/llvm-symbolizer-14 /usr/bin/llvm-symbolizer \
-    && pip3 install scipy pandas matplotlib \
+    && ln -sf /usr/bin/llvm-symbolizer-17 /usr/bin/llvm-symbolizer \
+    && pip3 --break-system-packages install scipy pandas matplotlib \
     && echo foo $USER_GID $USERNAME $USER_UID \
     && groupadd --gid $USER_GID $USERNAME \
     && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \

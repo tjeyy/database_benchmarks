@@ -1,10 +1,11 @@
 #!/bin/bash
 
 set -e
+set -x
 
 # Load submodules and install dependencies.
 git config --global --add safe.directory "$(pwd)"
-git submodule update --init --recursive --quiet
+git submodule update --init --recursive
 HYRISE_HEADLESS_SETUP=1 ./hyrise/install_dependencies.sh
 ./install_dependencies.sh
 pip3 install -r requirements.txt --break-system-packages

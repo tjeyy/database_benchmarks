@@ -6,7 +6,10 @@ set -x
 # Load submodules and install dependencies.
 git config --global --add safe.directory "$(pwd)"
 git submodule update --init --recursive
-HYRISE_HEADLESS_SETUP=1 ./hyrise/install_dependencies.sh
+
+cd hyrise
+HYRISE_HEADLESS_SETUP=1 ./install_dependencies.sh
+cd ..
 
 sudo apt-get update
 sudo apt-get install --no-install-recommends -y \

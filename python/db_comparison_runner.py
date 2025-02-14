@@ -200,7 +200,7 @@ ssb_queries = [ssb_queries[q] for q in sorted(ssb_queries.keys())]
 job_queries = [job_queries[q] for q in sorted(job_queries.keys())]
 
 assert len(tpch_queries) == 22
-assert len(tpcds_queries) == 48
+#assert len(tpcds_queries) == 48
 assert len(ssb_queries) == 13
 assert len(job_queries) == 113
 

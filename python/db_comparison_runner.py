@@ -537,11 +537,11 @@ def import_data():
         )
 
     for t_id, table_name in enumerate(table_order):
-        table_file_path = f"{data_path}/{table_name}.csv"
+        table_file_path = f"{data_path}/{table_name}.tbl"
         binary_file_path = f"{data_path}/{table_name}.bin"
         has_binary = os.path.isfile(binary_file_path)
-        if has_binary and args.dbms in ["hyrise", "hyrise-int"]:
-            table_file_path = binary_file_path
+#        if has_binary and args.dbms in ["hyrise", "hyrise-int"]:
+#            table_file_path = binary_file_path
         print(f" - ({t_id + 1}/{len(table_order)}) Import {table_name} from {table_file_path} ...", end=" ", flush=True)
         start = time.perf_counter()
 
@@ -648,9 +648,9 @@ def import_data():
                 print("\nCould not merge delta of table {}... with exception {}".format(table_name, e))
                 pass
 
-        if not has_binary and args.dbms in ["hyrise", "hyrise-int"]:
-            print("and cache as binary ...", end=" ", flush=True)
-            cursor.execute(f"""COPY "{table_name}" TO '{binary_file_path}';""")
+#        if not has_binary and args.dbms in ["hyrise", "hyrise-int"]:
+#            print("and cache as binary ...", end=" ", flush=True)
+#            cursor.execute(f"""COPY "{table_name}" TO '{binary_file_path}';""")
 
         end = time.perf_counter()
         print(f"({round(end - start, 1)} s)")

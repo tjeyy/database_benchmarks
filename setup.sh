@@ -79,9 +79,9 @@ chmod 777 "$umbra_home"
 # Build and install Greenplum binaries.
 cd "$project_root"/greenplum
 gp_dir=$(pwd)
-CC=gcc-11 CXX=g++-11 ./configure --prefix="$gp_home" --disable-gpfdist
-CC=gcc-11 CXX=g++-11 make -j "$(nproc)"
-CC=gcc-11 CXX=g++-11 make -j "$(nproc)" install
+CC=clang-17 CXX=clang++-17 ./configure --prefix="$gp_home" --disable-gpfdist
+CC=clang-17 CXX=clang++-17 make -j "$(nproc)"
+CC=clang-17 CXX=clang++-17 make -j "$(nproc)" install
 cd "${gp_home}/bin"
 ln -s -f "${gp_dir}/gpMgmt/bin/gppylib" .
 

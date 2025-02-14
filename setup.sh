@@ -57,7 +57,7 @@ cd hyrise
 mkdir -p cmake-build-release && cd cmake-build-release
 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang-17 -DCMAKE_CXX_COMPILER=clang++-17 ..
 make hyriseBenchmarkTPCH hyriseBenchmarkTPCDS  hyriseBenchmarkStarSchema hyriseBenchmarkJoinOrder \
-     hyriseServer hyriseDependencyDiscoveryPlugin -j "$(nproc)"
+     hyriseServer -j "$(nproc)"
 
 # Build and install MonetDB binaries.
 cd "$project_root"/monetdb

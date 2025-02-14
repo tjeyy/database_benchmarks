@@ -195,7 +195,7 @@ if args.dbms == "hana-int":
     job_queries = update_hana_optimized_queries(job_queries, list(static_job_queries.queries_o3.keys()))
 
 tpch_queries = [tpch_queries[q] for q in sorted(tpch_queries.keys())]
-tpcds_queries = [tpcds_queries[q] for q in sorted(tpcds_queries.keys())]
+#tpcds_queries = [tpcds_queries[q] for q in sorted(tpcds_queries.keys())]
 ssb_queries = [ssb_queries[q] for q in sorted(ssb_queries.keys())]
 job_queries = [job_queries[q] for q in sorted(job_queries.keys())]
 
@@ -455,7 +455,7 @@ def import_data():
     create_table_statements = []
     print("- Loading data ...")
 
-    for benchmark in ["tpch", "tpcds", "ssb", "job"]:
+    for benchmark in ["tpch"]:#, "tpcds", "ssb", "job"]:
         # if args.benchmark != "all" and args.benchmark.lower() != benchmark:
         #     continue
         with open(f"resources/schema_{benchmark}.sql") as f:
@@ -590,7 +590,9 @@ def import_data():
             )
 
         elif args.dbms not in ["hana", "hana-int"]:
-            cursor.execute(load_command.format(table_name, table_file_path))
+            lc = load_command.format(table_name, table_file_path)
+            print(lc)
+            cursor.execute(lc)
 
         else:
             table = f'"{table_name}"' if table_name == "date" else table_name

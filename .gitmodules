@@ -1,6 +1,6 @@
 [submodule "hyrise"]
 	path = hyrise
-	url = https://github.com/HPI-Information-Systems/dependency-based-optimization-hyrise
+	url = https://github.com/hyrise/hyrise.git
 [submodule "monetdb"]
 	path = monetdb
 	url = https://github.com/MonetDB/MonetDB/

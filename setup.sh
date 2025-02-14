@@ -66,9 +66,6 @@ cmake -DCMAKE_INSTALL_PREFIX="$monetdb_home" -DASSERT=OFF -DCMAKE_BUILD_TYPE=Rel
       -DCMAKE_CXX_COMPILER=clang++-17 ..
 cmake --build . --target install -- -j "$(nproc)"
 
-rces.list.d/docker.list > /dev/null
-sudo apt-get update
-
 sudo systemctl start docker
 
 # Fetch Umbra docker image.

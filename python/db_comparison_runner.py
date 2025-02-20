@@ -602,6 +602,10 @@ def import_data():
             lc = load_command.format(table_name, table_file_path)
             print(f"Executing: '{lc}'", flush=True)
             cursor.execute(lc)
+            cursor.execute(f"SELECT * FROM {table_name} LIMIT 1;")
+            region_row = cursor.fetchone()
+            print(f"First row of {table_name}: {region_row}")
+
 
         else:
             table = f'"{table_name}"' if table_name == "date" else table_name

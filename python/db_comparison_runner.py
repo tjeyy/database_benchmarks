@@ -591,9 +591,9 @@ def import_data():
             )
 
         elif args.dbms not in ["hana", "hana-int"]:
-            load_command = load_command.format(table_name, table_file_path)
-            print(f"Executing: '{load_command}'", flush=True)
-            cursor.execute(load_command)
+            lc = load_command.format(table_name, table_file_path)
+            print(f"Executing: '{lc}'", flush=True)
+            cursor.execute(lc)
 
         else:
             table = f'"{table_name}"' if table_name == "date" else table_name

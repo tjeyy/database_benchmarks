@@ -485,7 +485,7 @@ def import_data():
     for table_name, column_names, referenced_table, referenced_column_names in schema_keys.foreign_keys:
         foreign_keys[table_name][referenced_table] = (column_names, referenced_column_names)
 
-    if args.dbms not in ["hyrise", "hyrise-int"]:
+    if args.dbms not in ["hyriasfse", "hyasfrise-int"]:
         for table_name, create_statement in zip(table_order, create_table_statements):
             print(f"Name: {table_name} Statement {create_statement}", flush=True)
             if args.dbms == "greenplum":

@@ -522,7 +522,7 @@ def import_data():
             cursor.execute(create_statement)
 
     cursor.execute("SHOW TABLES;")
-    tables = cur.fetchall()
+    tables = cursor.fetchall()
     print("START TABLES")
     print(tables)
     print("END TABLES")

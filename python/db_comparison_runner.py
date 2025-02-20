@@ -487,6 +487,7 @@ def import_data():
 
     if args.dbms not in ["hyrise", "hyrise-int"]:
         for table_name, create_statement in zip(table_order, create_table_statements):
+            print(f"Name: {table_name} Statement {create_statement}", flush=True)
             if args.dbms == "greenplum":
                 create_statement = create_statement[:-1] if create_statement.endswith(";") else create_statement
                 if not args.rows:

@@ -543,7 +543,7 @@ def import_data():
         has_binary = os.path.isfile(binary_file_path)
 #        if has_binary and args.dbms in ["hyrise", "hyrise-int"]:
 #            table_file_path = binary_file_path
-        print(f" - ({t_id + 1}/{len(table_order)}) Import {table_name} from {table_file_path} ...", end=" ", flush=True)
+        print(f" - ({t_id + 1}/{len(table_order)}) Import {table_name} from {table_file_path} ...", flush=True)
         start = time.perf_counter()
 
         if args.dbms == "monetdb" and table_name in tables["JOB"]:
@@ -591,9 +591,9 @@ def import_data():
             )
 
         elif args.dbms not in ["hana", "hana-int"]:
-            lc = load_command.format(table_name, table_file_path)
-            print(lc)
-            cursor.execute(lc)
+            load_command = load_command.format(table_name, table_file_path)
+            print(f"Executing: '{load_command}'", flush=True)
+            cursor.execute(load_command)
 
         else:
             table = f'"{table_name}"' if table_name == "date" else table_name

@@ -518,6 +518,7 @@ def import_data():
                         create_statement += f""""{referenced_table}" ({", ".join(referenced_column_names)})"""
                 create_statement += ");"
 
+            print(create_statement)
             cursor.execute(create_statement)
 
     if args.dbms in ["hana", "hana-int"]:

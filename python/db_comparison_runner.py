@@ -437,13 +437,13 @@ def import_data():
     data_path = os.path.join(os.getcwd(), "resources/experiment_data")
 
     if args.dbms == "monetdb":
-        load_command = """COPY INTO "{}" FROM '{}' USING DELIMITERS ',', '\n', '"' NULL AS '';"""
+        load_command = """COPY INTO "{}" FROM '{}' USING DELIMITERS '|', '\n', '"' NULL AS '';"""
     elif args.dbms in ["hyrise", "hyrise-int"]:
         load_command = """COPY "{}" FROM '{}' WITH FORMAT TBL;"""
     elif args.dbms == "umbra":
         load_command = """COPY "{}" FROM '{}' WITH (FORMAT CSV, DELIMITER ',', NULL '', QUOTE '"');"""
     elif args.dbms == "greenplum":
-        load_command = """COPY "{}" FROM '{}' WITH (FORMAT CSV, DELIMITER ',', NULL '', QUOTE '"');"""
+        load_command = """COPY "{}" FROM '{}' WITH (FORMAT CSV, DELIMITER '|', NULL '', QUOTE '"');"""
     elif args.dbms in ["hana", "hana-int"]:
         load_command = (
             """IMPORT FROM CSV FILE '{}' INTO {} WITH FIELD DELIMITED BY ',' ESCAPE '"' FAIL ON INVALID DATA;"""

@@ -545,7 +545,7 @@ def import_data():
         )
 
     for t_id, table_name in enumerate(table_order):
-        table_file_path = f"{data_path}/{table_name}.tbl"
+        table_file_path = f"{data_path}/{table_name}.csv"
         assert os.path.isfile(table_file_path), f"'{file_path} does not exist."
         binary_file_path = f"{data_path}/{table_name}.bin"
         has_binary = os.path.isfile(binary_file_path)

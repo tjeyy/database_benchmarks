@@ -521,6 +521,12 @@ def import_data():
             print(create_statement)
             cursor.execute(create_statement)
 
+    cur.execute("SELECT table_name FROM information_schema.tables;")
+    tables = cur.fetchall()
+    print("START TABLES")
+    print(tables)
+    print("END TABLES")
+
     if args.dbms in ["hana", "hana-int"]:
         cursor.execute(
             "alter system alter configuration ('indexserver.ini','SYSTEM') set "

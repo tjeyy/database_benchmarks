@@ -439,7 +439,7 @@ def import_data():
     if args.dbms == "monetdb":
         load_command = """COPY INTO "{}" FROM '{}' USING DELIMITERS '|', '\n', '"' NULL AS '';"""
     elif args.dbms in ["hyrise", "hyrise-int"]:
-        load_command = """COPY "{}" FROM '{}';"""
+        load_command = """COPY "{}" FROM '{}' WITH FORMAT CSV;"""
     elif args.dbms == "umbra":
         load_command = """COPY "{}" FROM '{}' WITH (FORMAT CSV, DELIMITER ',', NULL '', QUOTE '"');"""
     elif args.dbms == "greenplum":

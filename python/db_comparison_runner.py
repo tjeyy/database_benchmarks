@@ -521,7 +521,7 @@ def import_data():
             print(create_statement)
             cursor.execute(create_statement)
 
-    cur.execute("SELECT table_name FROM information_schema.tables;")
+    cursor.execute("SELECT table_name FROM information_schema.tables;")
     tables = cur.fetchall()
     print("START TABLES")
     print(tables)

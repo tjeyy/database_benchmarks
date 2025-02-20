@@ -439,7 +439,7 @@ def import_data():
     if args.dbms == "monetdb":
         load_command = """COPY INTO "{}" FROM '{}' USING DELIMITERS '|', '\n', '"' NULL AS '';"""
     elif args.dbms in ["hyrise", "hyrise-int"]:
-        load_command = """COPY "{}" FROM '{}' WITH FORMAT TBL;"""
+        load_command = """COPY "{}" FROM '{}' WITH FORMAT CSV;"""
     elif args.dbms == "umbra":
         load_command = """COPY "{}" FROM '{}' WITH (FORMAT CSV, DELIMITER ',', NULL '', QUOTE '"');"""
     elif args.dbms == "greenplum":
@@ -485,7 +485,7 @@ def import_data():
     for table_name, column_names, referenced_table, referenced_column_names in schema_keys.foreign_keys:
         foreign_keys[table_name][referenced_table] = (column_names, referenced_column_names)
 
-    if args.dbms not in ["hyriasfse", "hyasfrise-int"]:
+    if args.dbms not in ["hyrise", "hyasfrise-int"]:
         for table_name, create_statement in zip(table_order, create_table_statements):
             print(f"Name: {table_name} Statement {create_statement}", flush=True)
             if args.dbms == "greenplum":

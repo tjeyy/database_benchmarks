@@ -487,7 +487,6 @@ def import_data():
 
     if args.dbms not in ["hyrise", "hyasfrise-int"]:
         for table_name, create_statement in zip(table_order, create_table_statements):
-            print(f"Name: {table_name} Statement {create_statement}", flush=True)
             if args.dbms == "greenplum":
                 create_statement = create_statement[:-1] if create_statement.endswith(";") else create_statement
                 if not args.rows:
@@ -541,7 +540,7 @@ def import_data():
 
     for t_id, table_name in enumerate(table_order):
         table_file_path = f"{data_path}/{table_name}.tbl"
-        assert os.path.isfile(table_file_path), f"'{file_path} does not exist."
+        assert os.path.isfile(table_file_path), f"'{table_file_path} does not exist."
         binary_file_path = f"{data_path}/{table_name}.bin"
         has_binary = os.path.isfile(binary_file_path)
 #        if has_binary and args.dbms in ["hyrise", "hyrise-int"]:

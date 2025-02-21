@@ -521,11 +521,6 @@ def import_data():
             print(create_statement)
             cursor.execute(create_statement)
 
-    cursor.execute("SHOW TABLES;")
-    tables = cursor.fetchall()
-    print("START TABLES")
-    print(tables)
-    print("END TABLES")
 
     if args.dbms in ["hana", "hana-int"]:
         cursor.execute(
